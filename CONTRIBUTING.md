@@ -1,5 +1,3 @@
-=== CONTRIBUTING.md ===
-
 # Contributing
 
 ## <a id="openParticipation"></a>Public Participation Invited
