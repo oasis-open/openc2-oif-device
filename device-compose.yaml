@@ -1,0 +1,77 @@
+version: '3'
+
+volumes:
+  queue:
+    labels:
+      com.screaming_bunny.container: 'RabbitMQ'
+      com.screaming_bunny.description: 'Persistent RabbitMQ Volume'
+
+services:
+  transport-mqtt:
+    hostname: transport-mqtt
+    image: oif/transport:device-mqtt
+    build:
+      context: ./device/transport/mqtt
+    working_dir: /opt/transport/MQTT
+    env_file:
+      - ./environment/queue.connect.env
+      - ./environment/mqtt_transport.env
+    external_links:
+      - queue
+    depends_on:
+      - queue
+    entrypoint:
+      - sh
+      - dev_start.sh
+
+  transport-https:
+    hostname: transport-https
+    image: oif/transport:device-https
+    build:
+      context: ./device/transport/https
+    working_dir: /opt/transport
+    env_file:
+      - ./environment/queue.connect.env
+    external_links:
+      - queue
+    ports:
+      - 5001:5001
+    depends_on:
+      - queue
+    entrypoint:
+      - sh
+      - dev_start.sh
+
+  queue:
+    hostname: rabbit
+    image: rabbitmq:management-alpine
+    ports:
+      - '1883:1883'
+      - '15673:15672'
+    command: sh -c "rabbitmq-plugins enable rabbitmq_mqtt; docker-entrypoint.sh rabbitmq-server"
+    volumes:
+      - queue:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:15672']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: on-failure:5
+
+  actuator-isr:
+    hostname: actuator-isr
+    image: oif/actuator:isr
+    build:
+      context: ./device/actuator/isr
+    env_file:
+    - ./environment/queue.connect.env
+    environment:
+      QUEUE_EXCHANGE: 'actuator'
+    external_links:
+      - queue
+    depends_on:
+      - queue
+    entrypoint:
+      - sh
+      - start.sh
+    restart: on-failure:5

@@ -47,3 +47,4 @@ Initially, the associated TC members have designated one or more persons to serv
 
 Questions or comments about this TC Open Repository's activities should be composed as GitHub issues or comments. If use of an issue/comment is not possible or appropriate, questions may be directed by email to the Maintainer(s) <a href="#currentMaintainers">listed above</a>. Please send general questions about TC Open Repository participation to OASIS Staff at repository-admin@oasis-open.org and any specific CLA-related questions to repository-cla@oasis-open.org. 
 
+For Device Documentation, see [Docs](docs/Device.md)
