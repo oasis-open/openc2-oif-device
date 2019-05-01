@@ -1,0 +1,6 @@
+kombu
+cbor2
+requests
+flask
+dicttoxml
+xmltodict

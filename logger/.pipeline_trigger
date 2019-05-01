@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# install curl
+apk add --no-cache curl
+
+# Trigger pipeline
+curl -X POST \
+--silent \
+--insecure \
+-F token=${ORCHESTRATOR_TRIGGER_TOKEN} \
+-F ref=${CI_COMMIT_REF_NAME:-develop} \
+-F "variables[TRIGGER_REPO]=${CI_PROJECT_NAME}" \
+-F "variables[TRIGGER_USER_NAME]=${GITLAB_USER_NAME:-"GitLab CI"}" \
+-F "variables[TRIGGER_USER_EMAIL]=${GITLAB_USER_EMAIL}" \
+${CI_API_V4_URL}/projects/753/trigger/pipeline
+
+# Line break
+echo ""
