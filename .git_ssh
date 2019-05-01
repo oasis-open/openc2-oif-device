@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+ssh \
+-o IdentitiesOnly=yes \
+-o StrictHostKeyChecking=no \
+-o PasswordAuthentication=yes \
+-i ~/.ssh/id_rsa \
+-F /dev/null \
+$@

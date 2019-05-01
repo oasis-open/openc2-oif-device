@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  logger_svr:
+    hostname: logger_gui
+    image: gitlab.labs.g2-inc.net:4567/screamingbunny/logger/server
+    environment:
+      ES_HOST: es_logger
+      ES_PORT: 9200
+      LOG_PREFIX: 'orchestrator'
+    ports:
+    - 127.0.0.1:514:514/udp
+    volumes:
+    - ./logs:/var/log/syslog
+    external_links:
+    - es_logger
+    restart: on-failure:5
+
+  logger_gui:
+    hostname: logger_gui
+    image: gitlab.labs.g2-inc.net:4567/screamingbunny/logger/gui
+    environment:
+      ES_HOST: es_logger
+      ES_PORT: 9200
+    ports:
+    - 8081:80
+    external_links:
+    - es_logger
+    restart: on-failure:5
+
+  elasticsearch:
+    hostname: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+    environment:
+    - cluster.name=logger
+    - bootstrap.memory_lock=true
+    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    - http.cors.enabled=true
+    - http.cors.allow-origin=*
+    - "http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE"
+    - "http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type, Content-Length"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+    - ./esdata:/usr/share/elasticsearch/data
+    ports:
+    - 9200:9200

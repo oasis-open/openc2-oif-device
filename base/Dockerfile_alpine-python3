@@ -1,0 +1,28 @@
+FROM oif/base:alpine
+
+MAINTAINER Screaming_Bunny
+
+LABEL name="Base Alpine Python3" \
+vendor="Screaming Bunny" \
+license="BSD" \
+version="2.0" \
+description="This is the Base Alpine Python3 container for Screaming Bunny."
+
+ENV PYTHONUNBUFFERED=0
+
+ADD https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py
+
+# Package Installation
+# Packages - https://pkgs.alpinelinux.org/packages
+run apk add --no-cache python3 && \
+#
+# Python PIP Install
+python3 /tmp/get-pip.py && \
+pip3 install --upgrade pip && \
+#
+# Cleanup
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+#
+# Check versions
+python3 --version && \
+pip3 --version

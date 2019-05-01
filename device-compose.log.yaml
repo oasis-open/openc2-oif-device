@@ -1,0 +1,55 @@
+version: '3'
+# This in not a valid docker-compose file by itself!!
+# Use this with the device-compose
+# Ex) 'docker-compose ... -f device-compose.yaml -f device-compose.yaml ...'
+
+
+services:
+  transport-mqtt:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
+        syslog-format: rfc5424
+        tag: "transport-mqtt"
+
+  transport-https:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
+        syslog-format: rfc5424
+        tag: "transport-https"
+
+  queue:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
+        syslog-format: rfc5424
+        tag: "buffer"
+
+  actuator-isr:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
+        syslog-format: rfc5424
+        tag: "actuator_isr"
+
+  logger_server:
+    hostname: logger_server
+    image: oif/logger:server
+    build:
+      context: ./logger/server
+      dockerfile: Dockerfile
+    environment:
+      ES_HOST: es_logger
+      ES_PORT: 9200
+      LOG_PREFIX: 'device'
+      HOST_PORT: ${LOG_PORT:-514}
+      ports:
+        - 127.0.0.1:${LOG_PORT:-514}:514/udp
+    volumes:
+      - ./logs:/var/log/syslog
+    restart: on-failure:5

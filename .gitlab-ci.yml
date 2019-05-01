@@ -1,0 +1,32 @@
+image: ${CI_REGISTRY}/screamingbunny/docker/plus:centos-python3
+
+variables:
+  GIT_SSL_NO_VERIFY: "true"
+  GIT_STRATEGY: clone
+  DOCKER_DRIVER: overlay2
+
+stages:
+  - build
+
+before_script:
+  - REPO=${CI_REPOSITORY_URL#*@}
+  - REPO_URL=git@${REPO%.net/*}.net:${REPO#*/}
+  - yum install -y git openssh-clients
+  - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+  - echo "$SSH_PRIVATE_KEY" | base64 --decode | tr -d '\r' > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - chmod +x ./.git_ssh
+  - GIT_SSH="${PWD}/.git_ssh"
+  - ssh-keyscan -t rsa ${CI_REGISTRY%:*} >> ~/.ssh/known_hosts
+  - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
+  - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
+  - git config push.default matching
+
+Build:
+  stage: build
+  allow_failure: true
+  script:
+    - git checkout ${CI_COMMIT_REF_NAME:-develop}
+    - python3 update_subs.py --verbose --url_base https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_REGISTRY%:*}  --repo_branch ${CI_COMMIT_REF_NAME:-develop}
+    - git add --all
+    - git commit -m "Update from repo ${TRIGGER_REPO:-"Commit"} - $(date -u +"%F %T %Z") [CI Skip]" && (echo "Pushing as $(git config --get user.name) - $(git config --get user.email)" && git push ${REPO_URL})
