@@ -1,5 +1,5 @@
 # Image environment
-FROM oif/base:alpine-python3
+FROM oif/base:alpine-python3_utils
 
 MAINTAINER Screaming_Bunny
 

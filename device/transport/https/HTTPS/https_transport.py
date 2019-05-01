@@ -1,5 +1,5 @@
 import json, os, urllib3
-from utils import Producer, Consumer, encode_msg
+from sb_utils import Consumer, encode_msg
 
 
 def process_message(body, message):
