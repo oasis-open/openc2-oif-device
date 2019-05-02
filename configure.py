@@ -19,9 +19,9 @@ if sys.version_info < (3, 6):
 # Option Parsing
 parser = OptionParser()
 parser.add_option("-b", "--build-image", action="store_true", dest="build_image", default=False, help="Build containers")
-parser.add_option("-g", "--build-gui", action="store_true", dest="build_gui", default=False, help="Build GUI")
-parser.add_option("-l", "--log-file", dest="log_file", help="Write logs to LOG_FILE")
-parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Verbose output of container build")
+parser.add_option("-l", "--log-gui", action="store_true", dest="log_gui", default=False, help="Build Logger GUI")
+parser.add_option("-f", "--log-file", dest="log_file", help="Write logs to LOG_FILE")
+parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Verbose output of container/GUI build")
 
 (options, args) = parser.parse_args()
 
@@ -290,6 +290,54 @@ def build_image(**kwargs):
     return img
 
 
+def build_gui(gui_root=()):
+    npm_cmds = (
+        "npm install",
+        # "find ./node_modules/babel-runtime -type f -exec sed -i \"\" -e 's/core-js\/library\/fn\//core-js\/features\//g' {} \;",
+        "npm run init",
+        "npm run build"
+    )
+
+    try:
+        gui_build = system.containers.run(
+            image='node:10-alpine',
+            command=f"sh -c \"cd /project; {' && '.join(npm_cmds)}\"",
+            volumes={
+                os.path.join(CONFIG.WorkDir, *gui_root): {
+                    'bind': '/project',
+                    'mode': 'rw'
+                }
+            },
+            auto_remove=True
+        )
+        Stylize.verbose('default', gui_build)
+    except docker.errors.ContainerError as e:
+        Stylize.error(f'Docker Container error: {e}')
+        exit(1)
+    except docker.errors.ImageNotFound as e:
+        Stylize.error('Cannot build core gui webapp, node:10-alpine image not found')
+        exit(1)
+    except docker.errors.APIError as e:
+        Stylize.error(f'Docker API error: {e}')
+        exit(1)
+    except KeyboardInterrupt:
+        Stylize.error('Keyboard Interrupt')
+        exit(1)
+
+
+def mkdir_p(path='', rem=[]):
+    if len(rem) > 0:
+        path = os.path.join(path, rem[0])
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        if len(rem) > 1:
+            mkdir_p(path, rem[1:])
+
+    if not os.path.isdir(path):
+        dirs = path.split(os.sep)
+        mkdir_p((os.sep if path.startswith(os.sep) else '') + dirs[0], dirs[1:])
+
+
 def human_size(size, units=(' bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
     """ Returns a human readable string reprentation of bytes"""
     return f'{size:,d}{units[0]}' if size < 1024 else human_size(size >> 10, units[1:])
@@ -328,46 +376,19 @@ if __name__ == '__main__':
         Stylize.error('Docker connection failed, check that docker is running')
         exit(1)
 
-    # -------------------- Build GUIs -------------------- #
-    if (not options.build_image and not options.build_gui) or options.build_gui:
-        Stylize.h1(f"[Step {get_count()}]: Build application GUIs ...")
-        npm_cmds = (
-            "npm install",
-            "find ./node_modules/babel-runtime -type f -exec sed -i \"\" -e 's/core-js\/library\/fn\//core-js\/features\//g' {} \;",
-            "npm run init",
-            "npm run build"
-        )
-
-        for gui, dirs in CONFIG.GUIS.items():
-            Stylize.info(f"Building {gui} GUI")
-            try:
-                gui_build = system.containers.run(
-                    image='node:10-alpine',
-                    command=f"sh -c \"cd /project; {' && '.join(npm_cmds)}\"",
-                    volumes={
-                        os.path.join(CONFIG.WorkDir, *dirs): {
-                            'bind': '/project',
-                            'mode': 'rw'
-                        }
-                    },
-                    auto_remove=True
-                )
-                Stylize.verbose('default', gui_build)
-            except docker.errors.ContainerError as e:
-                Stylize.error(f'Docker Container error: {e}')
-                exit(1)
-            except docker.errors.ImageNotFound as e:
-                Stylize.error('Cannot build core gui webapp, node:10-alpine image not found')
-                exit(1)
-            except docker.errors.APIError as e:
-                Stylize.error(f'Docker API error: {e}')
-                exit(1)
-            except KeyboardInterrupt:
-                Stylize.error('Keyboard Interrupt')
-                exit(1)
+        # -------------------- Build Logger GUIs -------------------- #
+    if (not options.build_image and not options.log_gui) or options.log_gui:
+        Stylize.h1(f"[Step {get_count()}]: Build Logger GUI ...")
+        build_gui(CONFIG.GUIS.Logger)
+    else:
+        build_root = os.path.join(CONFIG.WorkDir, *CONFIG.GUIS.Logger, 'build')
+        if not os.path.isdir(build_root):
+            mkdir_p(build_root)
+            with open(os.path.join(build_root, 'index.html'), 'w') as f:
+                f.write('<h1>Logger GUI</h1><h3>GUI placeholder, not built</h3>')
 
     # -------------------- Build Images -------------------- #
-    if (not options.build_image and not options.build_gui) or options.build_image:
+    if (not options.build_image and not options.log_gui) or options.build_image:
         Stylize.h1(f"[Step {get_count()}]: Creating base images ...")
 
         # -------------------- Copy Modules -------------------- #
