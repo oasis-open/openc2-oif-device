@@ -331,13 +331,19 @@ if __name__ == '__main__':
     # -------------------- Build GUIs -------------------- #
     if (not options.build_image and not options.build_gui) or options.build_gui:
         Stylize.h1(f"[Step {get_count()}]: Build application GUIs ...")
+        npm_cmds = (
+            "npm install",
+            "find ./node_modules/babel-runtime -type f -exec sed -i \"\" -e 's/core-js\/library\/fn\//core-js\/features\//g' {} \;",
+            "npm run init",
+            "npm run build"
+        )
 
         for gui, dirs in CONFIG.GUIS.items():
             Stylize.info(f"Building {gui} GUI")
             try:
                 gui_build = system.containers.run(
                     image='node:10-alpine',
-                    command='sh -c "cd /project; npm install && npm run init && npm run build"',
+                    command=f"sh -c \"cd /project; {' && '.join(npm_cmds)}\"",
                     volumes={
                         os.path.join(CONFIG.WorkDir, *dirs): {
                             'bind': '/project',
