@@ -12,6 +12,7 @@ import sys
 
 from datetime import datetime
 from optparse import OptionParser
+from pathlib import Path
 
 if sys.version_info < (3, 6):
     print('PythonVersionError: Minimum version of v3.6+ not found')
@@ -302,11 +303,12 @@ def build_gui(root_dir=()):
         if os.path.isdir(build_root):
             shutil.rmtree(build_root, onerror=set_rw)
 
-        mkdir_p(build_root)
+        Path(build_root).mkdir(parents=True, exist_ok=True)
         with open(os.path.join(build_root, 'index.html'), 'w') as f:
             f.writelines([
                 f"<h1>{root_dir[0].capitalize()} GUI</h1>",
-                f"<h3>GUI placeholder, built error - {e}</h3>"
+                f"<h3>GUI placeholder, built error - {e}</h3>",
+                "<h3>This is a common issue when building the images on Windows. Further Windows support is in process.</h3>"
             ])
 
     npm_cmds = (
@@ -349,19 +351,6 @@ def build_gui(root_dir=()):
         Stylize.error('Keyboard Interrupt')
         build_err(e)
         return e
-
-
-def mkdir_p(path='', rem=[]):
-    if len(rem) > 0:
-        path = os.path.join(path, rem[0])
-        if not os.path.isdir(path):
-            os.mkdir(path)
-        if len(rem) > 1:
-            mkdir_p(path, rem[1:])
-
-    if not os.path.isdir(path):
-        dirs = path.split(os.sep)
-        mkdir_p((os.sep if path.startswith(os.sep) else '') + dirs[0], dirs[1:])
 
 
 def human_size(size, units=(' bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
@@ -407,12 +396,6 @@ if __name__ == '__main__':
         Stylize.h1(f"[Step {get_count()}]: Build Logger GUI ...")
         if build_gui(CONFIG.GUIS.Logger):
             Stylize.error("Build Logger GUI Failed, logs will be centralized but not available")
-    else:
-        build_root = os.path.join(CONFIG.WorkDir, *CONFIG.GUIS.Logger, 'build')
-        if not os.path.isdir(build_root):
-            mkdir_p(build_root)
-            with open(os.path.join(build_root, 'index.html'), 'w') as f:
-                f.write('<h1>Logger GUI</h1><h3>GUI placeholder, not built</h3>')
 
     # -------------------- Build Images -------------------- #
     if (not options.build_image and not options.log_gui) or options.build_image:

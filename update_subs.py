@@ -13,6 +13,7 @@ import sys
 from datetime import datetime
 from getpass import getpass
 from optparse import OptionParser
+from pathlib import Path
 
 try:
     input = raw_input
@@ -224,26 +225,10 @@ class Stage:
         os.chdir(CONFIG.RootDir)
         Stylize.success(f'Updated {self.name}')
 
-    def _set_rw(self, operation, name, exc):
-        os.chmod(name, stat.S_IWRITE)
-        os.remove(name)
-
     def _mkdir_chdir(self):
-        self._mkdir_p(self.root)
+        Path(self.root).mkdir(parents=True, exist_ok=True)
         os.chdir(self.root)
         return self.root
-
-    def _mkdir_p(self, path='', rem=[]):
-        if len(rem) > 0:
-            path = os.path.join(path, rem[0])
-            if not os.path.isdir(path):
-                os.mkdir(path)
-            if len(rem) > 1:
-                self._mkdir_p(path, rem[1:])
-
-        if not os.path.isdir(path):
-            dirs = path.split(os.sep)
-            self._mkdir_p((os.sep if path.startswith(os.sep) else '') + dirs[0], dirs[1:])
 
 
 # Utility Functions
