@@ -310,6 +310,7 @@ def build_gui(root_dir=()):
                 f"<h3>GUI placeholder, built error - {e}</h3>",
                 "<h3>This is a common issue when building the images on Windows. Further Windows support is in process.</h3>"
             ])
+        return e
 
     npm_cmds = (
         "npm install",
@@ -334,23 +335,19 @@ def build_gui(root_dir=()):
         Stylize.verbose('default', gui_build)
     except docker.errors.ContainerError as e:
         Stylize.error(f'Docker Container error: {e}')
-        build_err(e)
-        return e
+        return build_err(e)
 
     except docker.errors.ImageNotFound as e:
         Stylize.error('Cannot build core gui webapp, node:10-alpine image not found')
-        build_err(e)
-        return e
+        return build_err(e)
 
     except docker.errors.APIError as e:
         Stylize.error(f'Docker API error: {e}')
-        build_err(e)
-        return e
+        return build_err(e)
 
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         Stylize.error('Keyboard Interrupt')
-        build_err(e)
-        return e
+        exit(1)
 
 
 def human_size(size, units=(' bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
