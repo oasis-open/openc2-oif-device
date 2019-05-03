@@ -241,5 +241,6 @@ typings/
 .idea
 
 # Public Files
-**/modules
+**/modules/*
 !modules
+

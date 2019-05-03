@@ -74,7 +74,7 @@
 ### Central Logging
 - __Still in Beta__
 - Run the `docker-compose` as normal with the additional option of a second '-f/--file'
-- Allows for a central location for logging rather than teh docker default of per container
+- Allows for a central location for logging rather than the docker default of per container
 - Runs on default port of 8081 for logger web GUI
 
 	```bash
@@ -102,6 +102,6 @@
 - Give actuator a name and generate a UUID for it.
 - Select a parent device.
     -  Note: device should be registered before the actuator.
-- Upload/Copy-Paste schema. Schema for the default included ISR actuator can be found at [device/actuator/isr/act_server/actuator/schema.json](../device/actuator/isr/act_server/actuator/schema.json).
+- Upload/Copy-Paste schema. Schema for the default included ISR actuator can be found at [device/actuator/isr/act_server/schema.json](../device/actuator/isr/act_server/schema.json).
 - This information can also be found under the [ISR Actuator](../device/actuator/isr/ReadMe.md) page.
 - If you are registering a new actuator for the first time while utilizing the MQTT transport you may need to update the `MQTT_TOPICS` environment variable. Read the MQTT Topics section [here](../transport/mqtt/ReadMe.md)
