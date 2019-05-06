@@ -293,13 +293,15 @@ def build_image(**kwargs):
 
 
 def build_gui(root_dir=()):
-    def build_err(e):
-        build_root = os.path.join(gui_root, 'build')
+    gui_root = os.path.join(CONFIG.WorkDir, *root_dir)
+    build_root = os.path.join(gui_root, 'build')
+    node_modules = os.path.join(gui_root, "node_modules")
 
-        def set_rw(operation, name, exc):
+    def set_rw(operation, name, exc):
             os.chmod(name, stat.S_IWRITE)
             os.remove(name)
 
+    def build_err(e):
         if os.path.isdir(build_root):
             shutil.rmtree(build_root, onerror=set_rw)
 
@@ -313,17 +315,26 @@ def build_gui(root_dir=()):
         return e
 
     npm_cmds = (
+        "cp -r /project /tmp/project",
+        "cd /tmp/project",
+        "rm -f package-lock.json",
         "npm install",
         "find ./node_modules/babel-runtime -type f -exec sed -i -e 's/core-js\/library\/fn\//core-js\/features\//g' {} \;",
         "npm run init",
-        "npm run build"
+        "npm run build",
+        "cp -r /tmp/project/build /project/build"
     )
-    gui_root = os.path.join(CONFIG.WorkDir, *root_dir)
+
+    if os.path.isdir(node_modules):
+        shutil.rmtree(node_modules, onerror=set_rw)
+
+    if os.path.isdir(build_root):
+        shutil.rmtree(build_root, onerror=set_rw)
 
     try:
         gui_build = system.containers.run(
             image='node:10-alpine',
-            command=f"sh -c \"cd /project; {' && '.join(npm_cmds)}\"",
+            command=f"sh -c \"{' && '.join(npm_cmds)}\"",
             volumes={
                 gui_root: {
                     'bind': '/project',
