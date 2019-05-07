@@ -1,6 +1,6 @@
 import json, os, re
 from flask import Flask, request
-from sb_utils import Producer, decode_msg
+from utils import Producer, decode_msg
 app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
@@ -31,7 +31,7 @@ def result():
     }
 
     producer = Producer()
-    producer.publish(message=data, headers=headers, exchange='actuator', routing_key=profile)
+    producer.publish(message=data, header=headers, exchange='actuator', routing_key=profile)
     print('Writing to buffer.')
 
     return json.dumps(dict(
