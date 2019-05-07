@@ -242,5 +242,5 @@ typings/
 
 # Public Files
 **/modules/*
-!modules
+!modules/*
 
