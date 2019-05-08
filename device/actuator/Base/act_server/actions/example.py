@@ -10,6 +10,11 @@ from ..utils import Dispatch
 Example = Dispatch("query")
 
 
+@Example.register
+def default(act, *extra_args, **extra_kwargs):
+    return act.action_exception(*extra_args, **extra_kwargs)
+
+
 @Example.register(key="scan")
 def example_scan(actuator, *extra_args, **extra_kwargs):
     """

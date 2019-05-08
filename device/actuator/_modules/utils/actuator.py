@@ -6,7 +6,6 @@ import os
 import uuid
 
 from sb_utils import FrozenDict
-from types import MethodType
 
 from .dispatch import Dispatch
 from .general import safe_load
@@ -49,24 +48,29 @@ class ActuatorBase(object):
         self._dispatch = Dispatch(act=self)
         self._dispatch.register(self.action_not_implemented, "default")
 
-        self._pairs = {}
         self._valid_actions = ()
         self._valid_targets = ()
 
         # Get valid Actions & Targets from the schema
-        # TODO: validate based on the schema format - JADN/JSON
+        # JADN
         for key in ('Action', 'Target'):
-            key_def = list(filter(lambda x: x[0] == key, self._config.schema.get('types', [])))
-            if len(key_def) == 1:
-                setattr(self, f'_valid_{key.lower()}s', tuple(a[1] for a in key_def[0][4]))
-                del key_def
-            elif len(key_def) == 0:
-                raise ImportError(f'{key} type not defined in the schema')
-            else:
-                raise ImportError(f'Multiple {key} types defined in the schema')
+            key_def = [x for x in self._config.schema.get('types', []) if x[0] == key]
+            key_def = key_def[0] if len(key_def) == 1 else None
+            if key_def:
+                setattr(self, f'_valid_{key.lower()}s', tuple(a[1] for a in key_def[4]))
+            del key_def
 
-        # TODO: Create pairs ?
-        self._pairs = FrozenDict(self._pairs)
+        # TODO: JSON valid action/targets
+
+    @property
+    def pairs(self):
+        pairs = {}
+        for p in self._dispatch.registered:
+            p = p.split(".")
+            if "default" not in p:
+                pairs.setdefault(p[0], []).append(p[1])
+
+        return FrozenDict(pairs)
 
     @property
     def profile(self):

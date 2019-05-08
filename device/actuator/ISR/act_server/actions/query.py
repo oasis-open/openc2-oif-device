@@ -7,6 +7,11 @@ Query = Dispatch("query")
 
 
 @Query.register
+def default(act, *extra_args, **extra_kwargs):
+    return act.action_exception(*extra_args, **extra_kwargs)
+
+
+@Query.register
 def openc2(act, target={}, *extra_args, **extra_kwargs):
     if len(target) != 1:
         return act.action_exception('query', except_msg='Invalid target type for action')
@@ -21,7 +26,7 @@ def openc2(act, target={}, *extra_args, **extra_kwargs):
             return act.bad_request()
 
         if qry_itm == 'pairs':
-            results['pairs'] = [[act, tar] for act, tar in act._pairs.items()]
+            results['pairs'] = [[act, tar] for act, tar in act.pairs.items()]
 
         elif qry_itm == 'profiles':
             results['profiles'] = act.profile

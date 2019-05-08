@@ -89,11 +89,17 @@ class Dispatch(object):
 
     @property
     def registered(self):
-        return self._functions
+        return self._functions.compositKeys()
 
     # Dispatch action
     def dispatch(self, key: str = None, *args, **kwargs):
-        fun = self._functions.get(key, self._functions["default"])
+        fun = self._functions["default"]
+        if "." in key and key not in self._functions:
+            key = key.split(".")[0]
+            fun = self._functions.get(key, {}).get("default", fun)
+        else:
+            fun = self._functions.get(key, fun)
+
         fun_kwargs = dict(self._func_kwargs)
         fun_kwargs.update(kwargs)
         return fun(*args, **fun_kwargs)
@@ -106,6 +112,6 @@ class Dispatch(object):
     # register another Dispatch as a namespace
     def register_dispatch(self, dispatch: object = None):
         if dispatch.namespace:
-            self._functions[dispatch.namespace] = dispatch.registered
+            self._functions[dispatch.namespace] = dispatch._functions
         else:
             raise AttributeError("Cannot register a dispatch without a namespace")

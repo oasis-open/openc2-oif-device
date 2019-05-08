@@ -7,6 +7,11 @@ Deny = Dispatch("deny")
 
 
 @Deny.register
+def default(act, *extra_args, **extra_kwargs):
+    return act.action_exception(*extra_args, **extra_kwargs)
+
+
+@Deny.register
 def ip_addr(act, target={}, *extra_args, **extra_kwargs):
     return act.action_exception('file', except_msg='target implementation TBD')
 

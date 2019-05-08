@@ -11,6 +11,11 @@ from ..utils import Dispatch
 Locate = Dispatch("locate")
 
 
+@Locate.register
+def default(act, *extra_args, **extra_kwargs):
+    return act.action_exception(*extra_args, **extra_kwargs)
+
+
 def randCoord(cLat=38.889484, cLong=-77.035278, radius=10000):
     """
     Generate a random lat/long within a radius of a central location
