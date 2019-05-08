@@ -6,6 +6,7 @@ import importlib
 import json
 import os
 import re
+import shutil
 import string
 import subprocess
 import sys
@@ -202,6 +203,14 @@ if __name__ == '__main__':
 
     # -------------------- Make Docker Files -------------------- #
     Stylize.h1('Make Dockerfiles ...')
+    util_module = os.path.join(CONFIG.WorkDir, "_modules", "utils")
+
     for act in CONFIG.Actuators:
+        # Copy base utils
+        act_util = os.path.join(CONFIG.WorkDir, act, "act_server", "utils")
+        if os.path.isdir(act_util):
+            shutil.rmtree(act_util)
+        shutil.copytree(util_module, act_util)
+
         # Make Dockerfile
         mk_dockerfile(act, CONFIG.Args)
