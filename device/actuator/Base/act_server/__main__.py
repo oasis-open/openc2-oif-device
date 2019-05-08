@@ -15,14 +15,16 @@ def on_message(act, prod, body, message):
     :param body: encoded message
     :param message: message instance from queue
     """
-    encoding = getattr(message, "headers", {}).get('encoding', 'json')
-    msg_rsp = act.action(decode_msg(body, encoding))
+    headers = getattr(message, "headers", {})
+    msg_id = headers.get('correlationID', '')
+    encoding = headers.get('encoding', 'json')
+    msg_rsp = act.action(msg_id=msg_id, msg=decode_msg(body, encoding))
 
     prod.publish(
-        headers=getattr(message, "headers", {}),
+        headers=headers,
         message=encode_msg(msg_rsp, encoding),
         exchange='transport',
-        routing_key=getattr(message, "headers", {}).get('transport', '').lower()
+        routing_key=headers.get('transport', '').lower()
     )
 
 
