@@ -1,11 +1,11 @@
 """
 Scan Target functions
 """
-from ..utils import Dispatch
+from ..utils import Dispatch, exceptions
 
 Scan = Dispatch("scan")
 
 
 @Scan.register
-def default(act, *extra_args, **extra_kwargs):
-    return act.action_exception(*extra_args, **extra_kwargs)
+def default(*extra_args, **extra_kwargs):
+    return exceptions.target_not_implemented()

@@ -1,16 +1,20 @@
 """
 Update Target functions
 """
-from ..utils import Dispatch
+from ..utils import Dispatch, exceptions
 
 Update = Dispatch("update")
 
 
 @Update.register
-def default(act, *extra_args, **extra_kwargs):
-    return act.action_exception(*extra_args, **extra_kwargs)
+def default(*extra_args, **extra_kwargs):
+    return exceptions.target_not_implemented()
 
 
 @Update.register
-def file(act, target={}, *extra_args, **extra_kwargs):
-    return act.action_exception('file', except_msg='target implementation TBD')
+def file(target={}, args={}, *extra_args, **extra_kwargs):
+    if not isinstance(args, dict) and len(set(args) - {"response", "start-time"}) > 0:
+        print("Invalid Update Args")
+        return exceptions.bad_argument()
+
+    return exceptions.action_exception('update', except_msg='target implementation TBD')

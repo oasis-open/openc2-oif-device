@@ -1,3 +1,5 @@
+from . import exceptions
+
 from .actuator import ActuatorBase
 from .dispatch import Dispatch
 from .general import safe_load
@@ -8,6 +10,7 @@ __all__ = [
     'decode_msg',
     'Dispatch',
     'encode_msg',
+    'exceptions',
     'FrozenDict',
     'safe_cast',
     'safe_load'
