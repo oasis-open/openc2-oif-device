@@ -21,7 +21,7 @@ def default(*extra_args, **extra_kwargs):
 
 @Query.register
 def features(act, target=[], args={}, *extra_args, **extra_kwargs):
-    if not isinstance(args, dict) and len(set(args) - {"response"}) > 0:
+    if not isinstance(args, dict) and len(set(args) - {"response_requested"}) > 0:
         print("Invalid Query Args")
         return exceptions.bad_argument()
 

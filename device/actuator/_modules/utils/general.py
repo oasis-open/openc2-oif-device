@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import ipaddress
 import json
 import uuid
 
@@ -19,6 +20,22 @@ def safe_load(file_obj):
     except Exception as e:
         # print(f"{file_obj.name} - {e}")
         return {}
+
+
+def valid_ip(ip):
+    if isinstance(ip, (str, bytes)):
+        try:
+            if "/" in ip:
+                # IP_Net
+                ip = ipaddress.ip_network(ip, strict=False)
+            else:
+                # IP_Address
+                ip = ipaddress.ip_address(ip)
+            return ip
+        except ValueError as e:
+            print(e)
+
+    return None
 
 
 class MultiKeyDict(dict):

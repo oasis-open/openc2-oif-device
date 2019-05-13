@@ -37,6 +37,7 @@ class ActuatorBase(object):
 
         self._dispatch = Dispatch(act=self, dispatch_transform=self._dispatch_transform)
         self._dispatch.register(exceptions.action_not_implemented, "default")
+        self._pairs = None
 
         self._valid_actions = ()
         self._valid_targets = ()
@@ -63,13 +64,14 @@ class ActuatorBase(object):
 
     @property
     def pairs(self) -> FrozenDict:
-        pairs = {}
-        for p in self._dispatch.registered:
-            p = p.split(".")
-            if "default" not in p:
-                pairs.setdefault(p[0], []).append(p[1])
-
-        return FrozenDict(pairs)
+        if self._pairs is None:
+            pairs = {}
+            for p in self._dispatch.registered:
+                p = p.split(".")
+                if "default" not in p:
+                    pairs.setdefault(p[0], []).append(p[1])
+            self._pairs = FrozenDict(pairs)
+        return self._pairs
 
     @property
     def profile(self) -> str:
@@ -79,21 +81,30 @@ class ActuatorBase(object):
     def schema(self) -> FrozenDict:
         return self._config.schema
 
-    def action(self, msg_id: Union[str, int] = None, msg: dict = {}) -> dict:
+    def action(self, msg_id: Union[str, int] = None, msg: dict = {}) -> Union[dict, None]:
         """
         Process command message
         :param msg_id: ID of message
         :param msg: message instance
         :return: message results
         """
-        msg.pop("id", None)
-        msg.pop("cmd_id", None)
+        # TODO: Validate message before processing
+        Valid_Command = True
 
-        action = msg.get("action", "action_not_implemented")
-        targets = list(msg.get("target", {}).keys())
+        if Valid_Command:
+            msg.pop("id", None)
+            msg.pop("cmd_id", None)
 
-        if len(targets) == 1:
-            return self._dispatch.dispatch(key=f"{action}.{targets[0]}", cmd_id=msg_id, **msg)
+            action = msg.get("action", "action_not_implemented")
+            targets = list(msg.get("target", {}).keys())
+            response_requested = msg.get("args", {}).get("response_requested", "complete")
+
+            if len(targets) == 1:
+                rtn = self._dispatch.dispatch(key=f"{action}.{targets[0]}", cmd_id=msg_id, **msg)
+            else:
+                rtn = exceptions.bad_request()
+
+            return None if response_requested.lower() == "none" else rtn
         else:
             return exceptions.bad_request()
 

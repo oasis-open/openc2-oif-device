@@ -2,7 +2,7 @@ from . import exceptions
 
 from .actuator import ActuatorBase
 from .dispatch import Dispatch
-from .general import safe_load
+from .general import safe_load, valid_ip
 
 from sb_utils import decode_msg, encode_msg, FrozenDict, safe_cast
 
@@ -13,5 +13,6 @@ __all__ = [
     'exceptions',
     'FrozenDict',
     'safe_cast',
-    'safe_load'
+    'safe_load',
+    'valid_ip'
 ]

@@ -3,7 +3,7 @@ Actuator Error/Exception Functions
 """
 
 
-def action_not_implemented() -> dict:
+def action_not_implemented(*args: tuple, **kwargs: dict) -> dict:
     """
     Default function if no action function is found
     :return: OpenC2 response message - dict
@@ -14,7 +14,7 @@ def action_not_implemented() -> dict:
     )
 
 
-def target_not_implemented() -> dict:
+def target_not_implemented(*args: tuple, **kwargs: dict) -> dict:
     """
     Default function if no action function is found
     :return: OpenC2 response message - dict
@@ -25,7 +25,7 @@ def target_not_implemented() -> dict:
     )
 
 
-def bad_argument() -> dict:
+def bad_argument(*args: tuple, **kwargs: dict) -> dict:
     """
     Bad Option exception response
     :return: OpenC2 response message - dict

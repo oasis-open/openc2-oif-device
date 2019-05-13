@@ -13,7 +13,7 @@ def default(*extra_args, **extra_kwargs):
 
 @Update.register
 def file(target={}, args={}, *extra_args, **extra_kwargs):
-    if not isinstance(args, dict) and len(set(args) - {"response", "start-time"}) > 0:
+    if not isinstance(args, dict) and len(set(args) - {"response_requested", "start_time"}) > 0:
         print("Invalid Update Args")
         return exceptions.bad_argument()
 

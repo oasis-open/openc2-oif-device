@@ -20,12 +20,13 @@ def on_message(act, prod, body, message):
     encoding = headers.get('encoding', 'json')
     msg_rsp = act.action(msg_id=msg_id, msg=decode_msg(body, encoding))
 
-    prod.publish(
-        headers=headers,
-        message=encode_msg(msg_rsp, encoding),
-        exchange='transport',
-        routing_key=headers.get('transport', '').lower()
-    )
+    if msg_rsp:
+        prod.publish(
+            headers=headers,
+            message=encode_msg(msg_rsp, encoding),
+            exchange='transport',
+            routing_key=headers.get('transport', '').lower()
+        )
 
 
 if __name__ == '__main__':

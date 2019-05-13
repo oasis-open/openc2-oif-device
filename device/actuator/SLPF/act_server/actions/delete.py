@@ -13,7 +13,7 @@ def default(act, *extra_args, **extra_kwargs):
 
 @Delete.register
 def slpf(act, target={}, args={}, *extra_args, **extra_kwargs):
-    if not isinstance(args, dict) and len(set(args) - {"response", "start-time"}) > 0:
+    if not isinstance(args, dict) and len(set(args) - {"response_requested", "start_time"}) > 0:
         print("Invalid Delete Args")
         return exceptions.bad_argument()
 
