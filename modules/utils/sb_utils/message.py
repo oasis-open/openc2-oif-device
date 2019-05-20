@@ -46,7 +46,7 @@ serializations = dict(
         yaml=lambda v: yaml.dump(v, Dumper=Dumper),
     ),
     decode=dict(
-        cbor=lambda v: base64.b64decode(cbor2.loads(v)),
+        cbor=lambda v: cbor2.loads(base64.b64decode(v.encode())),
         json=lambda v: json.dumps(v),
         xml=lambda v: _xml_root(_xml_to_dict(xmltodict.parse(v))),
         yaml=lambda v: yaml.load(v, Loader=Loader),
