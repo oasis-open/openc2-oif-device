@@ -136,23 +136,23 @@ if __name__ == '__main__':
     # -------------------- Modules -------------------- #
     with Stage('Modules', 'modules'):
         Stylize.h2("Updating Utilities")
-        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'utils')
+        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'utils', options.repo_branch)
 
     # -------------------- Device Transport -------------------- #
     with Stage('Device Transport', os.path.join('device', 'transport')):
         for transport in CONFIG.Repos.Transport:
             Stylize.h2(f"Updating Device {transport}")
-            update_repo(f"{CONFIG.BaseRepo}/Device/Transport/{transport}.git", transport.lower())
+            update_repo(f"{CONFIG.BaseRepo}/Device/Transport/{transport}.git", transport.lower(), options.repo_branch)
 
     # -------------------- Device Actuators -------------------- #
     with Stage('Device', 'device') as d:
         Stylize.h2(f"Updating Actuators")
-        update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator')
+        update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator', options.repo_branch)
 
     # -------------------- Logger -------------------- #
     with Stage('Logger'):
         Stylize.h2("Updating Logger")
-        update_repo(f"{CONFIG.BaseRepo}/Logger.git", 'logger')
+        update_repo(f"{CONFIG.BaseRepo}/Logger.git", 'logger', options.repo_branch)
 
     # -------------------- Dockerfile -------------------- #
     with Stage('Dockerfiles'):
