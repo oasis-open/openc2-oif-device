@@ -1,32 +1,37 @@
 """
 Query Target functions
 """
-from ..utils import Dispatch
+from ..utils import Dispatch, exceptions, FrozenDict
 
 Query = Dispatch("query")
 
+Features = FrozenDict(
+    pairs=lambda act: [[act, tar] for act, tar in act.pairs.items()],
+    profiles=lambda act: act.profile,
+    rate_limit=lambda act: getattr(act, "rate_limit", 0),
+    schema=lambda act: act.schema,
+    versions=lambda act: act.schema.get("meta", {}).get("version", "N/A")
+)
+
 
 @Query.register
-def features(act, target={}, *extra_args, **extra_kwargs):
-    if len(target) != 1:
-        return act.action_exception('query', except_msg='Invalid target type for action')
+def default(*extra_args, **extra_kwargs):
+    return exceptions.target_not_implemented()
+
+
+@Query.register
+def features(act, target=[], args={}, *extra_args, **extra_kwargs):
+    if not isinstance(args, dict) and len(set(args) - {"response_requested"}) > 0:
+        print("Invalid Query Args")
+        return exceptions.bad_argument()
+
+    if not isinstance(target, list) and len(set(target) - set(Features.keys())) > 0:
+        return exceptions.bad_request()
+
     else:
-        target = target[list(target.keys())[0]]
+        rtn = dict(
+            status=200,
+            results={k: Features[k](act) for k in target}
+        )
 
-    valid_qry_itms = ['pairs', 'profiles', 'rate_limit', 'schema', 'versions']
-
-    results = {}
-    for qry_itm in target:
-        if qry_itm not in valid_qry_itms:
-            return act.bad_request()
-
-        if qry_itm == 'pairs':
-            results['pairs'] = [[act, tar] for act, tar in act._pairs.items()]
-        else:
-            results[qry_itm] = act._config.schema.get(qry_itm, '')
-
-    return dict(
-        status=200,
-        status_text='Ok, The request has succeeded.',
-        results=results
-    )
+        return {k: v for k, v in rtn.items() if v}

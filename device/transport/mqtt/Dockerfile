@@ -1,6 +1,6 @@
 
 # Image environment
-FROM oif/base:alpine-python3
+FROM oif/base:alpine-python3_utils
 
 MAINTAINER Screaming_Bunny
 
@@ -14,11 +14,8 @@ ADD requirements.txt /tmp/requirements.txt
 ADD MQTT/ /opt/transport/MQTT
 #ADD certs /opt/transport/MQTT/certs
 ADD docker_dev_start.sh /opt/transport/MQTT/dev_start.sh
-ADD module/utils /tmp/utils
 
 RUN pip3 install -r /tmp/requirements.txt && \
-    cd /tmp/utils && \
-    python3 setup.py install && \
     chmod +x /opt/transport/MQTT/dev_start.sh && \
     dos2unix /opt/transport/MQTT/dev_start.sh
 

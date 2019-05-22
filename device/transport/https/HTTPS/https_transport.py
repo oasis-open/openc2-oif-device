@@ -1,5 +1,5 @@
 import json, os, urllib3
-from utils import Producer, Consumer, encode_msg
+from sb_utils import Consumer, encode_msg
 
 
 def process_message(body, message):
@@ -10,7 +10,6 @@ def process_message(body, message):
     """
 
     params = message.headers
-    body = body if type(body) is dict else json.loads(body)
     http = urllib3.PoolManager(cert_reqs='CERT_NONE')
 
     des = params['socket']  # orch IP:port
@@ -23,7 +22,6 @@ def process_message(body, message):
     print('Sending command to ' + des)
 
     if des and encode:
-        data = encode_msg(body, encode)  # response being encoded
         headers = {
             "Host": orchID+"@"+des,
             "From": prof+"@"+device,
@@ -32,7 +30,7 @@ def process_message(body, message):
         }
 
         try:
-            r = http.request('POST', 'https://' + des, body=data, headers=headers)
+            r = http.request('POST', 'https://' + des, body=body, headers=headers)
             print(r.status)
         except Exception as err:
             print(err)

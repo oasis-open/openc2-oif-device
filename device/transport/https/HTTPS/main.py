@@ -1,6 +1,6 @@
 import json, os, re
 from flask import Flask, request
-from utils import Producer, decode_msg
+from sb_utils import Producer, decode_msg
 app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
@@ -9,7 +9,7 @@ def result():
     encode = re.search(r'(?<=\+)(.*?)(?=\;)', request.headers['Content-type']).group(1)  # message encoding
     correlationID = request.headers['X-Correlation-ID']  # correlation ID
 
-    data = decode_msg(request.data, encode)  # message being decoded
+    #data = decode_msg(request.data, encode)  # message being decoded
 
     host = request.headers['Host'].rsplit('@', 1)
     to = request.headers['From'].rsplit('@', 1)
@@ -31,7 +31,7 @@ def result():
     }
 
     producer = Producer()
-    producer.publish(message=data, header=headers, exchange='actuator', routing_key=profile)
+    producer.publish(message=request.data, headers=headers, exchange='actuator', routing_key=profile)
     print('Writing to buffer.')
 
     return json.dumps(dict(
@@ -44,4 +44,4 @@ if __name__ == "__main__":
     certPath = '/opt/transport/HTTPS/certs/server.crt'
     keyPath = '/opt/transport/HTTPS/certs/server.key'
 
-    app.run(ssl_context=(certPath, keyPath), host='0.0.0.0', port=5001, debug=True)
+    app.run(ssl_context=(certPath, keyPath), host='0.0.0.0', port=5001)

@@ -5,9 +5,14 @@ This is an example target registration for an action
     Note: the function will be registered with its name unless an argument string is given specifying the registered name
 """
 
-from ..utils import Dispatch
+from ..utils import Dispatch, exceptions
 
 Example = Dispatch("query")
+
+
+@Example.register
+def default(*extra_args, **extra_kwargs):
+    return exceptions.target_not_implemented()
 
 
 @Example.register(key="scan")
@@ -77,4 +82,4 @@ def update(actuator, *extra_args, **extra_kwargs):
 
 
 Example.register(example_allow, key="allow")
-Example.register(update())
+Example.register(update)

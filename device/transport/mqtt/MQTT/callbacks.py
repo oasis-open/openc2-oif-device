@@ -43,15 +43,16 @@ class Callbacks(object):
         header = payload.get('header', '')
         exchange = 'actuator'
         route = header.get('profile', '')
-        encoding = re.search(r'(?<=\+)(.*?)(?=\;)', header.get('content-type', '')).group(1)  # message encoding
+        encoding = re.search(r'(?<=\+)(.*?)(?=\;)', header.get('content_type', '')).group(1)  # message encoding
         header['encoding'] = encoding
-        
         # Connect and publish to internal buffer
         producer = Producer(os.environ.get('QUEUE_HOST', 'localhost'),
                             os.environ.get('QUEUE_PORT', '5672'))
+        print(type(payload.get('body', '')))
+        print(payload.get('body', ''))
         producer.publish(
             headers=header,
-            message=decode_msg(payload.get('body', ''), encoding),
+            message=payload.get('body', ''),
             exchange=exchange,
             routing_key=route
         )    
@@ -66,7 +67,6 @@ class Callbacks(object):
         """
         
         payload = {}
-
         if os.environ.get('MQTT_TLS_ENABLED', False) and os.listdir('/opt/transport/MQTT/certs'):
             tls = dict(
                 ca_certs=os.environ.get('MQTT_CAFILE', None),
@@ -80,9 +80,8 @@ class Callbacks(object):
         payload['header'] = message.headers
         if all(keys in message.headers for keys in ['socket', 'encoding', 'orchestratorID']):
             encoding = message.headers.get('encoding', 'json')
-            payload['header']['content-type'] = "application/openc2-cmd+" + encoding + ";version=1.0"
-            body = decode_msg(body, encoding)
-            payload['body'] = encode_msg(body, encoding)
+            payload['header']['content_type'] = "application/openc2-cmd+" + encoding + ";version=1.0"
+            payload['body'] = body
             ip, port = message.headers.get('socket', '').split(':')[0:2]
             topic = message.headers.get('orchestratorID') + '/response'
             try:
@@ -95,8 +94,8 @@ class Callbacks(object):
                     qos=1
                 )
                 print(f'Sent: {payload}')
-            except:
-                print(f'An error occured.')
+            except Exception as e:
+                print(f'An error occured. {e}')
                 pass
         else:
             print('Missing some/all required header data to successfully transport message.')

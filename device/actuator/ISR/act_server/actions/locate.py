@@ -6,9 +6,14 @@ import random
 
 from datetime import datetime, timezone
 
-from ..utils import Dispatch
+from ..utils import Dispatch, exceptions
 
 Locate = Dispatch("locate")
+
+
+@Locate.register
+def default(*extra_args, **extra_kwargs):
+    return exceptions.target_not_implemented()
 
 
 def randCoord(cLat=38.889484, cLong=-77.035278, radius=10000):
@@ -35,11 +40,6 @@ def randCoord(cLat=38.889484, cLong=-77.035278, radius=10000):
 
 @Locate.register
 def isr(act, target={}, *extra_args, **extra_kwargs):
-    if len(target) != 1:
-        return act.action_exception('query', except_msg='Invalid target type for action')
-    else:
-        target = target[list(target.keys())[0]]
-
     lat, long = randCoord()
 
     results = dict(
@@ -61,7 +61,7 @@ def isr(act, target={}, *extra_args, **extra_kwargs):
         actuator_id = target['generic'].get('actuator_id', None)
 
     else:
-        return act.bad_request()
+        return exceptions.bad_request()
 
     return dict(
         status=200,

@@ -1,74 +1,9 @@
 # Multiple dispatch on namespace
 
-from typing import Any, Callable, List
+from inspect import isfunction
+from typing import Callable, Tuple
 
-
-class MultiKeyDict(dict):
-    def __init__(self, sep: str = '.', *args, **kwargs) -> None:
-        super(MultiKeyDict, self).__init__(*args, **kwargs)
-        self._sep = sep
-        for k, v in dict(self).items():
-            if self._sep in k:
-                dict.__delitem__(self, k)
-                keys = list(filter(None, k.split(self._sep)))
-                dict.setdefault(self, keys[0], MultiKeyDict(sep=self._sep))
-                self[keys[0]][self._sep.join(keys[1:])] = v
-
-    def __setitem__(self, key: str, val: Any) -> None:
-        keys = list(filter(None, key.split(self._sep)))
-        if len(keys) == 1:
-            dict.__setitem__(self, key, val)
-        else:
-            self[keys[0]] = MultiKeyDict(
-                sep=self._sep,
-                **{
-                    **dict.get(self, keys[0], {}),
-                    self._sep.join(keys[1:]): val,
-                }
-            )
-
-    def __getitem__(self, key: str) -> Any:
-        keys = list(filter(None, key.split(self._sep)))
-        if len(keys) == 1:
-            return dict.__getitem__(self, key)
-        else:
-            rtn = self
-            for key in keys:
-                rtn = dict.get(rtn, key, None)
-            return rtn
-
-    def __delitem__(self, key: str) -> None:
-        keys = list(filter(None, key.split(self._sep)))
-        if len(keys) == 1:
-            dict.__delitem__(self, key)
-        else:
-            k = dict.get(self, keys[0], None)
-            if k:
-                k.__delitem__(self._sep.join(keys[1:]))
-
-    def __contains__(self, item) -> bool:
-        keys = list(filter(None, item.split(self._sep)))
-        return item in self._compositKeys(self) if len(keys) > 1 else dict.get(self, item, None) is not None
-
-    def get(self, key: str, default: Any = None) -> Any:
-        return self[key] if key in self else default
-
-    def compositKeys(self) -> List[str]:
-        return self._compositKeys(self)
-
-    # helper functions
-    def _compositKeys(self, obj: dict) -> List[str]:
-        if isinstance(obj, self.__class__):
-            tmp = []
-            for key, val in obj.items():
-                val_keys = self._compositKeys(val) 
-                if len(val_keys) > 0:
-                    tmp.extend([f'{key}{self._sep}{k}' for k in val_keys])
-                else:
-                    tmp.append(key)
-            return tmp
-        else:
-            return []
+from .general import MultiKeyDict
 
 
 class Dispatch(object):
@@ -76,8 +11,9 @@ class Dispatch(object):
     _func_kwargs = dict
     _functions: MultiKeyDict
 
-    def __init__(self, namespace: str = None, **kwargs):
+    def __init__(self, namespace: str = None, dispatch_transform: Callable[[tuple, dict], Tuple[tuple, dict]] = None, **kwargs):
         self._namespace = namespace
+        self._dispatch_transform = dispatch_transform
         self._func_kwargs = kwargs
         self._functions = MultiKeyDict(
             default=lambda *args, **kwargs: AttributeError("Default function not set")
@@ -89,14 +25,18 @@ class Dispatch(object):
 
     @property
     def registered(self):
-        return self._functions
+        return self._functions.compositKeys()
 
     # Dispatch action
     def dispatch(self, key: str = None, *args, **kwargs):
-        fun = self._functions.get(key, self._functions["default"])
+        fun = self._dispatch(key, init=True)
         fun_kwargs = dict(self._func_kwargs)
         fun_kwargs.update(kwargs)
-        return fun(*args, **fun_kwargs)
+
+        if self._dispatch_transform:
+            args, fun_kwargs = self._dispatch_transform(*args, **fun_kwargs)
+
+        return fun(*args, **fun_kwargs) if isinstance(args, tuple) else kwargs
 
     # Register a function, wrapper or standard function call
     def register(self, fun: Callable, key: str = None):
@@ -106,6 +46,22 @@ class Dispatch(object):
     # register another Dispatch as a namespace
     def register_dispatch(self, dispatch: object = None):
         if dispatch.namespace:
-            self._functions[dispatch.namespace] = dispatch.registered
+            self._functions[dispatch.namespace] = dispatch._functions
         else:
             raise AttributeError("Cannot register a dispatch without a namespace")
+
+    # Helper Functions
+    def _dispatch(self, key: str = "", rem_key: tuple = (), init: bool = False):
+        if len(rem_key) == 0 and init:
+            keys = key.split(".")
+            key = keys[0]
+            rem_key = tuple(keys[1:])
+
+        val = self._functions.get(key, None)
+        if val:
+            if isfunction(val) and not init:
+                return val
+            else:
+                return self._dispatch(".".join([key, rem_key[0]]), rem_key=() if len(rem_key) == 0 else rem_key[1:])
+        else:
+            return self._functions.get(".".join([*key.split(".")[:-1], "default"]), self._functions["default"])

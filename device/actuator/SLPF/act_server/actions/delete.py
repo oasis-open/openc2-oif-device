@@ -1,11 +1,20 @@
 """
 Delete Target functions
 """
-from ..utils import Dispatch
+from ..utils import Dispatch, exceptions
 
 Delete = Dispatch("delete")
 
 
 @Delete.register
-def slpf_rule_number(act, target={}, *extra_args, **extra_kwargs):
-    return act.action_exception('file', except_msg='target implementation TBD')
+def default(act, *extra_args, **extra_kwargs):
+    return exceptions.target_not_implemented()
+
+
+@Delete.register
+def slpf(act, target={}, args={}, *extra_args, **extra_kwargs):
+    if not isinstance(args, dict) and len(set(args) - {"response_requested", "start_time"}) > 0:
+        print("Invalid Delete Args")
+        return exceptions.bad_argument()
+
+    return exceptions.action_exception('delete', except_msg='target implementation TBD')
