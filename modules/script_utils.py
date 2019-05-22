@@ -143,7 +143,7 @@ CONFIG = FrozenDict(
     EmptyString=("", b"", None),
     Remove=FrozenDict(
         Dirs=(".git", ".idea"),
-        Files=(".git", ".gitlab-ci.yml", "dev-compose.yaml", ".gitmodules")
+        Files=(".git", ".gitlab-ci.yml", "dev-compose.yaml", ".gitmodules", ".pipeline_trigger*")
     ),
     MinVersions=FrozenDict(
         Docker=(18, 0, 0),
