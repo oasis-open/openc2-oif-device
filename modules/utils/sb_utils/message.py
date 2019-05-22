@@ -41,13 +41,13 @@ def _xml_to_dict(xml):
 serializations = dict(
     encode=dict(
         cbor=lambda v: base64.b64encode(cbor2.dumps(v)).decode('utf-8'),
-        json=lambda v: json.loads(v),
+        json=lambda v: json.dumps(v),
         xml=lambda v: dicttoxml(v, custom_root=_xml_root(v), attr_type=False).decode('utf-8'),
         yaml=lambda v: yaml.dump(v, Dumper=Dumper),
     ),
     decode=dict(
         cbor=lambda v: cbor2.loads(base64.b64decode(v if type(v) is bytes else v.encode())),
-        json=lambda v: json.dumps(v),
+        json=lambda v: json.loads(v),
         xml=lambda v: _xml_root(_xml_to_dict(xmltodict.parse(v))),
         yaml=lambda v: yaml.load(v, Loader=Loader),
     )
