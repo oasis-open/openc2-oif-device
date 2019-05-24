@@ -50,7 +50,7 @@ services:
       dockerfile: Dockerfile
     working_dir: /opt/transport/COAP
     env_file:
-      - ./environment/que.connect.env
+      - ./environment/queue.connect.env
     external_links:
       - queue
     ports:
