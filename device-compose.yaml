@@ -54,7 +54,7 @@ services:
     external_links:
       - queue
     ports:
-      - '5683:5683/udp'
+      - '5682:5682/udp'
     depends_on:
       - queue
     entrypoint:
