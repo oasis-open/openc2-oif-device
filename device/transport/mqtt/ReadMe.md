@@ -14,12 +14,11 @@ The payload of the message in MQTT is split into two parts, the header and the O
 ```json
 "payload": {
     "header": {
-        "socket":"127.0.0.1:1883",
+        "to":"openc2_isr_actuator_profile@127.0.0.1:1883",
+        "from":"0a2cec81-51fa-4785-8069-723d7d46b105@127.0.0.1:1883",
         "content_type":"application/openc2-cmd+json;version=1.0",
         "correlationID":"a6b10d16-5537-41c9-9773-f69d17920600",
         "created":"Wed, 22 May 2019 16:12:23 UTC",
-        "profile":"openc2_isr_actuator_profile",
-        "orchestratorID":"0a2cec81-51fa-4785-8069-723d7d46b105",
     },
     "body": {
         "action": "locate",
@@ -36,12 +35,11 @@ The payload of the message in MQTT is split into two parts, the header and the O
 
 Header descriptions:
 
-* `socket`: [to/from]. Location of the MQTT broker. This is where we are sending it to and reading the response from.
-* `content_type`: [content_type] The content_type of the message, contains the encoding type.
-* `correlationID`: [request_id] Identifier for this specific command being sent. Needed for orchestrator to relate repsonse with original command.
-* `created`: [created] Timestamp for when the message was initially created by the orchestrator.
-* `profile`: This is an O.I.F. specific header. It is used to route the message on the device side to the proper actuator.
-* `orchestratorID`: This is an O.I.F. specific header. Used to get the message back to the orchestrator. The MQTT transport listens on a topic that is the orchestratorID for responses.
+* `to`: Actuator profile name + the location of the MQTT broker. The transport on the device side uses this to route the message to the proper actuator
+* `from`: orchestratorID + the location of the MQTT broker for return sending. The Orchestrator-side transport is listening on a topic using the orchestratorID for responses.
+* `content_type`: The content_type of the message, contains the encoding type.
+* `correlationID`: Identifier for this specific command being sent. Needed for orchestrator to relate repsonse with original command.
+* `created`: Timestamp for when the message was initially created by the orchestrator.
 
 The body is the content of the OpenC2 Command/Response.
 

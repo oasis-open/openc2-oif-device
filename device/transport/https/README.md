@@ -1,25 +1,8 @@
 # OpenC2 HTTPS Transport
 
-[![pipeline status](https://gitlab.labs.g2-inc.net/ScreamingBunny/Orchestrator/Core/badges/develop/pipeline.svg)](https://gitlab.labs.g2-inc.net/ScreamingBunny/Orchestrator/Core/commits/develop)
-
 ## Transport Setup
-- The HTTPS Transport Module is configured to run from a docker container.
 
-1. Install Docker
-
-2. Build/Pull container
-
-    - Build:
-    ```
-    docker login gitlab.labs.g2-inc.net:4567
-    docker build -f Dockerfile -t gitlab.labs.g2-inc.net:4567/screamingbunny/transport/HTTPS .
-    ```
-
-    - Pull:   
-    ```
-    docker login gitlab.labs.g2-inc.net:4567
-    docker pull gitlab.labs.g2-inc.net:4567/screamingbunny/transport/HTTPS
-    ```
+- The HTTPS Transport Module is configured to run from a docker container as a part of the OIF-Orchestrator docker stack. Use the [configure.py](../../../configure.py) script to build the images needed to run the entirety of this Transport as a part of the Orchestrator.
 
 ## Configuration
 
