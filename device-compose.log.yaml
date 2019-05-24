@@ -21,6 +21,14 @@ services:
         syslog-format: rfc5424
         tag: "transport-https"
 
+  transport-coap:
+    logging:
+      driver: syslog
+      options:
+        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
+        syslog-format: rfc5424
+        tag: "transport-coap"
+
   queue:
     logging:
       driver: syslog

@@ -42,6 +42,25 @@ services:
       - sh
       - dev_start.sh
 
+  transport-coap:
+    hostname: transport-coap
+    image: oif/transport:device-coap
+    build:
+      context: ./device/transport/coap
+      dockerfile: Dockerfile
+    working_dir: /opt/transport/COAP
+    env_file:
+      - ./environment/que.connect.env
+    external_links:
+      - queue
+    ports:
+      - '5683:5683/udp'
+    depends_on:
+      - queue
+    entrypoint:
+      - sh
+      - dev_start.sh
+
   queue:
     hostname: rabbit
     image: rabbitmq:management-alpine

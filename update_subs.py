@@ -81,7 +81,7 @@ CONFIG = FrozenDict(
     ),
     Repos=FrozenDict(
         Actuators=('ISR', ),
-        Transport=('HTTPS', 'MQTT'),
+        Transport=('HTTPS', 'MQTT', 'CoAP'),
     )
 )
 
