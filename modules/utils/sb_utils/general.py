@@ -38,32 +38,3 @@ def safe_cast(val: Any, to_type: Type, default: Any = None) -> Any:
         return to_type(val)
     except (ValueError, TypeError):
         return default
-
-
-# Util Classes
-class FrozenDict(dict):
-    def __init__(self, *args, **kwargs) -> None:
-        self._hash = None
-        super(FrozenDict, self).__init__(*args, **kwargs)
-
-    def __hash__(self) -> int:
-        if self._hash is None:
-            self._hash = hash(tuple(sorted(self.items())))  # iteritems() on py2
-        return self._hash
-
-    def __getattr__(self, item: str) -> Any:
-        return self.get(item, None)
-
-    def __getitem__(self, item: str, default: Any = None) -> Any:
-        return self.get(item, default)
-
-    def _immutable(self, *args, **kwargs) -> TypeError:
-        raise TypeError('cannot change object - object is immutable')
-
-    __setitem__ = _immutable
-    __delitem__ = _immutable
-    pop = _immutable
-    popitem = _immutable
-    clear = _immutable
-    update = _immutable
-    setdefault = _immutable

@@ -1,47 +1,52 @@
-import json, os, re
+import json
+import re
+
 from flask import Flask, request
 from sb_utils import Producer, decode_msg
+
 app = Flask(__name__)
 
-@app.route('/', methods=['POST'])
+
+@app.route("/", methods=["POST"])
 def result():
+    encode = re.search(r"(?<=\+)(.*?)(?=\;)", request.headers["Content-type"]).group(1)  # message encoding
+    corrID = request.headers["X-Request-ID"]  # correlation ID
+    # data = decode_msg(request.data, encode)  # message being decoded
 
-    encode = re.search(r'(?<=\+)(.*?)(?=\;)', request.headers['Content-type']).group(1)  # message encoding
-    correlationID = request.headers['X-Correlation-ID']  # correlation ID
+    profile, device = request.headers["Host"].rsplit("@", 1)
+    # profile used, device IP:port
+    orchID, orch = request.headers["From"].rsplit("@", 1)
+    # orchestrator ID, orchestrator IP:port
 
-    #data = decode_msg(request.data, encode)  # message being decoded
-
-    host = request.headers['Host'].rsplit('@', 1)
-    to = request.headers['From'].rsplit('@', 1)
-    profile = host[0]  # profile used
-    device = host[1]  # device IP:port
-    orchID = to[0]  # orchestrator ID
-    orch = to[1]  # orchestrator IP:port
-
-    print('Received command from ' + orch)
-
-    headers = {
-        "socket": orch,
-        "device": device,
-        "correlationID": correlationID,
-        "profile": profile,
-        "encoding": encode,
-        "orchestratorID": orchID,
-        "transport": "https"
-    }
-
+    print(f"Received command from {orch}")
+    print(f"Data: {{\"\"headers\": {{{request.headers}}}, \"content\": {{{request.data}}}")
+    print("Writing to buffer.")
     producer = Producer()
-    producer.publish(message=request.data, headers=headers, exchange='actuator', routing_key=profile)
-    print('Writing to buffer.')
+    producer.publish(
+        message=request.data,
+        headers={
+            "socket": orch,
+            "device": device,
+            "correlationID": corrID,
+            "profile": profile,
+            "encoding": encode,
+            "orchestratorID": orchID,
+            "transport": "https"
+        },
+        exchange="actuator",
+        routing_key=profile
+    )
 
     return json.dumps(dict(
         status=200,
-        status_text='received'
+        status_text="received"
     ))
 
 
 if __name__ == "__main__":
-    certPath = '/opt/transport/HTTPS/certs/server.crt'
-    keyPath = '/opt/transport/HTTPS/certs/server.key'
+    ssl = (
+        "/opt/transport/HTTPS/certs/server.crt",  # Cert Path
+        "/opt/transport/HTTPS/certs/server.key"   # Key Path
+    )
 
-    app.run(ssl_context=(certPath, keyPath), host='0.0.0.0', port=5001)
+    app.run(ssl_context=ssl, host="0.0.0.0", port=5001, debug=False)
