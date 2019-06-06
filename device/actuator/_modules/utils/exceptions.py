@@ -61,9 +61,10 @@ def server_exception(except_msg: str = "", *args: tuple, **kwargs: dict) -> dict
     :param kwargs: keyword arguments passed to the function - dict
     :return: OpenC2 response message - dict
     """
+    msg = "The Consumer encountered an unexpected condition that prevented it from performing the Command." if except_msg == "" else except_msg
     return dict(
         status=500,
-        status_text="Server Error. The server encountered an unexpected condition that prevented it from fulfilling the request" if except_msg == "" else except_msg
+        status_text=f"Internal Error - {msg}"
     )
 
 
@@ -75,7 +76,8 @@ def bad_request(except_msg: str = "", *args: tuple, **kwargs: dict) -> dict:
     :param kwargs: keyword arguments passed to the function - dict
     :return: OpenC2 response message - dict
     """
+    msg = "The Consumer cannot process the Command due to something that is perceived to be a Producer error (e.g., malformed Command syntax)" if except_msg == "" else except_msg
     return dict(
         status=400,
-        status_text="Bad Request. The server cannot process the request due to something that is perceived to be a client error (e.g., malformed request syntax.)" if except_msg == "" else except_msg
+        status_text=f"Bad Request - {msg}"
     )

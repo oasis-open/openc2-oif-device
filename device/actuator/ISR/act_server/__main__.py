@@ -2,7 +2,7 @@ import os
 
 from functools import partial
 
-from sb_utils import Consumer, Producer, encode_msg, decode_msg
+from sb_utils import Consumer, Producer, decode_msg
 from .actuator import Actuator
 
 
@@ -23,7 +23,7 @@ def on_message(act, prod, body, message):
     if msg_rsp:
         prod.publish(
             headers=headers,
-            message=encode_msg(msg_rsp, encoding),
+            message=msg_rsp,
             exchange='transport',
             routing_key=headers.get('transport', '').lower()
         )
