@@ -41,7 +41,7 @@ def process_message(body, message):
                     "Host": f"{orc_id}@{orc_socket}",
                 }
             )
-            print(f"Data: {{\"\"headers\": {{{r.request.headers}}}, \"content\": {{{r.request.data}}}")
+            print(f"Data: {{\"\"headers\": {json.dumps(r.request.headers)}, \"content\": {r.request.data}")
             print(f"Response from request: {r.status}")
         except Exception as err:
             err = str(getattr(err, "message", err))

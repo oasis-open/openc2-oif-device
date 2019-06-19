@@ -19,7 +19,7 @@ def result():
     # orchestrator ID, orchestrator IP:port
 
     print(f"Received command from {orch}")
-    print(f"Data: {{\"\"headers\": {{{request.headers}}}, \"content\": {{{request.data}}}")
+    print(f"Data: {{\"\"headers\": {json.dumps(request.headers)}, \"content\": {request.data}")
     print("Writing to buffer.")
     producer = Producer()
     producer.publish(
