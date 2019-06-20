@@ -1,4 +1,3 @@
-avro
 bson
 cbor2
 dicttoxml

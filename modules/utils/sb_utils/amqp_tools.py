@@ -7,6 +7,7 @@ import socket  # identify exceptions that occur with timeout
 import datetime  # print time received message
 import os  # to determine localhost on a given machine
 
+from functools import partial
 from inspect import isfunction
 from multiprocessing import Event, Process
 from typing import Union
@@ -54,7 +55,8 @@ class Consumer(Process):
 
         # Start consumer as an independent process
         self.start()
-        print(f"Connected to {self._url}")
+        if self._debug:
+            print(f"Connected to {self._url}")
 
     def run(self) -> None:
         """
@@ -79,9 +81,7 @@ class Consumer(Process):
         :param message: contains meta data about the message sent (ie. delivery_info)
         """
         if self._debug:
-            print("\nMessage Received @", datetime.datetime.now())
-            # print("Routing Key:", message.delivery_info.get("routing_key", ""))
-            # print("Exchange:", message.delivery_info.get("exchange", ""))
+            print(f"Message Received @ {datetime.datetime.now()}")
 
         message.ack()
         for func in self._callbacks:
@@ -92,7 +92,7 @@ class Consumer(Process):
         Add a function to the list of callback functions.
         :param fun: function to add to callbacks
         """
-        if isfunction(fun):
+        if isfunction(fun) or isinstance(fun, partial):
             if fun in self._callbacks:
                 raise ValueError("Duplicate function found in callbacks")
             self._callbacks.append(fun)
