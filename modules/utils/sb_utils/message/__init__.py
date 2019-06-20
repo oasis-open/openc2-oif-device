@@ -6,10 +6,6 @@ import bson
 import cbor2
 import json
 import msgpack
-# import pybinn
-# import pysmile
-import re
-# import pickle
 import yaml
 
 from ..ext_dicts import FrozenDict
@@ -19,7 +15,6 @@ from .xml import (
     encode as encode_xml
 )
 
-
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -28,42 +23,29 @@ except ImportError:
 
 serializations = FrozenDict(
     encode=FrozenDict(
-        # avro=lambda v: v,
-        # binn=lambda v: pybinn.dumps(v),
-        bson=lambda v: bson.dumps(v),
-        cbor=lambda v: cbor2.dumps(v),
+        bson=lambda v: base64.b64encode(bson.dumps(v)).decode("utf-8"),
+        cbor=lambda v: base64.b64encode(cbor2.dumps(v)).decode("utf-8"),
         json=lambda v: json.dumps(v),
-        msgpack=lambda v: msgpack.packb(v, use_bin_type=True),
-        # pickle=lambda v: pickle.dumps(v),
-        # protobuf=lambda v: v,
-        # smile=lambda v: pysmile.encode(v),
-        # thrift=lambda v: v,
+        msgpack=lambda v: base64.b64encode(msgpack.packb(v, use_bin_type=True)).decode("utf-8"),
         xml=lambda v: encode_xml(v),
         yaml=lambda v: yaml.dump(v, Dumper=Dumper),
     ),
     decode=FrozenDict(
-        # avro=lambda v: v,
-        # binn=lambda v: pybinn.loads(v),
-        bson=lambda v: bson.loads(v),
-        cbor=lambda v: cbor2.loads(v),
+        bson=lambda v: bson.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
+        cbor=lambda v: cbor2.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         json=lambda v: json.loads(v),
-        msgpack=lambda v: msgpack.unpackb(v, raw=False),
-        # pickle=lambda v: pickle.loads(v),
-        # protobuf=lambda v: v,
-        # smile=lambda v: pysmile.decode(v),
-        # thrift=lambda v: v,
+        msgpack=lambda v: msgpack.unpackb(base64.b64decode(v if isinstance(v, bytes) else v.encode()), raw=False),
         xml=lambda v: decode_xml(v),
         yaml=lambda v: yaml.load(v, Loader=Loader),
     )
 )
 
 
-def encode_msg(msg: dict, enc: str, b64: bool = True) -> str:
+def encode_msg(msg: dict, enc: str) -> str:
     """
     Encode the given message using the serialization specified
     :param msg: message to encode
     :param enc: serialization to encode
-    :param b64: encode byte string to base64 string, default True
     :return: encoded message
     """
     enc = enc.lower()
@@ -77,16 +59,14 @@ def encode_msg(msg: dict, enc: str, b64: bool = True) -> str:
     if len(msg.keys()) == 0:
         raise KeyError("Message should have at minimum one key")
 
-    encoded = serializations["encode"].get(enc, serializations.encode["json"])(msg)
-    return base64.b64encode(encoded).decode() if isinstance(encoded, bytes) and b64 else encoded
+    return serializations["encode"].get(enc, serializations.encode["json"])(msg)
 
 
-def decode_msg(msg: str, enc: str, b64: bool = True) -> dict:
+def decode_msg(msg: str, enc: str) -> dict:
     """
     Decode the given message using the serialization specified
     :param msg: message to decode
     :param enc: serialization to decode
-    :param b64: encode byte string to base64 string, default True
     :return: decoded message
     """
     enc = enc.lower()
@@ -99,8 +79,5 @@ def decode_msg(msg: str, enc: str, b64: bool = True) -> dict:
 
     if not isinstance(msg, (bytes, bytearray, str)):
         raise TypeError(f"Message is not expected type {bytes}/{bytearray}/{str}, got {type(msg)}")
-
-    if b64 and isinstance(msg, str) and re.match(r"^[a-zA-Z0-9+/]+?={0,3}$", msg):
-        msg = base64.b64decode(msg)
 
     return serializations["decode"].get(enc, serializations.decode["json"])(msg)

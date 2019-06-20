@@ -1,8 +1,7 @@
-import json
 import urllib3
 
 from datetime import datetime
-from sb_utils import Consumer, encode_msg
+from sb_utils import Consumer, default_encode, encode_msg, safe_json
 
 
 def process_message(body, message):
@@ -12,14 +11,15 @@ def process_message(body, message):
     :param message: Contains data about the message as well as headers
     """
     http = urllib3.PoolManager(cert_reqs="CERT_NONE")
-
-    body = body if isinstance(body, dict) else json.loads(body)
+    body = body if isinstance(body, dict) else safe_json(body)
     rcv_headers = message.headers
 
+    # Orchestrator Info
     orc_socket = rcv_headers["socket"]  # orch IP:port
     orc_id = rcv_headers["orchestratorID"]  # orchestrator ID
     corr_id = rcv_headers["correlationID"]  # correlation ID
 
+    # Device Info
     device_socket = rcv_headers["device"]  # device IP:port
     encoding = rcv_headers["encoding"]  # message encoding
     profile = rcv_headers["profile"]  # profile used
@@ -41,8 +41,11 @@ def process_message(body, message):
                     "Host": f"{orc_id}@{orc_socket}",
                 }
             )
-            print(f"Data: {{\"\"headers\": {json.dumps(r.request.headers)}, \"content\": {r.request.data}")
-            print(f"Response from request: {r.status}")
+            data = safe_json({
+                "headers": dict(r.headers),
+                "content": safe_json(r.data.decode('utf-8'))
+            })
+            print(f"Response from request: {r.status} - {data}")
         except Exception as err:
             err = str(getattr(err, "message", err))
             print(f"HTTPS error: {err}")
@@ -56,7 +59,8 @@ if __name__ == "__main__":
         consumer = Consumer(
             exchange="transport",
             routing_key="https",
-            callbacks=[process_message]
+            callbacks=[process_message],
+            debug=True
         )
 
     except Exception as err:
