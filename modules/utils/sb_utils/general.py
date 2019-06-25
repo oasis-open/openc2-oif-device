@@ -65,6 +65,25 @@ def safe_json(msg: Union[dict, str], encoders: Dict[Type, Callable[[Any], Any]] 
     return json.dumps(msg, *args, **kwargs)
 
 
+def check_values(val: Any) -> Any:
+    """
+    Check the value of given and attempt to convert it to a bool, int, float
+    :param val: value to check
+    :return: converted/original value
+    """
+    if isinstance(val, str):
+        if val.lower() in ("true", "false"):
+            return safe_cast(val, bool,  val)
+
+        if val.isdecimal() and "." in val:
+            return safe_cast(val, float,  val)
+
+        if val.isdigit():
+            return safe_cast(val, int,  val)
+
+    return val
+
+
 def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = {}) -> Any:
     """
     Default encode the given object to the system default string
@@ -83,5 +102,8 @@ def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = {}) ->
 
     if isinstance(itm, (complex, int, float)):
         return itm
+
+    if isinstance(itm, str):
+        return check_values(itm)
 
     return toStr(itm)

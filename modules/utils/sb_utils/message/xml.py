@@ -11,7 +11,7 @@ from typing import (
     Union
 )
 
-from ..general import safe_cast, toStr
+from ..general import check_values
 
 
 def _xml_root(msg: dict) -> Union[dict, str]:
@@ -35,26 +35,6 @@ def _xml_root(msg: dict) -> Union[dict, str]:
     return msg
 
 
-def _check_values(val: Any) -> Union[bool, float, int, str]:
-    """
-    Check the value of given and attempt to convert it to a bool, int, float, or str
-    :param val: value to check
-    :return: str/converted value
-    """
-    val = toStr(val)
-
-    if val.lower() in ("true", "false"):
-        return safe_cast(val, bool,  val)
-
-    if val.isdecimal() and "." in val:
-        return safe_cast(val, float,  val)
-
-    if val.isdigit():
-        return safe_cast(val, int,  val)
-
-    return val
-
-
 def _xml_to_dict(xml: dict) -> dict:
     """
     Convert XML data to a dict
@@ -64,7 +44,7 @@ def _xml_to_dict(xml: dict) -> dict:
     tmp = {}
     for k, v in xml.items():
         k = k[1:] if k.startswith("@") else k
-        tmp[k] = _xml_to_dict(v) if isinstance(v, collections.OrderedDict) else _check_values(v)
+        tmp[k] = _xml_to_dict(v) if isinstance(v, collections.OrderedDict) else check_values(v)
     return tmp
 
 

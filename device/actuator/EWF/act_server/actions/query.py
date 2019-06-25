@@ -6,7 +6,7 @@ from ..utils import Dispatch, exceptions, FrozenDict
 Query = Dispatch("query")
 
 Features = FrozenDict(
-    pairs=lambda act: [[act, tar] for act, tar in act.pairs.items()],
+    pairs=lambda act: act.pairs,
     profiles=lambda act: act.profile,
     rate_limit=lambda act: getattr(act, "rate_limit", 0),
     schema=lambda act: act.schema,

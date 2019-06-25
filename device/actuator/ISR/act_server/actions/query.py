@@ -6,7 +6,7 @@ from ..utils import Dispatch, exceptions, FrozenDict
 Query = Dispatch("query")
 
 Features = FrozenDict(
-    pairs=lambda act: [[act, tar] for act, tar in act.pairs.items()],
+    pairs=lambda act: act.pairs,
     profiles=lambda act: act.profile,
     rate_limit=lambda act: getattr(act, "rate_limit", 0),
     schema=lambda act: act.schema,
@@ -21,11 +21,12 @@ def default(*extra_args, **extra_kwargs):
 
 @Query.register
 def features(act, target=[], args={}, *extra_args, **extra_kwargs):
+    print(f"{act}, {target}, {args}, {extra_args}, {extra_kwargs}")
     if not isinstance(args, dict) and len(set(args) - {"response"}) > 0:
         print("Invalid Query Args")
         return exceptions.bad_argument()
 
-    if not isinstance(target, list) and len(set(target) - set(Features.keys())) > 0:
+    if not isinstance(target, list) and len({*target}.difference({*Features.keys()})) > 0:
         return exceptions.bad_request()
 
     else:
