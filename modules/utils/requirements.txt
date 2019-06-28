@@ -1,6 +1,5 @@
 bson
 cbor2
-dicttoxml
 kombu
 msgpack
 xmltodict

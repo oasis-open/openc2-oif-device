@@ -7,7 +7,7 @@ This is an example target registration for an action
 
 from ..utils import Dispatch, exceptions
 
-Example = Dispatch("query")
+Example = Dispatch("example")
 
 
 @Example.register

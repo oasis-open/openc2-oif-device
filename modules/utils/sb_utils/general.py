@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 import uuid
 
@@ -75,7 +76,7 @@ def check_values(val: Any) -> Any:
         if val.lower() in ("true", "false"):
             return safe_cast(val, bool,  val)
 
-        if val.isdecimal() and "." in val:
+        if re.match(r"^\d+\.\d+$", val):
             return safe_cast(val, float,  val)
 
         if val.isdigit():
@@ -86,7 +87,7 @@ def check_values(val: Any) -> Any:
 
 def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = {}) -> Any:
     """
-    Default encode the given object to the system default string
+    Default encode the given object to the predefined types
     :param itm: object to encode/decode,
     :param encoders: custom type encoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
     :return: default system encoded object
@@ -95,15 +96,37 @@ def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = {}) ->
         return encoders[type(itm)](itm)
 
     if isinstance(itm, dict):
-        return {k: default_encode(v) for k, v in itm.items()}
+        return {k: default_encode(v, encoders) for k, v in itm.items()}
 
     if isinstance(itm, (list, tuple)):
-        return type(itm)(default_encode(i) for i in itm)
+        return type(itm)(default_encode(i, encoders) for i in itm)
 
-    if isinstance(itm, (complex, int, float)):
+    if isinstance(itm, (int, float)):
+        return itm
+
+    return toStr(itm)
+
+
+def default_decode(itm: Any, decoders: Dict[Type, Callable[[Any], Any]] = {}) -> Any:
+    """
+    Default decode the given object to the predefined types
+    :param itm: object to encode/decode,
+    :param decoders: custom type decoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
+    :return: default system encoded object
+    """
+    if isinstance(itm, tuple(decoders.keys())):
+        return decoders[type(itm)](itm)
+
+    if isinstance(itm, dict):
+        return {k: default_decode(v, decoders) for k, v in itm.items()}
+
+    if isinstance(itm, (list, tuple)):
+        return type(itm)(default_decode(i, decoders) for i in itm)
+
+    if isinstance(itm, (int, float)):
         return itm
 
     if isinstance(itm, str):
         return check_values(itm)
 
-    return toStr(itm)
+    return itm

@@ -9,7 +9,6 @@ Features = FrozenDict(
     pairs=lambda act: act.pairs,
     profiles=lambda act: act.profile,
     rate_limit=lambda act: getattr(act, "rate_limit", 0),
-    schema=lambda act: act.schema,
     versions=lambda act: act.schema.get("meta", {}).get("version", "N/A")
 )
 
