@@ -47,7 +47,14 @@ The body is the content of the OpenC2 Command/Response.
 
 The MQTT transport is subscribed to a [topic](https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices) that is related to the actuator that the OpenC2 message should be routed to. The current convention is topic=actuatorProfileName (eg. openc2_isr_actuator_profile).
 
-The environment variable `MQTT_TOPICS` is a string of comma-separated topics (lists are unsupported) that can be appended to when new actuators are added. The `MQTT_TOPICS` variable is preset to contain the topics relating to the included default actuator(s).
+The environment variable `MQTT_TOPICS` is a string of comma-separated topics (lists are unsupported) that can be appended to when new actuators are added.
+- The `MQTT_TOPICS` variable is preset to contain the topics relating to the included default actuator(s).
+- Preferred when developing transports as actuator profiles are preset instead of dynamic.
+
+The environment variable `TRANSPORT_TOPICS` is a string of comma-separated topics (lists are unsupported) that can be appended to when new transports are added.
+- The `TRANSPORT_TOPICS` variable is optional and should contain the transports the device supports.
+- Preferred when developing actuators as the actuator profiles are dynamically loaded.
+
 
 ## Broker Location
 

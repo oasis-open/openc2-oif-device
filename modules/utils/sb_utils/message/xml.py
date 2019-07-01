@@ -4,12 +4,8 @@ Message Conversion functions
 import collections
 import xmltodict
 
-from dicttoxml import dicttoxml
 
-from typing import (
-    Any,
-    Union
-)
+from typing import Union
 
 from ..general import check_values
 
@@ -43,7 +39,9 @@ def _xml_to_dict(xml: dict) -> dict:
     """
     tmp = {}
     for k, v in xml.items():
-        k = k[1:] if k.startswith("@") else k
+        k = k[1:] if k.startswith(("@", "#")) else k
+        if k in tmp:
+            raise KeyError(f"Duplicate key from `attr_prefix` or `cdata_key` - {k}")
         tmp[k] = _xml_to_dict(v) if isinstance(v, collections.OrderedDict) else check_values(v)
     return tmp
 
@@ -54,7 +52,7 @@ def encode(msg: dict) -> str:
     :param msg: message to convert
     :return: XML formatted message
     """
-    return dicttoxml(msg, custom_root=_xml_root(msg), attr_type=False).decode("utf-8")
+    return xmltodict.unparse({_xml_root(msg): msg})
 
 
 def decode(msg: str) -> dict:

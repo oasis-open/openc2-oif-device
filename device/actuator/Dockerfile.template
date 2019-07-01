@@ -8,6 +8,8 @@ license="BSD" \
 version="$VERSION" \
 description="This is the ${ACT_NAME} Actuator container"
 
+ENV PYTHONUNBUFFERED=1
+
 ADD requirements.txt /tmp/requirements.txt
 ADD act_server /opt/actuator/act_server
 ADD docker_start.sh /opt/actuator/start.sh

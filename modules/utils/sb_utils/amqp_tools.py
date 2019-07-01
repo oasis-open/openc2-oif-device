@@ -37,7 +37,7 @@ class Consumer(Process):
 
         self._url = f"amqp://{host}:{port}"
         self._exchange_name = exchange
-        self._callbacks = []
+        self._callbacks = ()
         self._debug = debug
 
         if isinstance(callbacks, (list, tuple)):
@@ -95,7 +95,39 @@ class Consumer(Process):
         if isfunction(fun) or isinstance(fun, partial):
             if fun in self._callbacks:
                 raise ValueError("Duplicate function found in callbacks")
-            self._callbacks.append(fun)
+            self._callbacks = (*self._callbacks, fun)
+
+    def get_exchanges(self):
+        """
+        Get a list of exchange names on the queue
+        :return: list of exchange names
+        """
+        exchanges = self._conn.get_manager().get_exchanges()
+        return list(filter(None, [exc.get("name", "")for exc in exchanges]))
+
+    def get_queues(self):
+        """
+        Get a list of queue names on the queue
+        :return: list of queue names
+        """
+        queues = self._conn.get_manager().get_queues()
+        return list(filter(None, [que.get("name", "") for que in queues]))
+
+    def get_binds(self):
+        """
+        Get a list of exchange/topic bindings
+        :return: list of exchange/topic bindings
+        """
+        binds = []
+        manager = self._conn.get_manager()
+        for queue in self.get_queues():
+            for bind in manager.get_queue_bindings(vhost="/", qname=queue):
+                binds.append({
+                    "exchange": bind.get("source", ""),
+                    "routing_key": bind.get("routing_key", "")
+                })
+
+        return binds
 
     def shutdown(self):
         """

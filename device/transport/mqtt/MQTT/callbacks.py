@@ -1,16 +1,18 @@
 # callbacks.py
 
-from urllib.parse import urlparse
-from sb_utils import Consumer, Producer, encode_msg, decode_msg
-import paho.mqtt.publish as publish
-import paho.mqtt.subscribe as subscribe
-import paho.mqtt.client as mqtt
-import os
 import json
-import socket
+import os
+import paho.mqtt.publish as publish
 import re
 
+from sb_utils import Consumer, Producer, encode_msg, decode_msg, safe_cast
+
+# maintains a list of active devices we can receive responses from
+ACTIVE_CONNECTIONS = []
+
+
 class Callbacks(object):
+    required_header_keys = {"encoding", "orchestratorID", "socket"}
 
     @staticmethod
     def on_connect(client, userdata, flags, rc):
@@ -21,15 +23,15 @@ class Callbacks(object):
         :param flags: Response flags sent by broker
         :param rc: Connection result, Successful = 0
         """
-        print("Connected with result code " + str(rc))
+        print(f"Connected with result code {rc}")
         # Subscribing in on_connect() allows us to renew subscriptions if disconnected
 
-        if type(userdata) is list:
+        if isinstance(userdata, list):
             for topic in userdata:
-                if type(topic) is not str:
-                    print('Error in on_connect. Expected topic to be type a list of strings.')
+                if not isinstance(topic, str):
+                    print("Error in on_connect. Expected topic to be type a list of strings.")
                 client.subscribe(topic.lower(), qos=1)
-                print('Listening on', topic.lower())
+                print(f"Listening on {topic.lower()}")
 
     @staticmethod
     def on_message(client, userdata, msg):
@@ -40,34 +42,38 @@ class Callbacks(object):
         :param msg: Contains payload, topic, qos, retain
         """
         payload = json.loads(msg.payload)
-        encoding = re.search(r'(?<=\+)(.*?)(?=\;)', payload["header"].get('content_type', '')).group(1)  # message encoding
-        route, socket = payload["header"].get('to', '').rsplit('@', 1)
-        orchestratorID = payload["header"].get('from', '').rsplit('@', 1)[0]
-        correlationID = payload["header"].get('correlationID', '')
+        payload_header = payload.get("header", {})
 
+        encoding = re.search(r"(?<=\+)(.*?)(?=;)", payload_header.get("content_type", "")).group(1)
+        profile, broker_socket = payload_header.get("to", "").rsplit("@", 1)
+        orc_id = payload_header.get("from", "").rsplit("@", 1)[0]
+        corr_id = payload_header.get("correlationID", "")
+
+        # copy necessary headers
         header = {
-            "socket": socket,
-            "correlationID": correlationID,
+            "socket": broker_socket,
+            "correlationID": corr_id,
+            "orchestratorID": orc_id,
             "encoding": encoding,
-            "orchestratorID": orchestratorID,
-            "profile": route,
+            "profile": profile,
             "transport": "mqtt"
         }
 
-        exchange = 'actuator'
-
         # Connect and publish to internal buffer
-        producer = Producer(os.environ.get('QUEUE_HOST', 'localhost'),
-                            os.environ.get('QUEUE_PORT', '5672'))
+        exchange = "actuator"
+        producer = Producer(
+            os.environ.get("QUEUE_HOST", "localhost"),
+            os.environ.get("QUEUE_PORT", "5672")
+        )
 
         producer.publish(
             headers=header,
-            message=payload.get('body', ''),
+            message=payload.get("body", ""),
             exchange=exchange,
-            routing_key=route
-        )    
+            routing_key=profile
+        )
         
-        print(f'Received: {payload} \nPlaced message onto exchange [{exchange}] queue [{route}].')
+        print(f"Received: {payload} \nPlaced message onto exchange [{exchange}] queue [{profile}].")
 
     @ staticmethod
     def send_mqtt(body, message):
@@ -76,60 +82,61 @@ class Callbacks(object):
         :param body: Contains the message to be sent.
         :param message: Contains data about the message as well as headers
         """
-        
-        payload = {}
-
         # check for certs if TLS is enabled
-        if os.environ.get('MQTT_TLS_ENABLED', False) and os.listdir('/opt/transport/MQTT/certs'):
+        if os.environ.get("MQTT_TLS_ENABLED", False) and os.listdir("/opt/transport/MQTT/certs"):
             tls = dict(
-                ca_certs=os.environ.get('MQTT_CAFILE', None),
-                certfile=os.environ.get('MQTT_CLIENT_CERT', None),
-                keyfile=os.environ.get('MQTT_CLIENT_KEY', None)
+                ca_certs=os.environ.get("MQTT_CAFILE", None),
+                certfile=os.environ.get("MQTT_CLIENT_CERT", None),
+                keyfile=os.environ.get("MQTT_CLIENT_KEY", None)
             )
         else:
             tls = None
 
         # build message for MQTT
-        encoding = message.headers.get('encoding', 'json')
-        socket = message.headers.get('socket', 'localhost:1883')
-        content_type = "application/openc2-cmd+" + encoding + ";version=1.0"
-        source = message.headers.get('profile', '') + '@' + socket
-        dest = message.headers.get('orchestratorID', '') + '@' + socket
-        correlationID = message.headers.get('correlationID', '')
+        encoding = message.headers.get("encoding", "json")
+        broker_socket = message.headers.get("socket", "localhost:1883")
+        content_type = f"application/openc2-cmd+{encoding};version=1.0"
+        source = f"{message.headers.get('profile', '')}@{broker_socket}"
+        dest = f"{message.headers.get('orchestratorID', '')}@{broker_socket}"
+        corr_id = message.headers.get("correlationID", "")
 
-        payload['header'] = {
-            "to": dest,
-            "from": source,
-            "correlationID": correlationID,
-            "content_type" : content_type
+        payload = {
+            "header": {
+                "to": dest,
+                "from": source,
+                "correlationID": corr_id,
+                "content_type": content_type
+            },
+            "body": body
         }
 
-        payload['body'] = body
-
         # Transport is running on device side, send response to orchestrator
-        if all(keys in message.headers for keys in ['socket', 'encoding', 'orchestratorID']):
-
-            ip, port = socket.split(':')[0:2]
-            topic = message.headers.get('orchestratorID') + '/response'
+        key_diff = Callbacks.required_header_keys.difference({*message.headers.keys()})
+        if len(key_diff) == 0:
+            ip, port = broker_socket.split(":")[0:2]
+            topic = message.headers.get("orchestratorID") + "/response"
             try:
                 publish.single(
                     topic,
                     payload=json.dumps(payload),
+                    qos=1,
                     hostname=ip,
-                    port=int(port),
+                    port=safe_cast(port, int, 1883),
+                    will={
+                        "topic": topic,
+                        "payload": json.dumps(payload),
+                        "qos": 1
+                    },
                     tls=tls,
-                    qos=1
                 )
-                print(f'Sent: {payload}')
+                print(f"Sent: {payload}")
             except Exception as e:
-                print(f'An error occured. {e}')
+                print(f"An error occurred -  {e}")
                 pass
         else:
-            print('Missing some/all required header data to successfully transport message.')
+            print(f"Missing required header data to successfully transport message - {', '.join(key_diff)}")
             print(message.headers)
 
-# maintains a list of active devices we can receive responses from
-ACTIVE_CONNECTIONS = []
 
 def send_error_response(e, header):
     """
@@ -139,13 +146,16 @@ def send_error_response(e, header):
     :param header: Include headers which would have been sent for Orchestrator to read.
     """
     producer = Producer(
-        os.environ.get('QUEUE_HOST', 'localhost'),
-        os.environ.get('QUEUE_PORT', '5672')
+        os.environ.get("QUEUE_HOST", "localhost"),
+        os.environ.get("QUEUE_PORT", "5672")
     )
+
+    err = json.dumps(str(e))
+    print(f"Send error response: {err}")
+
     producer.publish(
         headers=header,
-        message=json.dumps(str(e)),
-        exchange='orchestrator',
-        routing_key='response'
-    )    
-    print(f'Error Response Sent.')
+        message=err,
+        exchange="orchestrator",
+        routing_key="response"
+    )

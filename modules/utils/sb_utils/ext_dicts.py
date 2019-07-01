@@ -1,4 +1,4 @@
-from typing import Any, List, Type
+from typing import Any, List
 
 
 class ObjectDict(dict):

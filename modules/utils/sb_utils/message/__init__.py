@@ -8,7 +8,10 @@ import json
 import msgpack
 import yaml
 
-from ..ext_dicts import FrozenDict
+from .. import (
+    ext_dicts,
+    general
+)
 
 from .xml import (
     decode as decode_xml,
@@ -21,8 +24,8 @@ except ImportError:
     from yaml import Loader, Dumper
 
 
-serializations = FrozenDict(
-    encode=FrozenDict(
+serializations = ext_dicts.FrozenDict(
+    encode=ext_dicts.FrozenDict(
         bson=lambda v: base64.b64encode(bson.dumps(v)).decode("utf-8"),
         cbor=lambda v: base64.b64encode(cbor2.dumps(v)).decode("utf-8"),
         json=lambda v: json.dumps(v),
@@ -30,7 +33,7 @@ serializations = FrozenDict(
         xml=lambda v: encode_xml(v),
         yaml=lambda v: yaml.dump(v, Dumper=Dumper),
     ),
-    decode=FrozenDict(
+    decode=ext_dicts.FrozenDict(
         bson=lambda v: bson.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         cbor=lambda v: cbor2.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         json=lambda v: json.loads(v),
@@ -49,6 +52,7 @@ def encode_msg(msg: dict, enc: str) -> str:
     :return: encoded message
     """
     enc = enc.lower()
+    msg = general.default_encode(msg)
 
     if enc not in serializations.encode:
         raise ReferenceError(f"Invalid encoding specified, must be one of {', '.join(serializations.encode.keys())}")
@@ -80,4 +84,5 @@ def decode_msg(msg: str, enc: str) -> dict:
     if not isinstance(msg, (bytes, bytearray, str)):
         raise TypeError(f"Message is not expected type {bytes}/{bytearray}/{str}, got {type(msg)}")
 
-    return serializations["decode"].get(enc, serializations.decode["json"])(msg)
+    msg = serializations["decode"].get(enc, serializations.decode["json"])(msg)
+    return general.default_decode(msg)
