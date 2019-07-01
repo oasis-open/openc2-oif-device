@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 
 import atexit
-import fnmatch
-import importlib
 import os
 import re
 import shutil
-import stat
 import subprocess
 import sys
 
 from datetime import datetime
 from optparse import OptionParser
-from pathlib import Path
 
 
 from modules.script_utils import (
