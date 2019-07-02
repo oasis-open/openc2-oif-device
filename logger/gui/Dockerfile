@@ -6,6 +6,7 @@ ADD . /tmp/gui
 RUN apk add --update nodejs nodejs-npm && \
 cd /tmp/gui && \
 npm install  && \
+find ./node_modules/babel-runtime -type f -exec sed -i -e 's/core-js\/library\/fn\//core-js\/features\//g' {} \; && \
 npm run init  && \
 npm run build  && \
 mkdir -p /opt/syslog/gui && \
