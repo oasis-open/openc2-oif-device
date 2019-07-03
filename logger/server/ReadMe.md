@@ -19,7 +19,7 @@ Environment Variables
 | LOG_PREFIX | String | Prefix for the index in the format of `log_{LOG_PREFIX}-{YYYY.mm.dd}`  | logger
 | ES_TRIES | Integer | Max attempts to connect to ElasticSearch in 1s intervals | 60
 
-# Resources
+### Resources
 - Based on [Gist from marcelom](https://gist.github.com/marcelom/4218010)
 
 ## GUI
@@ -37,7 +37,7 @@ Environment Variables
 | ES_HOST | String | Host/IP of the Elasticsearch node | es_logger
 | ES_PORT | Integer | Port of the Elasticsearch Node | 9200
 
-# Resources
+### Resources
 - [Lodash](https://www.npmjs.com/package/lodash) - Lodahs library for node
 - [Moment](https://www.npmjs.com/package/moment) - DateTime formatting/parsing
 - [Query String](https://www.npmjs.com/package/query-string) - Parse and stringify URL query strings
