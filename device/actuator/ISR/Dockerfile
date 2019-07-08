@@ -1,12 +1,12 @@
-FROM ${BASE_NAME}:latest
+FROM oif/base:alpine-python3_utils
 
-MAINTAINER $MAINTAINER
+MAINTAINER Screaming_Bunny
 
-LABEL name="Actuator ${ACT_NAME}" \
+LABEL name="Actuator ISR" \
 vendor="OpenC2" \
 license="BSD" \
-version="$VERSION" \
-description="This is the ${ACT_NAME} Actuator container"
+version="v0.0.1" \
+description="This is the ISR Actuator container"
 
 ENV PYTHONUNBUFFERED=1
 

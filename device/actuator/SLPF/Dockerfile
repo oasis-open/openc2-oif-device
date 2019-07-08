@@ -1,14 +1,12 @@
-FROM ${BASE_NAME}:latest
+FROM oif/base:alpine-python3_utils
 
-MAINTAINER $MAINTAINER
+MAINTAINER Screaming_Bunny
 
-LABEL name="Actuator ${ACT_NAME}" \
+LABEL name="Actuator SLPF" \
 vendor="OpenC2" \
 license="BSD" \
-version="$VERSION" \
-description="This is the ${ACT_NAME} Actuator container"
-
-ENV PYTHONUNBUFFERED=1
+version="v0.0.1" \
+description="This is the SLPF Actuator container"
 
 ADD requirements.txt /tmp/requirements.txt
 ADD act_server /opt/actuator/act_server
