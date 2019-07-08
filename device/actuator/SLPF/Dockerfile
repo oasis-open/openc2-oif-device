@@ -1,4 +1,4 @@
-FROM oif/base:alpine-python3_utils
+FROM oif/base
 
 MAINTAINER Screaming_Bunny
 
@@ -7,6 +7,8 @@ vendor="OpenC2" \
 license="BSD" \
 version="v0.0.1" \
 description="This is the SLPF Actuator container"
+
+ENV PYTHONUNBUFFERED=1
 
 ADD requirements.txt /tmp/requirements.txt
 ADD act_server /opt/actuator/act_server

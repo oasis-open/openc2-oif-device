@@ -1,4 +1,4 @@
-FROM oif/base:alpine-python3_utils
+FROM oif/base
 
 MAINTAINER Screaming_Bunny
 
