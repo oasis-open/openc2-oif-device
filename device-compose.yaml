@@ -9,7 +9,7 @@ volumes:
 services:
   transport-mqtt:
     hostname: transport-mqtt
-    image: oif/transport:device-mqtt
+    image: g2inc/oif-device-transport-mqtt
     build:
       context: ./device/transport/mqtt
     working_dir: /opt/transport/MQTT
@@ -26,7 +26,7 @@ services:
 
   transport-https:
     hostname: transport-https
-    image: oif/transport:device-https
+    image:  g2inc/oif-device-transport-https
     build:
       context: ./device/transport/https
     working_dir: /opt/transport
@@ -36,6 +36,25 @@ services:
       - queue
     ports:
       - 5001:5001
+    depends_on:
+      - queue
+    entrypoint:
+      - sh
+      - dev_start.sh
+
+  transport-coap:
+    hostname: transport-coap
+    image:  g2inc/oif-device-transport-coap
+    build:
+      context: ./device/transport/coap
+      dockerfile: Dockerfile
+    working_dir: /opt/transport/COAP
+    env_file:
+      - ./environment/queue.connect.env
+    external_links:
+      - queue
+    ports:
+      - '5682:5682/udp'
     depends_on:
       - queue
     entrypoint:
@@ -60,7 +79,7 @@ services:
 
   actuator-isr:
     hostname: actuator-isr
-    image: oif/actuator:isr
+    image:  g2inc/oif-device-actutator-isr
     build:
       context: ./device/actuator/isr
     env_file:
