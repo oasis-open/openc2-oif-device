@@ -1,11 +1,11 @@
 FROM oif/base
 
-MAINTAINER Screaming_Bunny
+MAINTAINER $MAINTAINER
 
 LABEL name="Actuator SLPF" \
 vendor="OpenC2" \
 license="BSD" \
-version="v0.0.1" \
+version="$VERSION" \
 description="This is the SLPF Actuator container"
 
 ENV PYTHONUNBUFFERED=1

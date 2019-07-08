@@ -1,11 +1,11 @@
 FROM oif/base
 
-MAINTAINER Screaming_Bunny
+MAINTAINER $MAINTAINER
 
 LABEL name="Actuator EWF" \
 vendor="OpenC2" \
 license="BSD" \
-version="v0.0.1" \
+version="$VERSION" \
 description="This is the EWF Actuator container"
 
 ENV PYTHONUNBUFFERED=1
