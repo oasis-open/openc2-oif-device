@@ -184,7 +184,7 @@ CONFIG = FrozenDict(
 
 Args = {key: value.strip() for key, value in os.environ.items()}
 Args.update(safe_load(CONFIG.ArgFiles.Default))
-Args['BASE_NAME'] = Args.get('BASE_IMAGE_NAME', Args.get('IMAGE_NAME', 'oif/base'))
+Args['BASE_NAME'] = Args.get('BASE_IMAGE_NAME', Args.get('IMAGE_NAME', 'g2inc/oif-python:latest'))
 
 CONFIG = FrozenDict(
     **CONFIG,
