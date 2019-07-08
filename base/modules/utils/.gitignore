@@ -166,7 +166,5 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
-# Custom ignore
-.idea/
-*/act_server/config.json
-*/act_server/utils
+# Custom Ignore
+.idea

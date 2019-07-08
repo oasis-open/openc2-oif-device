@@ -10,7 +10,12 @@ import subprocess
 import sys
 
 from getpass import getpass
-from pathlib import Path
+
+
+try:
+    input = raw_input
+except NameError:
+    pass
 
 
 # Classes
@@ -316,85 +321,6 @@ def build_image(docker_sys=None, console=None, **kwargs):
     msg = "".join(line.get("stream", "") for line in img[1])
     console.verbose("default", msg) if isinstance(console, ConsoleStyle) else print(msg)
     return img
-
-
-def build_gui(docker_sys=None, gui_root=None, console=None):
-    import_mod('docker')
-    if docker_sys is None:
-        msg = f"docker_sys arg is required"
-        console.error(msg) if isinstance(console, ConsoleStyle) else print(msg)
-        exit(1)
-    elif gui_root is None:
-        msg = f"gui_root arg is required"
-        console.error(msg) if isinstance(console, ConsoleStyle) else print(msg)
-        exit(1)
-
-    rm_items = (
-        "build",
-        "node_modules",
-        "package-lock.json"
-    )
-
-    def build_err(e):
-        build_root = os.path.join(gui_root, "build")
-        Path(build_root).mkdir(parents=True, exist_ok=True)
-
-        with open(os.path.join(build_root, "index.html"), "w") as f:
-            f.writelines([
-                "<h1>GUI Placeholder</h1>",
-                f"<h3>GUI placeholder, built error - {e}</h3>"
-            ])
-        return e
-
-    npm_cmds = (
-        "cp -r /project /tmp/project",
-        "cd /tmp/project",
-        "npm install",
-        "find ./node_modules/babel-runtime -type f -exec sed -i -e 's/core-js\/library\/fn\//core-js\/features\//g' {} \;",
-        "npm run init",
-        "npm run build",
-        "cp -r /tmp/project/build /project/build"
-    )
-
-    for itm in rm_items:
-        itm_path = os.path.join(gui_root, itm)
-        if os.path.isdir(itm_path):
-            shutil.rmtree(itm_path, onerror=set_rw)
-        elif os.path.isfile(itm_path):
-            os.remove(itm_path)
-
-    try:
-        gui_build = docker_sys.containers.run(
-            image="node:10-alpine",
-            command=f"sh -c \"{' && '.join(npm_cmds)}\"",
-            volumes={
-                gui_root: {
-                    "bind": "/project",
-                    "mode": "rw"
-                }
-            },
-            auto_remove=True
-        )
-        console.verbose("default", gui_build) if isinstance(console, ConsoleStyle) else print(gui_build)
-    except docker.errors.ContainerError as e:
-        msg =f"Docker Container error: {e}"
-        console.error(msg) if isinstance(console, ConsoleStyle) else print(msg)
-        return build_err(e)
-
-    except docker.errors.ImageNotFound as e:
-        msg = "Cannot build core gui webapp, node:10-alpine image not found"
-        console.error(msg) if isinstance(console, ConsoleStyle) else print(msg)
-        return build_err(e)
-
-    except docker.errors.APIError as e:
-        msg = f"Docker API error: {e}"
-        console.error(msg) if isinstance(console, ConsoleStyle) else print(msg)
-        return build_err(e)
-
-    except KeyboardInterrupt:
-        msg = "Keyboard Interrupt"
-        console.error(msg) if isinstance(console, ConsoleStyle) else print(msg)
-        exit(1)
 
 
 def human_size(size, units=(" bytes", "KB", "MB", "GB", "TB", "PB", "EB")):

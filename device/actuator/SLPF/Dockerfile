@@ -1,12 +1,12 @@
-FROM ${BASE_NAME}
+FROM oif/base
 
 MAINTAINER $MAINTAINER
 
-LABEL name="Actuator ${ACT_NAME}" \
+LABEL name="Actuator SLPF" \
 vendor="OpenC2" \
 license="BSD" \
 version="$VERSION" \
-description="This is the ${ACT_NAME} Actuator container"
+description="This is the SLPF Actuator container"
 
 ENV PYTHONUNBUFFERED=1
 

@@ -242,5 +242,4 @@ typings/
 
 # Public Files
 **/modules/*
-!modules/*
-
+!base/modules/*

@@ -3,14 +3,14 @@
 import atexit
 import os
 import re
+import subprocess
 import sys
 
 from datetime import datetime
 from optparse import OptionParser
 from pathlib import Path
 
-
-from modules.script_utils import (
+from base.modules.script_utils import (
     # Functions
     checkRequiredArguments,
     install_pkg,
@@ -20,6 +20,7 @@ from modules.script_utils import (
     ConsoleStyle,
     FrozenDict
 )
+
 
 if sys.version_info < (3, 6):
     print('PythonVersionError: Minimum version of v3.6+ not found')
@@ -43,7 +44,6 @@ if options.log_file:
     name, ext = os.path.splitext(options.log_file)
     ext = '.log' if ext is '' else ext
     fn = f'{name}-{init_now:%Y.%m.%d_%H.%M.%S}{ext}'
-    # log_file = open(fn, 'w+')
     log_file = open(options.log_file, 'w+')
     log_file.write(f'Configure run at {init_now:%Y.%m.%d_%H:%M:%S}\n\n')
     log_file.flush()
@@ -65,13 +65,9 @@ CONFIG = FrozenDict(
         ('colorama', 'colorama')
     ),
     BaseRepo=f"{Base_URL}ScreamingBunny",
-    Remove=FrozenDict(
-        Dirs=(".git", ".idea"),
-        Files=(".git", ".gitlab-ci.yml", "dev-compose.yaml", ".gitmodules")
-    ),
     ImageReplace=(
-        ("base", "gitlab.*docker:alpine", "oif/base:alpine"),
-        ("python3", "gitlab.*plus:alpine-python3", "oif/base:alpine-python3")
+        ("base", r"gitlab.*?docker:alpine( as.*)?", r"alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
+        ("python3", r"gitlab.*plus:alpine-python3( as.*)?", fr"g2inc/oif-python:{'' if options.repo_branch == 'master' else 'dev-'}latest\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
     ),
     Repos=FrozenDict(
         Actuators=('ISR', ),
@@ -128,7 +124,7 @@ if __name__ == '__main__':
     Stylize.underline('Starting Update')
 
     # -------------------- Modules -------------------- #
-    with Stage('Modules', 'modules'):
+    with Stage('Modules', 'base/modules'):
         Stylize.h2("Updating Utilities")
         update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'utils', options.repo_branch)
 
@@ -143,6 +139,10 @@ if __name__ == '__main__':
         Stylize.h2(f"Updating Actuators")
         update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator', options.repo_branch)
 
+        rslt = subprocess.call([sys.executable, os.path.join("actuator", "configure.py")])
+        if rslt != 0:
+            exit(rslt)
+
     # -------------------- Logger -------------------- #
     with Stage('Logger'):
         Stylize.h2("Updating Logger")
@@ -154,11 +154,11 @@ if __name__ == '__main__':
             with open(dockerfile, 'r') as f:
                 tmpFile = f.read()
 
-            for img in CONFIG.ImageReplace:
-                if re.search(img[1], tmpFile):
+            for (name, orig_img, repl_img) in CONFIG.ImageReplace:
+                if re.search(orig_img, tmpFile):
                     Stylize.info(f'Updating {dockerfile}')
-                    Stylize.bold(f'- Found {img[0]} image, updating for public repo\n')
-                    tmpFile = re.sub(img[1], img[2], tmpFile)
+                    Stylize.bold(f'- Found {name} image, updating for public repo\n')
+                    tmpFile = re.sub(orig_img, repl_img, tmpFile)
                     with open(dockerfile, 'w') as f:
                         f.write(tmpFile)
                     break

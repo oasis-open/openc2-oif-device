@@ -1,5 +1,6 @@
 # Image environment
-FROM oif/base:alpine-python3_utils
+FROM g2inc/oif-python:dev-latest
+RUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*_utils
 
 MAINTAINER Screaming_Bunny
 
