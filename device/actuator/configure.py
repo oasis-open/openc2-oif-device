@@ -2,6 +2,7 @@
 """
 Creates Dockerfiles based off the template
 """
+import configparser
 import importlib
 import json
 import os
@@ -160,7 +161,24 @@ def mk_dockerfile(act=None, def_args={}):
         Stylize.info(f'Creating Dockerfile for {act}')
         args = dict(def_args)
         args['ACT_NAME'] = act
-        args.update(safe_load(os.path.join(act_path, CONFIG.ArgFiles.Image)))
+        imgConf = configparser.ConfigParser()
+        imgConf.read(os.path.join(act_path, CONFIG.ArgFiles.Image))
+
+        if imgConf.has_section("EXTRA_ENV"):
+            args["EXTRA_ENV"] = " \\\n" + " \\\n".join(f"\t{var}={val}" for var, val in imgConf["EXTRA_ENV"].items())
+
+        if imgConf.has_section("EXTRA_ADD"):
+            args["EXTRA_ADD"] = "\n" + "\n".join(f"ADD {src} {dst}" for src, dst in imgConf["EXTRA_ADD"].items())
+
+        if imgConf.has_section("EXTRA_CMD"):
+            if imgConf.has_option("EXTRA_CMD", "init"):
+                args["EXTRA_INIT"] = " && \\\n".join(filter(None, re.split(r"(\s?&&\s?\\)?\n", imgConf["EXTRA_CMD"]["init"]))) + " && \\\n"
+
+            if imgConf.has_option("EXTRA_CMD", "config"):
+                args["EXTRA_CONFIG"] = "\n" + " && \\\n".join(filter(None, re.split(r"(\s?&&\s?\\)?\n", imgConf["EXTRA_CMD"]["config"]))) + " && \\\n"
+
+            if imgConf.has_option("EXTRA_CMD", "clean"):
+                args["EXTRA_CLEAN"] = " && \\\n".join(filter(None, re.split(r"(\s?&&\s?\\)?\n", imgConf["EXTRA_CMD"]["clean"]))) + " && \\\n"
 
         with open(os.path.join(act_path, 'Dockerfile'), 'w+') as df:
             df.write(CONFIG.DockerTemplate.safe_substitute(**args))
@@ -176,7 +194,7 @@ CONFIG = FrozenDict(
         ('colorama', 'colorama'),
     ),
     ArgFiles=FrozenDict(
-        Image='image.args.json',
+        Image='image.args.conf',
         Default='default.args.json'
     ),
     TemplateFile=os.path.join(ROOT_DIR, 'Dockerfile.template')
@@ -214,3 +232,4 @@ if __name__ == '__main__':
 
         # Make Dockerfile
         mk_dockerfile(act, CONFIG.Args)
+        print("")

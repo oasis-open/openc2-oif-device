@@ -8,26 +8,26 @@ license="BSD" \
 version="$VERSION" \
 description="This is the Base Actuator container"
 
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1${EXTRA_ENV}
 
 ADD requirements.txt /tmp/requirements.txt
 ADD act_server /opt/actuator/act_server
-ADD docker_start.sh /opt/actuator/start.sh
+ADD docker_start.sh /opt/actuator/start.sh${EXTRA_ADD}
 
 # Package installation
 # Packages - https://pkgs.alpinelinux.org/packages
 #
 # Requirements install
-RUN pip3 install -r /tmp/requirements.txt && \
+RUN ${EXTRA_INIT}pip3 install -r /tmp/requirements.txt && \${EXTRA_CONFIG}
 #
 # Mod Startup Scripts
 chmod +x /opt/actuator/start.sh && \
 dos2unix /opt/actuator/start.sh && \
 #
 # Cleanup
-rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
+${EXTRA_CLEAN}rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
 
-# Orchestrator Core Working Directory
+# Actuator Working Directory
 WORKDIR /opt/actuator/
 
 # Startup Command
