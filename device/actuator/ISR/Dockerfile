@@ -1,31 +1,31 @@
 FROM g2inc/oif-python:latest
 
-MAINTAINER $MAINTAINER
+MAINTAINER Screaming_Bunny
 
 LABEL name="Actuator ISR" \
 vendor="OpenC2" \
 license="BSD" \
-version="$VERSION" \
+version="v0.0.1" \
 description="This is the ISR Actuator container"
 
-ENV PYTHONUNBUFFERED=1${EXTRA_ENV}
+ENV PYTHONUNBUFFERED=1
 
 ADD requirements.txt /tmp/requirements.txt
 ADD act_server /opt/actuator/act_server
-ADD docker_start.sh /opt/actuator/start.sh${EXTRA_ADD}
+ADD docker_start.sh /opt/actuator/start.sh
 
 # Package installation
 # Packages - https://pkgs.alpinelinux.org/packages
 #
 # Requirements install
-RUN ${EXTRA_INIT}pip3 install -r /tmp/requirements.txt && \${EXTRA_CONFIG}
+RUN pip3 install -r /tmp/requirements.txt && \
 #
 # Mod Startup Scripts
 chmod +x /opt/actuator/start.sh && \
 dos2unix /opt/actuator/start.sh && \
 #
 # Cleanup
-${EXTRA_CLEAN}rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
 
 # Actuator Working Directory
 WORKDIR /opt/actuator/
