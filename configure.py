@@ -27,7 +27,6 @@ if sys.version_info < (3, 6):
 
 # Option Parsing
 parser = OptionParser()
-parser.add_option("-d", "--dev", action="store_true", dest="dev", default=False, help="Use development images")
 parser.add_option("-f", "--log-file", dest="log_file", help="Write logs to LOG_FILE")
 parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Verbose output of container/GUI build")
 
@@ -111,7 +110,7 @@ if __name__ == "__main__":
         console=Stylize,
         path="./base",
         dockerfile="./Dockerfile_alpine-python3",
-        tag=f"{CONFIG.ImagePrefix}/oif-python:{'dev-' if options.dev else ''}latest",
+        tag=f"{CONFIG.ImagePrefix}/oif-python",
         rm=True
     )
 
