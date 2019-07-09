@@ -1,4 +1,4 @@
-FROM oif/base
+FROM g2inc/oif-python:latest
 
 MAINTAINER $MAINTAINER
 
