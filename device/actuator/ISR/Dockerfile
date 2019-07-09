@@ -1,11 +1,11 @@
 FROM g2inc/oif-python:latest
 
-MAINTAINER $MAINTAINER
+MAINTAINER Screaming_Bunny
 
 LABEL name="Actuator ISR" \
 vendor="OpenC2" \
 license="BSD" \
-version="$VERSION" \
+version="v0.0.1" \
 description="This is the ISR Actuator container"
 
 ENV PYTHONUNBUFFERED=1
@@ -27,7 +27,7 @@ dos2unix /opt/actuator/start.sh && \
 # Cleanup
 rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
 
-# Orchestrator Core Working Directory
+# Actuator Working Directory
 WORKDIR /opt/actuator/
 
 # Startup Command

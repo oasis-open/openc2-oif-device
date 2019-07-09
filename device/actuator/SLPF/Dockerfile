@@ -1,11 +1,11 @@
 FROM g2inc/oif-python:latest
 
-MAINTAINER $MAINTAINER
+MAINTAINER Screaming_Bunny
 
 LABEL name="Actuator SLPF" \
 vendor="OpenC2" \
 license="BSD" \
-version="$VERSION" \
+version="v0.0.1" \
 description="This is the SLPF Actuator container"
 
 ENV PYTHONUNBUFFERED=1
@@ -18,16 +18,18 @@ ADD docker_start.sh /opt/actuator/start.sh
 # Packages - https://pkgs.alpinelinux.org/packages
 #
 # Requirements install
-RUN pip3 install -r /tmp/requirements.txt && \
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev && \
+pip3 install -r /tmp/requirements.txt && \
 #
 # Mod Startup Scripts
 chmod +x /opt/actuator/start.sh && \
 dos2unix /opt/actuator/start.sh && \
 #
 # Cleanup
+apk del .build-deps && \
 rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
 
-# Orchestrator Core Working Directory
+# Actuator Working Directory
 WORKDIR /opt/actuator/
 
 # Startup Command
