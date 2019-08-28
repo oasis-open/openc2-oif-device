@@ -6,6 +6,8 @@ import bson
 import cbor2
 import json
 import msgpack
+import shutil
+import ubjson
 import yaml
 
 from .. import (
@@ -13,35 +15,63 @@ from .. import (
     general
 )
 
-from .xml import (
-    decode as decode_xml,
-    encode as encode_xml
+from . import (
+    avro,
+    pybinn,
+    pysmile,
+    s_expression,
+    xml
 )
+
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
 
+optionals = dict(
+    encode={},
+    decode={}
+)
+
+if shutil.which("json-to-vpack") and shutil.which("vpack-to-json"):
+    from . import vpack
+    optionals["encode"]["vpack"] = lambda v: base64.b64encode(vpack.encode(v)).decode("utf-8")
+    optionals["decode"]["vpack"] = lambda v: vpack.decode(base64.b64decode(v if isinstance(v, bytes) else v.encode()))
+
 
 serializations = ext_dicts.FrozenDict(
     encode=ext_dicts.FrozenDict(
+        # avro=lambda v: avro.encode(v),
+        binn=lambda v: base64.b64encode(pybinn.dumps(v)).decode("utf-8"),
         bson=lambda v: base64.b64encode(bson.dumps(v)).decode("utf-8"),
         cbor=lambda v: base64.b64encode(cbor2.dumps(v)).decode("utf-8"),
         json=lambda v: json.dumps(v),
         msgpack=lambda v: base64.b64encode(msgpack.packb(v, use_bin_type=True)).decode("utf-8"),
-        xml=lambda v: encode_xml(v),
+        s_expression=lambda v: s_expression.encode(v),
+        # smile=lambda v: base64.b64encode(pysmile.encode(v)).decode("utf-8"),
+        xml=lambda v: xml.encode(v),
+        ubjson=lambda v: base64.b64encode(ubjson.dumpb(v)).decode("utf-8"),
         yaml=lambda v: yaml.dump(v, Dumper=Dumper),
+        **optionals["encode"]
     ),
     decode=ext_dicts.FrozenDict(
+        # avro=lambda v: avro.decode(v),
+        binn=lambda v: pybinn.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         bson=lambda v: bson.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         cbor=lambda v: cbor2.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         json=lambda v: json.loads(v),
         msgpack=lambda v: msgpack.unpackb(base64.b64decode(v if isinstance(v, bytes) else v.encode()), raw=False),
-        xml=lambda v: decode_xml(v),
+        s_expression=lambda v: s_expression.decode(v),
+        # smile=lambda v: pysmile.decode(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
+        xml=lambda v: xml.decode(v),
+        ubjson=lambda v: ubjson.loadb(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         yaml=lambda v: yaml.load(v, Loader=Loader),
+        **optionals["decode"]
     )
 )
+
+del optionals
 
 
 def encode_msg(msg: dict, enc: str) -> str:

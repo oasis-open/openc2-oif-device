@@ -1,4 +1,12 @@
-from typing import Any, List
+import copy
+
+from typing import (
+    Any,
+    List,
+    Sequence
+)
+
+from .general import safe_cast
 
 
 class ObjectDict(dict):
@@ -11,16 +19,7 @@ class ObjectDict(dict):
     d.key = 'value'
     """
 
-    def __init__(self, *args, **kwargs):
-        """
-        Initialize an ObjectDict
-        :param args: positional parameters
-        :param kwargs: key/value parameters
-        """
-        self._hash = None
-        super(ObjectDict, self).__init__(*args, **kwargs)
-
-    def __getattr__(self, key: str) -> Any:
+    def __getattr__(self, key: Any) -> Any:
         """
         Get an key as if an attribute - ObjectDict.key - SAME AS - ObjectDict['key']
         :param key: key to get value of
@@ -29,30 +28,33 @@ class ObjectDict(dict):
         if key in self:
             return self[key]
         else:
-            raise KeyError(key)
+            raise AttributeError(f"No such attribute {key}")
 
-    def __setitem__(self, key: str, val: Any) -> None:
+    def __setattr__(self, key: Any, val: Any) -> None:
         """
         Set an key as if an attribute - d.key = 'value' - SAME AS - d['key'] = 'value'
         :param key: key to create/override
         :param val: value to set
         :return: None
         """
-        dict.__setitem__(self, key, val)
+        self[key] = self.__class__(val) if isinstance(val, dict) else val
+
+    def __delattr__(self, key: Any) -> None:
+        """
+        Remove a key as if an attribute - del d.key - SAME AS - del d['key']
+        :param key: key to remove/delete
+        :return: None
+        """
+        if key in self:
+            del self[key]
+        else:
+            raise AttributeError(f"No such attribute: {key}")
 
 
 class FrozenDict(ObjectDict):
     """
-    Immutable dictionary
+    Immutable/Frozen dictionary
     """
-
-    def __init__(self, *args, **kwargs) -> None:
-        """
-        Initialize a FrozenDict
-        :param args: positional parameters
-        :param kwargs: key/value parameters
-        """
-        super(FrozenDict, self).__init__(*args, **kwargs)
 
     def __hash__(self) -> int:
         """
@@ -82,129 +84,205 @@ class FrozenDict(ObjectDict):
     setdefault = _immutable
 
 
-class MultiKeyDict(ObjectDict):
+class QueryDict(ObjectDict):
     """
-    Multi Key traversal dictionary
-    d = MultiKeyDict()
+    Nested Key traversal dictionary
+    d = QueryDict()
 
     d['192']['168']['1']['100'] = 'test.domain.local'
         SAME AS
     d['192.168.1.100'] = 'test.domain.local'
     """
+    separator: str = "."
 
-    def __init__(self, sep: str = '.', *args, **kwargs) -> None:
+    def __init__(self, seq: Sequence = None, **kwargs) -> None:
         """
-        Initialize an MultiKeyDict
-        :param sep: key delimiter
-        :param args: positional parameters
+        Initialize an QueryDict
+        :param seq: initial Sequence data
         :param kwargs: key/value parameters
         """
-        if isinstance(sep, (dict, list, tuple)):
-            self._sep = '.'
-            if isinstance(sep, dict):
-                kwargs.update(sep)
-            else:
-                for i, itm in enumerate(sep):
-                    if len(itm) != 2:
-                        raise ValueError(f"cannot initialize MultiKeyDict with item #{i}, expected length 2 but given length {len(itm)}")
-                    kwargs[itm[0]] = itm[1]
+        if seq:
+            ObjectDict.__init__(self, seq, **kwargs)
         else:
-            self._sep = sep
+            ObjectDict.__init__(self, **kwargs)
 
-        super(MultiKeyDict, self).__init__(*args, **kwargs)
+        for k, v in self.items():
+            if isinstance(v, dict) and not isinstance(v, self.__class__):
+                ObjectDict.__setitem__(self, k, QueryDict(v))
+            elif isinstance(v, (list, tuple)):
+                ObjectDict.__setitem__(self, k, type(v)(QueryDict(i) if isinstance(i, dict) else i for i in v))
 
-        for k, v in dict(self).items():
-            if self._sep in k:
-                dict.__delitem__(self, k)
-                keys = self._keySplit(k)
-                dict.setdefault(self, keys[0], MultiKeyDict(sep=self._sep))[self._sep.join(keys[1:])] = v
-
-    def __setitem__(self, key: str, val: Any) -> None:
+    # Override Functions
+    def get(self, path: str, default: Any = None, sep: str = None) -> Any:
         """
-        Set a key as if an attribute - d.key0.key1 = 'value'
-        :param key: key to create/override
+        Get a key/path from the QueryDict
+        :param path: key(s) to get the value of separated by the separator character
+        :param default: default value if the pey/path is not found
+        :param sep: separator character to use, default - '.'
+        :return: value of key/path or default
+        """
+        sep = sep if sep else self.separator
+        path = self._pathSplit(str(path), sep)
+
+        if any(k.startswith(sep.join(path)) for k in self.compositeKeys()):
+            rtn = self
+            for key in path:
+                if isinstance(rtn, ObjectDict):
+                    rtn = ObjectDict.__getitem__(rtn, key)
+                elif isinstance(rtn, (list, tuple)) and len(rtn) > safe_cast(key, int, key):
+                    rtn = rtn[safe_cast(key, int, key)]
+                else:
+                    raise AttributeError(f"Unknown type {type(rtn)}, cannot get value")
+            return rtn
+        else:
+            return default
+
+    def set(self, path: str, val: Any, sep: str = None) -> None:
+        """
+        Set a key/path in the QueryDict object
+        :param path: key/path to set
         :param val: value to set
+        :param sep: separator character to use, default - '.'
         :return: None
         """
-        keys = self._keySplit(key)
-        if len(keys) == 1:
-            super().__setitem__(key, val)
-        else:
-            self[keys[0]] = MultiKeyDict(
-                sep=self._sep,
-                **{
-                    **dict.get(self, keys[0], {}),
-                    self._sep.join(keys[1:]): val,
-                }
-            )
+        sep = sep if sep else self.separator
+        keys = self._pathSplit(str(path), sep)
 
-    def __getitem__(self, key: str) -> Any:
-        """
-        Get a key - del d['key0']['key1'] - SAME AS - del d['key0.key1']
-        :param key: key to get value of
-        :return: value of given key
-        """
-        keys = self._keySplit(key)
-        if len(keys) == 1:
-            return dict.__getitem__(self, key)
-        else:
-            rtn = self
-            for key in keys:
-                rtn = dict.get(rtn, key, None)
-            return rtn
+        if isinstance(val, dict):
+            val = QueryDict(val)
+        elif isinstance(val, (list, tuple)):
+            val = type(val)(QueryDict(i) if isinstance(i, dict) else i for i in val)
 
-    def __delitem__(self, key: str) -> None:
-        """
-        Delete a key - val = d['key0']['key1'] - SAME AS - val = d['key0.key1']
-        :param key: key to get value of
-        :return: value of given key
-        """
-        keys = self._keySplit(key)
-        if len(keys) == 1:
-            dict.__delitem__(self, key)
-        else:
-            k = dict.get(self, keys[0], None)
-            if k:
-                k.__delitem__(self._sep.join(keys[1:]))
+        obj = self
+        for idx, key in enumerate(keys):
+            key = safe_cast(key, int, key)
+            next_key = safe_cast(keys[idx + 1], int, keys[idx + 1]) if len(keys) > idx + 1 else ""
+            end = len(keys) == idx + 1
 
-    def __contains__(self, key) -> bool:
+            if end:
+                if isinstance(obj, list) and isinstance(key, int):
+                    if len(obj) <= key:
+                        obj.append(val)
+                    else:
+                        obj[key] = val
+                elif isinstance(obj, ObjectDict):
+                    ObjectDict.__setitem__(obj, key, val)
+                else:
+                    print(f"Other - {type(obj)}")
+
+            elif key in obj:
+                obj = obj[key]
+            elif isinstance(obj, list) and isinstance(key, int):
+                if len(obj) <= key:
+                    obj.append([] if isinstance(next_key, int) else ObjectDict())
+                    obj = obj[-1]
+                else:
+                    obj = obj[key]
+            elif isinstance(obj, ObjectDict):
+                obj = obj.setdefault(key, [] if isinstance(next_key, int) else ObjectDict())
+            else:
+                obj = obj.setdefault(key, [] if isinstance(next_key, int) else ObjectDict())
+
+    def delete(self, path: str, sep: str = None) -> None:
+        """
+        Delete a key/path in the QueryDict object
+        :param path: key/path to delete
+        :param sep: separator character to use, default - '.'
+        :return: None
+        """
+        sep = sep if sep else self.separator
+        path = self._pathSplit(path, sep)
+
+        if any(k.startswith(sep.join(path)) for k in self.compositeKeys()):
+            ref = self
+            for idx, key in enumerate(path):
+                key = safe_cast(key, int, key)
+                end = len(path) == idx + 1
+
+                if end:
+                    if isinstance(ref, list) and isinstance(key, int):
+                        if len(ref) > key:
+                            ref.remove(ref[key])
+                    elif isinstance(ref, ObjectDict):
+                        ObjectDict.__delitem__(ref, key)
+                    else:
+                        print(f"Other - {type(ref)}")
+
+                elif key in ref:
+                    ref = ref[key]
+                elif isinstance(ref, list) and isinstance(key, int):
+                    if len(ref) > key:
+                        ref = ref[key]
+                    else:
+                        raise KeyError(f"{sep.join(path[:idx])} does not exist")
+
+                else:
+                    print(f"Other - {type(ref)}")
+
+    def __contains__(self, path: str) -> bool:
         """
         Verify if a key is in the MultiKeyDict - 'key0' in d and 'key1' in d['key0'] - SAME AS - 'key0.key1' in d
-        :param key: key to verify if contained
+        :param path: path to verify if contained
         :return: if MultiKeyDict contains the given key
         """
-        keys = self._keySplit(key)
-        return key in self._compositKeys(self) if len(keys) > 1 else dict.get(self, key, None) is not None
+        keys = self._pathSplit(path)
+        return path in self._compositeKeys(self) if len(keys) > 1 else ObjectDict.__contains__(self, path)
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def __deepcopy__(self, memo):
         """
-        get the value for hte given key or the default given value
-        :param key: key to get hte value of
-        :param default: default value if key not found
-        :return: key value or default
+        Copy the QueryDict without referencing the original data
+        :param memo: ...
+        :return: copy of QueryDict
         """
-        return self[key] if key in self else default
+        return QueryDict(copy.deepcopy(dict(self), memo))
 
-    def compositKeys(self) -> List[str]:
+    __getattr__ = get
+    __getitem__ = get
+
+    __setattr__ = set
+    __setitem__ = set
+
+    __delattr__ = delete
+    __delitem__ = delete
+
+    # Custom Functions
+    def compositeKeys(self, sep: str = None) -> List[str]:
         """
         Compiled list of keys
+        :param sep: key separator character
         :return: list of composite keys
         """
-        return self._compositKeys(self)
+        sep = sep if sep else self.separator
+        return self._compositeKeys(self, sep)
 
-    # helper functions
-    def _compositKeys(self, obj: dict) -> List[str]:
+    # Helper Functions
+    def _compositeKeys(self, obj: Any, sep: str = None) -> List[str]:
+        """
+        Determine the composite keys of the given object
+        :param obj: object to get the composite keys
+        :param sep: path separator character
+        :return: list of keys
+        """
+        sep = sep if sep else self.separator
+        rtn = []
+        key_vals = {}
         if isinstance(obj, self.__class__):
-            tmp = []
-            for key, val in obj.items():
-                val_keys = self._compositKeys(val)
-                if len(val_keys) > 0:
-                    tmp.extend([f"{key}{self._sep}{k}" for k in val_keys])
-                else:
-                    tmp.append(key)
-            return tmp
-        else:
-            return []
+            key_vals = obj.items()
+        elif isinstance(obj, (list, tuple)):
+            key_vals = enumerate(obj)
 
-    def _keySplit(self, k):
-        return list(filter(None, k.split(self._sep)))
+        for key, val in key_vals:
+            val_keys = self._compositeKeys(val, sep)
+            rtn.extend([f"{key}{sep}{k}" for k in val_keys] if len(val_keys) > 0 else [key])
+
+        return rtn
+
+    def _pathSplit(self, path: str, sep: str = None) -> List[str]:
+        """
+        Split the path based on the separator character
+        :param path: path to split
+        :param sep: separator character
+        :return: list of separated keys
+        """
+        sep = sep if sep else self.separator
+        return list(filter(None, path.split(sep)))

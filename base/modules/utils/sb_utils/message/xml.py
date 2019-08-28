@@ -1,5 +1,5 @@
 """
-Message Conversion functions
+Message Conversion functions for XML
 """
 import collections
 import xmltodict

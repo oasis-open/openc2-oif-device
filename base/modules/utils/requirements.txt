@@ -1,7 +1,10 @@
 bson
 cbor2
+fastavro
 kombu
 msgpack
 xmltodict
 pyrabbit
 pyyaml
+py-ubjson
+sexpdata
