@@ -170,3 +170,4 @@ fabric.properties
 .idea/
 */act_server/config.json
 */act_server/utils
+*/DockerFile

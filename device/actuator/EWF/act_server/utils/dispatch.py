@@ -11,13 +11,13 @@ from typing import (
     Union
 )
 
-from .general import MultiKeyDict
+from sb_utils import QueryDict
 
 
 class Dispatch(object):
     _namespace: str
     _func_kwargs: Dict[str, Any] = dict
-    _registered: MultiKeyDict
+    _registered: QueryDict
 
     def __init__(self, namespace: str = None, dispatch_transform: Callable[[tuple, dict], Tuple[Union[tuple, None], dict]] = None, **kwargs) -> None:
         """
@@ -29,7 +29,7 @@ class Dispatch(object):
         self._namespace = namespace
         self._dispatch_transform = dispatch_transform
         self._func_kwargs = kwargs
-        self._registered = MultiKeyDict(
+        self._registered = QueryDict(
             default=lambda *args, **kwargs: AttributeError("Default function not set")
         )
 
@@ -48,7 +48,7 @@ class Dispatch(object):
         separated by a '.' -> 'Namespace.Key'
         :return: composite keys
         """
-        return self._registered.compositKeys()
+        return self._registered.compositeKeys()
 
     def dispatch(self, key: str = None, *args, **kwargs) -> dict:
         """

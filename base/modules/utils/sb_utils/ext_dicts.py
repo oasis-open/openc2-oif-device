@@ -56,7 +56,7 @@ class FrozenDict(ObjectDict):
     Immutable/Frozen dictionary
     """
 
-    def __hash__(self) -> int:
+    def __hash__(self) -> hash:
         """
         Create a hash for the FrozenDict
         :return: object hash

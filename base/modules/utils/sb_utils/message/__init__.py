@@ -16,7 +16,6 @@ from .. import (
 )
 
 from . import (
-    avro,
     pybinn,
     pysmile,
     s_expression,
@@ -42,7 +41,6 @@ if shutil.which("json-to-vpack") and shutil.which("vpack-to-json"):
 
 serializations = ext_dicts.FrozenDict(
     encode=ext_dicts.FrozenDict(
-        # avro=lambda v: avro.encode(v),
         binn=lambda v: base64.b64encode(pybinn.dumps(v)).decode("utf-8"),
         bson=lambda v: base64.b64encode(bson.dumps(v)).decode("utf-8"),
         cbor=lambda v: base64.b64encode(cbor2.dumps(v)).decode("utf-8"),
@@ -56,7 +54,6 @@ serializations = ext_dicts.FrozenDict(
         **optionals["encode"]
     ),
     decode=ext_dicts.FrozenDict(
-        # avro=lambda v: avro.decode(v),
         binn=lambda v: pybinn.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         bson=lambda v: bson.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
         cbor=lambda v: cbor2.loads(base64.b64decode(v if isinstance(v, bytes) else v.encode())),
