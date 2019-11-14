@@ -168,3 +168,6 @@ fabric.properties
 
 # Custom Ignore
 .idea
+/conversions_examples.txt
+/conversions_sizes.txt
+/dev_test.py

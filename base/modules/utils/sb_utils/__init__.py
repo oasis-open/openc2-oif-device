@@ -1,6 +1,6 @@
 from .amqp_tools import Consumer, Producer
 from .general import prefixUUID, default_decode, default_encode, safe_cast, safe_json, toStr
-from .ext_dicts import FrozenDict, MultiKeyDict, ObjectDict
+from .ext_dicts import FrozenDict, ObjectDict, QueryDict
 from .message import decode_msg, encode_msg
 
 __all__ = [
@@ -16,8 +16,8 @@ __all__ = [
     'toStr',
     # Extended Dictionaries
     'FrozenDict',
-    'MultiKeyDict',
     'ObjectDict',
+    'QueryDict',
     # Message Utils
     'decode_msg',
     'encode_msg',

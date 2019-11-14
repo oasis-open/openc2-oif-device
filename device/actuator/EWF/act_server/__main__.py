@@ -18,7 +18,10 @@ def on_message(act, prod, body, message):
     headers = getattr(message, "headers", {})
     msg_id = headers.get('correlationID', '')
     encoding = headers.get('encoding', 'json')
-    msg_rsp = act.action(msg_id=msg_id, msg=decode_msg(body, encoding))
+    msg = decode_msg(body, encoding)
+    msg_rsp = act.action(msg_id=msg_id, msg=msg)
+    print(f"{act} -> received: {msg}")
+    print(f"{act} -> response: {msg_rsp}")
 
     if msg_rsp:
         prod.publish(

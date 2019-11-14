@@ -66,6 +66,9 @@ class ActuatorBase(object):
             self._valid_actions = tuple(a["const"] for a in schema_defs.get("Action", {}).get("oneOf", []))
             self._valid_targets = tuple(schema_defs.get("Target", {}).get("properties", {}).keys())
 
+    def __repr__(self) -> str:
+        return f"Actuator({self.profile})"
+
     @property
     def pairs(self) -> FrozenDict:
         """
