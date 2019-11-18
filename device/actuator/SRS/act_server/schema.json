@@ -1,24 +1,22 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://oasis-open.org/openc2/oc2slpf/v1.0/schema.json",
-  "title": "oc2slpf version 1.0 json schema",
-  "description": "This schema is intended to validate all possible content for the OpenC2 Stateless Packet Filter version 1.0",
+  "$id": "http://oasis-open.org/openc2/oc2ls/v1.0.1",
+  "title": "Language schema with errata",
+  "description": "oc2srs version 1.0 json schema",
   "type": "object",
-  "oneOf": [
-    {
-      "$ref": "#/definitions/OpenC2_Command",
-      "description": "A message defined by an Action-Target pair that is sent from a Producer and received by a Consumer"
+  "additionalProperties": false,
+  "properties": {
+    "openc2_command": {
+      "$ref": "#/definitions/OpenC2-Command"
     },
-    {
-      "$ref": "#/definitions/OpenC2_Response",
-      "description": "A message from a Consumer to a Producer acknowledging a Command or returning the requested resources or status to a previously received Command"
+    "openc2_response": {
+      "$ref": "#/definitions/OpenC2-Response"
     }
-  ],
+  },
   "definitions": {
-    "OpenC2_Command": {
+    "OpenC2-Command": {
       "title": "OpenC2 Command",
       "type": "object",
-      "description": "The Command defines an Action to be performed on a Target",
       "additionalProperties": false,
       "required": [
         "action",
@@ -27,27 +25,27 @@
       "properties": {
         "action": {
           "$ref": "#/definitions/Action",
-          "description": "The task or activity to be performed (i.e., the 'verb')"
+          "description": "The task or activity to be performed (i.e., the 'verb')."
         },
         "target": {
           "$ref": "#/definitions/Target",
-          "description": "The object of the Action. The Action is performed on the Target"
+          "description": "The object of the Action. The Action is performed on the Target."
         },
         "args": {
           "$ref": "#/definitions/Args",
-          "description": "Additional information that applies to the Command"
+          "description": "Additional information that applies to the Command."
         },
         "actuator": {
           "$ref": "#/definitions/Actuator",
-          "description": "The subject of the Action. The Actuator executes the Action on the Target"
+          "description": "The subject of the Action. The Actuator executes the Action on the Target."
         },
         "command_id": {
-          "$ref": "#/definitions/Command_ID",
-          "description": "An identifier of this Command"
+          "type": "string",
+          "description": "An identifier of this Command."
         }
       }
     },
-    "OpenC2_Response": {
+    "OpenC2-Response": {
       "title": "OpenC2 Response",
       "type": "object",
       "additionalProperties": false,
@@ -56,152 +54,124 @@
       ],
       "properties": {
         "status": {
-          "$ref": "#/definitions/Status_Code",
+          "$ref": "#/definitions/Status-Code",
           "description": "An integer status code"
         },
         "status_text": {
           "type": "string",
-          "description": "A free-form human-readable description of the response status"
+          "description": "A free-form human-readable description of the Response status"
         },
         "results": {
           "$ref": "#/definitions/Results",
-          "description": "Map of key:value pairs that contain additional results based on the invoking Command"
+          "description": "Map of key:value pairs that contain additional results based on the invoking Command."
         }
       }
     },
     "Action": {
-      "title": "OpenC2 Action",
+      "title": "Action",
       "type": "string",
       "oneOf": [
         {
+          "const": "scan",
+          "description": "Systematic examination of some aspect of the entity or its environment."
+        },
+        {
+          "const": "locate",
+          "description": "Find an object physically, logically, functionally, or by organization."
+        },
+        {
           "const": "query",
-          "description": "Initiate a request for information. Used to communicate the supported options and determine the state or settings"
+          "description": "Initiate a request for information."
         },
         {
           "const": "deny",
-          "description": "Prevent traffic or access"
+          "description": "Prevent a certain event or action from completion, such as preventing a flow from reaching a destination or preventing access."
         },
         {
-          "const": "allow",
-          "description": "Permit traffic or access"
+          "const": "contain",
+          "description": "Isolate a file, process, or entity so that it cannot modify or access assets or processes."
         },
-        {
-          "const": "update",
-          "description": "Instructs the Actuator to update its configuration by retrieving and processing a configuration file and update"
-        },
+        
         {
           "const": "delete",
-          "description": "Remove an access rule"
+          "description": "Remove an entity (e.g., data, files, flows)."
+        },
+         {
+          "const": "investigate",
+          "description": "Task the recipient to aggregate and report information as it pertains to a security event or incident."
+        },
+        {
+          "const": "remediate",
+          "description": "Task the recipient to eliminate a vulnerability or attack point."
         }
       ]
     },
     "Target": {
-      "title": "OpenC2 Target",
+      "title": "Target",
       "type": "object",
+      "description": "OpenC2 Target datatypes",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
       "properties": {
+        "device": {
+          "$ref": "#/definitions/Device",
+          "description": "The properties of a hardware device."
+        },
+        "email_addr": {
+          "$ref": "#/definitions/Email-Addr",
+          "description": "A single email address."
+        },
         "features": {
           "$ref": "#/definitions/Features",
-          "description": "A set of items such as Action/Target pairs, profiles versions, options that are supported by the Actuator. The Target is used with the query Action to determine an Actuator's capabilities"
+          "description": "A set of items used with the query Action to determine an Actuator's capabilities."
         },
         "file": {
           "$ref": "#/definitions/File",
-          "description": "Properties of a file"
-        },
-        "ipv4_net": {
-          "$ref": "#/definitions/IPv4_Net",
-          "description": "The representation of one or more IPv4 addresses expressed using CIDR notation"
-        },
-        "ipv6_net": {
-          "$ref": "#/definitions/IPv6_Net",
-          "description": "The representation of one or more IPv6 addresses expressed using CIDR notation"
-        },
-        "ipv4_connection": {
-          "$ref": "#/definitions/IPv4_Connection",
-          "description": "a network connection as specified by a five-tuple (IPv4)"
-        },
-        "ipv6_connection": {
-          "$ref": "#/definitions/IPv6_Connection",
-          "description": "A network connection as specified by a five-tuple (IPv4)"
-        },
-        "slpf:rule_number": {
-          "$ref": "#/definitions/slpf:Rule_ID",
-          "description": "Immutable identifier assigned when a rule is created. Identifies a rule to be deleted"
+          "description": "Properties of a file."
         }
-      },
-      "minProperties": 1,
-      "maxProperties": 1,
-      "additionalProperties": false
-    },
-    "Actuator": {
-      "title": "OpenC2 Actuator",
-      "type": "object",
-      "properties": {
-        "slpf": {
-          "$ref": "#/definitions/slpf:Actuator",
-          "description": "Actuator specifiers defined in the Stateless Packet Filtering profile. A message can specify many Actuator types but for it to validate with this profile it must at least specify SLPF"
-        }
-      },
-      "required": [
-        "slpf"
-      ],
-      "additionalProperties": true
+      }
     },
     "Args": {
-      "title": "OpenC2 Args",
+      "title": "Args",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
       "properties": {
         "start_time": {
-          "$ref": "#/definitions/Date_Time",
-          "description": "The specific date/time to initiate the action"
+          "$ref": "#/definitions/Date-Time",
+          "description": "The specific date/time to initiate the Command"
         },
         "stop_time": {
-          "$ref": "#/definitions/Date_Time",
-          "description": "The specific date/time to terminate the action"
+          "$ref": "#/definitions/Date-Time",
+          "description": "The specific date/time to terminate the Command"
         },
         "duration": {
           "$ref": "#/definitions/Duration",
-          "description": "The length of time for an action to be in effect"
+          "description": "The length of time for an Command to be in effect"
         },
         "response_requested": {
-          "$ref": "#/definitions/Response_Type",
-          "description": "The type of Response required for the Command: none, ack, status, complete"
-        },
-        "slpf": {
-          "$ref": "#/definitions/slpf:Args",
-          "description": "Command arguments defined in the Stateless Packet Filter profile"
+          "$ref": "#/definitions/Response-Type",
+          "description": "The type of Response required for the Command: `none`, `ack`, `status`, `complete`."
         }
       }
     },
-    "Status_Code": {
-      "title": "OpenC2 Status Code",
-      "type": "integer",
-      "oneOf": [
-        {
-          "const": 102,
-          "description": "Processing - an interim response used to inform the Producer that the Consumer has accepted the Command but has not yet completed it"
-        },
-        {
-          "const": 200,
-          "description": "OK - the Command has succeeded"
-        },
-        {
-          "const": 400,
-          "description": "Bad Request - the Consumer cannot process the Command due to something that is perceived to be a Producer error (e.g., malformed Command syntax)"
-        },
-        {
-          "const": 500,
-          "description": "Internal Error - the Consumer encountered an unexpected condition that prevented it from performing the Command"
-        },
-        {
-          "const": 501,
-          "description": "Not Implemented - the Consumer does not support the functionality required to perform the Command"
-        }
-      ]
+    "Actuator": {
+      "title": "Actuator",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+      	"x-srs": {
+	      	"title": "Surveillance Radar System",
+      		"type": "object",
+      		"minProperties": 1
+      	}
+      }
     },
     "Results": {
-      "title": "OpenC2 Response Results",
+      "title": "Results",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -212,46 +182,179 @@
           "uniqueItems": true,
           "minItems": 1,
           "items": {
-            "$ref": "#/definitions/Version"
+            "$ref": "#/definitions/Version",
+            "description": "List of OpenC2 language versions supported by this Actuator"
           }
         },
         "profiles": {
           "type": "array",
-          "description": "list of profiles supported by this actuator",
-          "uniqueItems": true,
-          "minItems": 1,
+          "description": "List of profiles supported by this Actuator",
           "items": {
             "$ref": "#/definitions/Nsid"
           }
         },
         "pairs": {
-          "$ref": "#/definitions/Action_Targets",
-          "description": "List of Targets applicable to each supported Action"
+          "$ref": "#/definitions/Action-Targets",
+          "description": "List of targets applicable to each supported Action"
         },
         "rate_limit": {
           "type": "number",
-          "description": "Maximum number of requests per minute supported by design or policy",
-          "minimum": 0
+          "description": "Maximum number of requests per minute supported by design or policy"
         },
-        "slpf": {
-          "$ref": "#/definitions/slpf:Response",
-          "description": "Response types defined in the Stateless Packet Filter profile"
+      	"x-srs": {
+	      	"title": "Surveillance Radar System",
+      		"type": "object",
+      		"minProperties": 1
+      	}
+      }
+    },
+    "Action-Targets": {
+      "title": "Action Targets",
+      "type": "object",
+      "description": "Map of each action supported by this actuator to the list of targets applicable to that action",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "scan": {
+          "$ref": "#/definitions/Targets"
+        },
+        "locate": {
+          "$ref": "#/definitions/Targets"
+        },
+        "query": {
+          "$ref": "#/definitions/Targets"
+        },
+        "deny": {
+          "$ref": "#/definitions/Targets"
+        },
+        "contain": {
+          "$ref": "#/definitions/Targets"
+        },
+        "delete": {
+          "$ref": "#/definitions/Targets"
+        },
+        
+        "investigate": {
+          "$ref": "#/definitions/Targets"
+        },
+        "remediate": {
+          "$ref": "#/definitions/Targets"
         }
       }
     },
-    "Features": {
-      "title": "OpenC2 Features Items",
+    "Targets": {
+      "title": "Targets",
       "type": "array",
-      "description": "An array of zero to ten names used to query an Actuator for its supported capabilities",
+      "description": "List of JSON Pointers to Target types",
       "uniqueItems": true,
-      "minItems": 0,
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/definitions/Target$Pointer"
+      }
+    },
+    "Target$Pointer": {
+      "title": "Target$Pointer",
+      "type": "string",
+      "oneOf": [
+        {
+          "const": "device",
+          "description": ""
+        },
+        {
+          "const": "email_addr",
+          "description": ""
+        },
+        {
+          "const": "features",
+          "description": ""
+        },
+        {
+          "const": "file",
+          "description": ""
+        }
+      ]
+    },
+    "Status-Code": {
+      "title": "Status Code",
+      "type": "integer",
+      "oneOf": [
+        {
+          "const": 102,
+          "description": "Processing - an interim Response used to inform the Producer that the Consumer has accepted the Command but has not yet completed it."
+        },
+        {
+          "const": 200,
+          "description": "OK - the Command has succeeded."
+        },
+        {
+          "const": 400,
+          "description": "BadRequest - the Consumer cannot process the Command due to something that is perceived to be a Producer error (e.g., malformed Command syntax)."
+        },
+        {
+          "const": 401,
+          "description": "Unauthorized - the Command Message lacks valid authentication credentials for the target resource or authorization has been refused for the submitted credentials."
+        },
+        {
+          "const": 403,
+          "description": "Forbidden - the Consumer understood the Command but refuses to authorize it."
+        },
+        {
+          "const": 404,
+          "description": "NotFound - the Consumer has not found anything matching the Command."
+        },
+        {
+          "const": 500,
+          "description": "InternalError - the Consumer encountered an unexpected condition that prevented it from performing the Command."
+        },
+        {
+          "const": 501,
+          "description": "NotImplemented - the Consumer does not support the functionality required to perform the Command."
+        },
+        {
+          "const": 503,
+          "description": "ServiceUnavailable - the Consumer is currently unable to perform the Command due to a temporary overloading or maintenance of the Consumer."
+        }
+      ]
+    },
+    "Device": {
+      "title": "Device",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "hostname": {
+          "$ref": "#/definitions/Hostname",
+          "description": "A hostname that can be used to connect to this device over a network"
+        },
+        "idn_hostname": {
+          "$ref": "#/definitions/IDN-Hostname",
+          "description": "An internationalized hostname that can be used to connect to this device over a network"
+        },
+        "device_id": {
+          "type": "string",
+          "description": "An identifier that refers to this device within an inventory or management system"
+        }
+      }
+    },
+    "Email-Addr": {
+      "title": "Email Addr",
+      "type": "string",
+      "description": "Email address, [[RFC5322]](#rfc5322), Section 3.4.1",
+      "format": "email"
+    },
+    "Features": {
+      "title": "Features",
+      "type": "array",
+      "description": "An array of zero to ten names used to query an Actuator for its supported capabilities.",
+      "uniqueItems": true,
       "maxItems": 10,
       "items": {
         "$ref": "#/definitions/Feature"
       }
     },
     "File": {
-      "title": "OpenC2 File",
+      "title": "File",
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
@@ -270,197 +373,32 @@
         }
       }
     },
-    "IPv4_Net": {
-      "title": "OpenC2 IPv4 Net",
-      "type": "string",
-      "description": "IPv4 address as defined in [RFC0791] - CIDR prefix-length. If omitted, refers to a single host address",
-      "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])(\\/(3[0-2]|[0-2]?[0-9]))?"
-    },
-    "IPv4_Connection": {
-      "title": "OpenC2 IPv4 Connection",
-      "type": "object",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "src_addr": {
-          "$ref": "#/definitions/IPv4_Net",
-          "description": "IPv4 source address range"
-        },
-        "src_port": {
-          "$ref": "#/definitions/Port",
-          "description": "Source service per [RFC6335]"
-        },
-        "dst_addr": {
-          "$ref": "#/definitions/IPv4_Net",
-          "description": "IPv4 destination address range"
-        },
-        "dst_port": {
-          "$ref": "#/definitions/Port",
-          "description": "Destination service per [RFC6335]"
-        },
-        "protocol": {
-          "$ref": "#/definitions/L4_Protocol",
-          "description": "Layer 4 protocol (e.g., TCP) - see L4_Protocol section"
-        }
+    "Properties": {
+      "title": "Properties",
+      "type": "array",
+      "description": "A list of names that uniquely identify properties of an Actuator.",
+      "uniqueItems": true,
+      "minItems": 1,
+      "items": {
+        "type": "string"
       }
     },
-    "IPv6_Net": {
-      "title": "OpenC2 IPv6 Net",
-      "type": "string",
-      "description": "IPv6 address as defined in [RFC8200] - CIDR prefix-length. If omitted, refers to a single host address",
-      "pattern": "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(%.+)?s*(\\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$"
-    },
-    "IPv6_Connection": {
-      "title": "OpenC2 IPv6 Connection",
-      "type": "object",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "src_addr": {
-          "$ref": "#/definitions/IPv6_Net",
-          "description": "IPv6 source address range"
-        },
-        "src_port": {
-          "$ref": "#/definitions/Port",
-          "description": "Source service per [RFC6335]"
-        },
-        "dst_addr": {
-          "$ref": "#/definitions/IPv6_Net",
-          "description": "IPv6 destination address range"
-        },
-        "dst_port": {
-          "$ref": "#/definitions/Port",
-          "description": "Destination service per [RFC6335]"
-        },
-        "protocol": {
-          "$ref": "#/definitions/L4_Protocol",
-          "description": "Layer 4 protocol (e.g., TCP) - see L4_Protocol section"
-        }
-      }
-    },
-    "Action_Targets": {
-      "title": "OpenC2 Action Target Pairs",
-      "type": "object",
-      "description": "Map of each action supported by this Actuator to the list of Targets applicable to the specific Action",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "allow": {
-          "type": "array",
-          "description": "Permit traffic or access",
-          "uniqueItems": true,
-          "minItems": 1,
-          "items": {
-            "type": "string",
-            "oneOf": [
-              {
-                "const": "ipv4_connection",
-                "description": "A network connection as specified by a five-tuple (IPv4)"
-              },
-              {
-                "const": "ipv6_connection",
-                "description": "A network connection as specified by a five-tuple (IPv6)"
-              },
-              {
-                "const": "ipv4_net",
-                "description": "The representation of one or more IPv4 addresses expressed using CIDR notation"
-              },
-              {
-                "const": "ipv6_net",
-                "description": "The representation of one or more IPv6 addresses expressed using CIDR notation"
-              }
-            ]
-          }
-        },
-        "deny": {
-          "type": "array",
-          "description": "Prevent traffic or access",
-          "uniqueItems": true,
-          "minItems": 1,
-          "items": {
-            "type": "string",
-            "oneOf": [
-              {
-                "const": "ipv4_connection",
-                "description": "A network connection as specified by a five-tuple (IPv4)"
-              },
-              {
-                "const": "ipv6_connection",
-                "description": "A network connection as specified by a five-tuple (IPv6)"
-              },
-              {
-                "const": "ipv4_net",
-                "description": "The representation of one or more IPv4 addresses expressed using CIDR notation"
-              },
-              {
-                "const": "ipv6_net",
-                "description": "The representation of one or more IPv6 addresses expressed using CIDR notation"
-              }
-            ]
-          }
-        },
-        "query": {
-          "type": "array",
-          "description": "Initiate a request for information. Used to communicate the supported options and determine the state or settings",
-          "uniqueItems": true,
-          "minItems": 1,
-          "items": {
-            "type": "string",
-            "oneOf": [
-              {
-                "const": "features",
-                "description": "A set of items such as Action/Target pairs, profiles versions, options that are supported by the Actuator. The Target is used with the query Action to determine an Actuator's capabilities"
-              }
-            ]
-          }
-        },
-        "delete": {
-          "type": "array",
-          "description": "Remove an access rule",
-          "uniqueItems": true,
-          "minItems": 1,
-          "items": {
-            "type": "string",
-            "oneOf": [
-              {
-                "const": "slpf:rule_number",
-                "description": "Immutable identifier assigned when a rule is created. Identifies a rule to be deleted"
-              }
-            ]
-          }
-        },
-        "update": {
-          "type": "array",
-          "description": "Instructs the Actuator to update its configuration by retrieving and processing a configuration file and update",
-          "uniqueItems": true,
-          "minItems": 1,
-          "items": {
-            "type": "string",
-            "oneOf": [
-              {
-                "const": "file",
-                "description": "Properties of a file"
-              }
-            ]
-          }
-        }
-      }
-    },
-    "Date_Time": {
-      "title": "OpenC2 Date Time",
+    "Date-Time": {
+      "title": "Date Time",
       "type": "integer",
-      "description": "Date and Time - milliseconds since 00:00:00 UTC, 1 January 1970",
+      "description": "Date and Time",
       "minimum": 0
     },
     "Duration": {
-      "title": "OpenC2 Duration",
+      "title": "Duration",
       "type": "integer",
-      "description": "A length of time - number of milliseconds",
+      "description": "A length of time",
       "minimum": 0
     },
     "Feature": {
-      "title": "OpenC2 Feature",
+      "title": "Feature",
       "type": "string",
+      "description": "Specifies the results to be returned from a query features Command",
       "oneOf": [
         {
           "const": "versions",
@@ -481,70 +419,50 @@
       ]
     },
     "Hashes": {
-      "title": "OpenC2 Hashes",
+      "title": "Hashes",
       "type": "object",
+      "description": "Cryptographic Hash values",
       "additionalProperties": false,
       "minProperties": 1,
       "properties": {
         "md5": {
-          "$ref": "#/definitions/Binary",
-          "description": "MD5 hash as defined in [RFC1321]"
+          "type": "string",
+          "description": "MD5 hash as defined in [[RFC1321]](#rfc1321)",
+          "contentEncoding": "base16"
         },
         "sha1": {
-          "$ref": "#/definitions/Binary",
-          "description": "SHA1 hash as defined in [RFC6234]"
+          "type": "string",
+          "description": "SHA1 hash as defined in [[RFC6234]](#rfc6234)",
+          "contentEncoding": "base16"
         },
         "sha256": {
-          "$ref": "#/definitions/Binary",
-          "description": "SHA256 hash as defined in [RFC6234]"
+          "type": "string",
+          "description": "SHA256 hash as defined in [[RFC6234]](#rfc6234)",
+          "contentEncoding": "base16"
         }
       }
     },
     "Hostname": {
-      "title": "OpenC2 Hostname",
+      "title": "Hostname",
       "type": "string",
-      "description": "Internet host name as specified in [RFC1123]",
+      "description": "Internet host name as specified in [[RFC1123]](#rfc1123)",
       "format": "hostname"
     },
-    "L4_Protocol": {
-      "title": "OpenC2 layer four protocol",
+    "IDN-Hostname": {
+      "title": "IDN Hostname",
       "type": "string",
-      "description": "Value of the protocol (IPv4) or next header (IPv6) field in an IP packet. Any IANA value - [RFC5237]",
-      "oneOf": [
-        {
-          "const": "icmp",
-          "description": "Internet Control Message Protocol - [RFC0792]"
-        },
-        {
-          "const": "tcp",
-          "description": "Transmission Control Protocol - [RFC0793]"
-        },
-        {
-          "const": "udp",
-          "description": "User Datagram Protocol - [RFC0768]"
-        },
-        {
-          "const": "sctp",
-          "description": "Stream Control Transmission Protocol - [RFC4960]"
-        }
-      ]
+      "description": "Internationalized Internet host name as specified in [[RFC5890]](#rfc5890), Section 2.3.2.3.",
+      "format": "idn-hostname"
     },
     "Nsid": {
-      "title": "Namespace Identifier",
+      "title": "Nsid",
       "type": "string",
-      "description": "A short identifier that refers to a namespace",
+      "description": "A short identifier that refers to a namespace.",
       "minLength": 1,
       "maxLength": 16
     },
-    "Port": {
-      "title": "OpenC2 Port",
-      "type": "integer",
-      "description": "Transport Protocol Port Number - [RFC6335]",
-      "minimum": 0,
-      "maximum": 65535
-    },
-    "Response_Type": {
-      "title": "OpenC2 Response Type",
+    "Response-Type": {
+      "title": "Response Type",
       "type": "string",
       "oneOf": [
         {
@@ -566,126 +484,9 @@
       ]
     },
     "Version": {
-      "title": "OpenC2 Version",
+      "title": "Version",
       "type": "string",
-      "description": "Major.Minor version number",
-      "pattern": "^\\d+\\.\\d+$"
-    },
-    "Binary": {
-      "title": "OpenC2 Binary",
-      "type": "string",
-      "contentEncoding": "base64"
-    },
-    "Command_ID": {
-      "title": "OpenC2 Command Identifier",
-      "type": "string"
-    },
-    "slpf:Args": {
-      "title": "SLPF Args Specifiers",
-      "type": "object",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "drop_process": {
-          "$ref": "#/definitions/slpf:Drop_Process",
-          "description": "Specifies how to handle denied packets"
-        },
-        "persistent": {
-          "type": "boolean",
-          "description": "Normal operations assume any changes to a device are to be implemented persistently. Setting the persistent modifier to FALSE results in a change that is not persistent in the event of a reboot or restart"
-        },
-        "direction": {
-          "$ref": "#/definitions/slpf:Direction",
-          "description": "Specifies whether to apply rules to incoming or outgoing traffic. If omitted, rules are applied to both"
-        },
-        "insert_rule": {
-          "$ref": "#/definitions/slpf:Rule_ID",
-          "description": "Specifies the identifier of the rule within a list, typically used in a top-down rule list"
-        }
-      }
-    },
-    "slpf:Drop_Process": {
-      "title": "SLPF drop process types",
-      "type": "string",
-      "oneOf": [
-        {
-          "const": "none",
-          "description": "Drop the packet and do not send a notification to the source of the packet"
-        },
-        {
-          "const": "reject",
-          "description": "Drop the packet and send an ICMP host unreachable (or equivalent) to the source of the packet"
-        },
-        {
-          "const": "false_ack",
-          "description": "Drop the traffic and send a false acknowledgment"
-        }
-      ]
-    },
-    "slpf:Direction": {
-      "title": "SLPF direction types",
-      "type": "string",
-      "oneOf": [
-        {
-          "const": "both",
-          "description": "Apply rules to all traffic"
-        },
-        {
-          "const": "ingress",
-          "description": "Apply rules to incoming traffic only"
-        },
-        {
-          "const": "egress",
-          "description": "Apply rules to outgoing traffic only"
-        }
-      ]
-    },
-    "slpf:Rule_ID": {
-      "title": "SLPF access rule identifier",
-      "type": "integer",
-      "description": "Immutable identifier assigned when a rule is created. Identifies a rule to be deleted"
-    },
-    "slpf:Actuator": {
-      "title": "SLPF Actuator specifiers",
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "hostname": {
-          "$ref": "#/definitions/Hostname",
-          "description": "[RFC1123] hostname (can be a domain name or IP address) for a particular device with SLPF functionality"
-        },
-        "named_group": {
-          "type": "string",
-          "description": "User defined collection of devices with SLPF functionality"
-        },
-        "asset_id": {
-          "type": "string",
-          "description": "Unique identifier for a particular SLPF"
-        },
-        "asset_tuple": {
-          "type": "array",
-          "description": "Unique tuple identifier for a particular SLPF consisting of a list of up to 10 strings",
-          "uniqueItems": true,
-          "minItems": 1,
-          "maxItems": 10,
-          "items": {
-            "title": "SLPF asset tuple",
-            "type": "string"
-          }
-        }
-      }
-    },
-    "slpf:Response": {
-      "title": "SLPF response types",
-      "type": "object",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "rule_number": {
-          "$ref": "#/definitions/slpf:Rule_ID",
-          "description": "Rule identifier returned from allow or deny Command"
-        }
-      }
+      "description": "Major.Minor version number"
     }
   }
 }
