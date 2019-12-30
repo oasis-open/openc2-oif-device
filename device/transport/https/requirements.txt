@@ -1,6 +1,6 @@
-kombu
 cbor2
-requests
-flask
 dicttoxml
+flask
+kombu
+requests
 xmltodict

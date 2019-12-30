@@ -10,18 +10,29 @@ def action_not_implemented(*args: tuple, **kwargs: dict) -> dict:
     """
     return dict(
         status=501,
-        status_text=f"Action not supported"
+        status_text=f"Action not implemented"
     )
 
 
 def target_not_implemented(*args: tuple, **kwargs: dict) -> dict:
     """
-    Default function if no action function is found
+    Default function if no target function is found
     :return: OpenC2 response message - dict
     """
     return dict(
         status=501,
-        status_text=f"Target type not supported"
+        status_text=f"Target type not implemented"
+    )
+
+
+def not_implemented(*args: tuple, **kwargs: dict) -> dict:
+    """
+    Default responce if pair is valid, bot no action is taken
+    :return: OpenC2 response message - dict
+    """
+    return dict(
+        status=501,
+        status_text=f"command valid, no action taken"
     )
 
 
