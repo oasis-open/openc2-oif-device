@@ -1,0 +1,394 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://oasis-open.org/openc2/oc2ls/v1.0.1",
+  "title": "ACDCI_DJS_GEO v1.0.1",
+  "description": "OpenC2 LS version 1.0 + ACDCI_DJS_GEO",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "openc2_command": {
+      "$ref": "#/definitions/OpenC2-Command"
+    },
+    "openc2_response": {
+      "$ref": "#/definitions/OpenC2-Response"
+    }
+  },
+  "definitions": {
+    "OpenC2-Command": {
+      "title": "OpenC2 Command",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "target"
+      ],
+      "properties": {
+        "action": {
+          "$ref": "#/definitions/Action",
+          "description": "The task or activity to be performed (i.e., the 'verb')."
+        },
+        "target": {
+          "$ref": "#/definitions/Target",
+          "description": "The object of the Action. The Action is performed on the Target."
+        },
+        "args": {
+          "$ref": "#/definitions/Args",
+          "description": "Additional information that applies to the Command."
+        },
+        "actuator": {
+          "$ref": "#/definitions/Actuator",
+          "description": "The subject of the Action. The Actuator executes the Action on the Target."
+        },
+        "command_id": {
+          "type": "string",
+          "description": "An identifier of this Command."
+        }
+      }
+    },
+    "OpenC2-Response": {
+      "title": "OpenC2 Response",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/Status-Code",
+          "description": "An integer status code"
+        },
+        "status_text": {
+          "type": "string",
+          "description": "A free-form human-readable description of the Response status"
+        },
+        "results": {
+          "$ref": "#/definitions/Results",
+          "description": "Map of key:value pairs that contain additional results based on the invoking Command."
+        }
+      }
+    },
+    "Action": {
+      "title": "Action",
+      "type": "string",
+      "oneOf": [
+        {
+          "const": "query",
+          "description": "Initiate a request for information."
+        },
+        {
+          "const": "deny",
+          "description": "Prevent a certain event or action from completion, such as preventing a flow from reaching a destination or preventing access."
+        }
+      ]
+    },
+    "Target": {
+      "title": "Target",
+      "type": "object",
+      "description": "OpenC2 Target datatypes",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "features": {
+          "$ref": "#/definitions/Features",
+          "description": "A set of items used with the query Action to determine an Actuator's capabilities."
+        },
+        "acdci_djs_geo:jamming_location": {
+          "$ref": "#/definitions/Jamming-Location",
+          "description": "Distinguishing characteristics of a specific space to jam"
+        }
+      }
+    },
+    "Actuator": {
+      "title": "Actuator",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "acdci_djs_geo": {
+          "$ref": "#/definitions/P-Actuator",
+          "description": "Specifiers defined in the acdci_djs_geo actuator profile"
+        }
+      }
+    },
+    "P-Actuator": {
+      "title": "P Actuator",
+      "type": "object",
+      "description": "acdci_djs_geo actuator specifiers",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "Args": {
+      "title": "Args",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "start_time": {
+          "$ref": "#/definitions/Date-Time",
+          "description": "The specific date/time to initiate the Command"
+        },
+        "stop_time": {
+          "$ref": "#/definitions/Date-Time",
+          "description": "The specific date/time to terminate the Command"
+        },
+        "duration": {
+          "$ref": "#/definitions/Duration",
+          "description": "The length of time for an Command to be in effect"
+        },
+        "response_requested": {
+          "$ref": "#/definitions/Response-Type",
+          "description": "The type of Response required for the Command: `none`, `ack`, `status`, `complete`."
+        }
+      }
+    },
+    "Date-Time": {
+      "title": "Date Time",
+      "type": "integer",
+      "description": "Date and Time",
+      "minimum": 0
+    },
+    "Duration": {
+      "title": "Duration",
+      "type": "integer",
+      "description": "A length of time",
+      "minimum": 0
+    },
+    "Response-Type": {
+      "title": "Response Type",
+      "type": "string",
+      "oneOf": [
+        {
+          "const": "none",
+          "description": "No response"
+        },
+        {
+          "const": "ack",
+          "description": "Respond when Command received"
+        },
+        {
+          "const": "status",
+          "description": "Respond with progress toward Command completion"
+        },
+        {
+          "const": "complete",
+          "description": "Respond when all aspects of Command completed"
+        }
+      ]
+    },
+    "Features": {
+      "title": "Features",
+      "type": "array",
+      "description": "An array of zero to ten names used to query an Actuator for its supported capabilities.",
+      "uniqueItems": true,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/definitions/Feature"
+      }
+    },
+    "Feature": {
+      "title": "Feature",
+      "type": "string",
+      "description": "Specifies the results to be returned from a query features Command",
+      "oneOf": [
+        {
+          "const": "versions",
+          "description": "List of OpenC2 Language versions supported by this Actuator"
+        },
+        {
+          "const": "profiles",
+          "description": "List of profiles supported by this Actuator"
+        },
+        {
+          "const": "pairs",
+          "description": "List of supported Actions and applicable Targets"
+        },
+        {
+          "const": "rate_limit",
+          "description": "Maximum number of Commands per minute supported by design or policy"
+        }
+      ]
+    },
+    "Jamming-Location": {
+      "title": "Jamming Location",
+      "type": "object",
+      "description": "Distinguishing characteristics of a specific space to jam",
+      "additionalProperties": false,
+      "properties": {
+        "locate": {
+          "$ref": "#/definitions/Geo",
+          "description": "Coordinates for drone location"
+        },
+        "frequency_range": {
+          "$ref": "#/definitions/Frequency-Range",
+          "description": "Frequency range to jam drone operations"
+        }
+      }
+    },
+    "Frequency-Range": {
+      "title": "Frequency Range",
+      "type": "object",
+      "description": "frequency range",
+      "additionalProperties": false,
+      "properties": {
+        "lower_bound": {
+          "type": "number",
+          "description": "<0..n> Hertz"
+        },
+        "upper_bound": {
+          "type": "number",
+          "description": "<0..n> Hertz"
+        }
+      }
+    },
+    "Geo": {
+      "title": "Geo",
+      "type": "object",
+      "description": "lat/long pair",
+      "additionalProperties": false,
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      }
+    },
+    "Results": {
+      "title": "Results",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "versions": {
+          "type": "array",
+          "description": "List of OpenC2 language versions supported by this Actuator",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Version",
+            "description": "List of OpenC2 language versions supported by this Actuator"
+          }
+        },
+        "profiles": {
+          "type": "array",
+          "description": "List of profiles supported by this Actuator",
+          "items": {
+            "$ref": "#/definitions/Nsid"
+          }
+        },
+        "pairs": {
+          "$ref": "#/definitions/Action-Targets",
+          "description": "List of targets applicable to each supported Action"
+        },
+        "rate_limit": {
+          "type": "number",
+          "description": "Maximum number of requests per minute supported by design or policy"
+        },
+        "acdci_djs_geo": {
+          "$ref": "#/definitions/P-Results",
+          "description": "Result properties defined in the acdci_djs_geo Profile"
+        }
+      }
+    },
+    "Action-Targets": {
+      "title": "Action Targets",
+      "type": "object",
+      "description": "Map of each action supported by this actuator to the list of targets applicable to that action.",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "query": {
+          "type": "array",
+          "description": "",
+          "uniqueItems": true,
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/Tgt-query",
+            "description": ""
+          }
+        },
+        "deny": {
+          "type": "array",
+          "description": "",
+          "uniqueItems": true,
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/Tgt-deny",
+            "description": ""
+          }
+        }
+      }
+    },
+    "Tgt-deny": {
+      "title": "Tgt deny",
+      "type": "string",
+      "oneOf": [
+        {
+          "const": "acdci_djs_geo:jamming_location",
+          "description": ""
+        }
+      ]
+    },
+    "Tgt-query": {
+      "title": "Tgt query",
+      "type": "string",
+      "oneOf": [
+        {
+          "const": "features",
+          "description": ""
+        }
+      ]
+    },
+    "Status-Code": {
+      "title": "Status Code",
+      "type": "integer",
+      "oneOf": [
+        {
+          "const": 200,
+          "description": "OK - Drone signal jammed"
+        },
+        {
+          "const": 404,
+          "description": "NotFound - Drone signal not jammed"
+        }
+      ]
+    },
+    "Version": {
+      "title": "Version",
+      "type": "string",
+      "description": "Major.Minor version number"
+    },
+    "Nsid": {
+      "title": "Nsid",
+      "type": "string",
+      "description": "A short identifier that refers to a namespace.",
+      "minLength": 1,
+      "maxLength": 16
+    },
+    "P-Results": {
+      "title": "P Results",
+      "type": "object",
+      "description": "acdci_djs_geo results",
+      "additionalProperties": false,
+      "properties": {
+        "gps_location_drone": {
+          "$ref": "#/definitions/Geo",
+          "description": "lat/long pair"
+        },
+        "success_jam": {
+          "type": "boolean",
+          "description": "True or False"
+        },
+        "jam_freq_drone": {
+          "$ref": "#/definitions/Frequency-Range",
+          "description": "Frequency range to jam drone"
+        }
+      }
+    }
+  }
+}
