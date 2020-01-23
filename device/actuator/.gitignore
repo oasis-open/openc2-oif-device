@@ -169,4 +169,6 @@ fabric.properties
 # Custom ignore
 .idea/
 */act_server/config.json
-*/Dockerfile
+*/act_server/utils
+*/DockerFile
+/clean_schemas.py

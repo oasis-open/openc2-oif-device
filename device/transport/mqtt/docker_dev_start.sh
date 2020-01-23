@@ -2,4 +2,4 @@
 dockerize -wait tcp://$QUEUE_HOST:$QUEUE_PORT -timeout 30s
 
 echo "Running MQTT Transport Module."
-python3 mqtt_transport.py
+python3 -u mqtt_transport.py
