@@ -171,3 +171,4 @@ fabric.properties
 */act_server/config.json
 */act_server/utils
 */DockerFile
+/clean_schemas.py

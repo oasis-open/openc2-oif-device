@@ -1,6 +1,7 @@
 """
 Multiple dispatch on namespace
 """
+from functools import partial
 from inspect import isfunction
 from typing import (
     Any,
@@ -67,13 +68,16 @@ class Dispatch(object):
 
         return fun(*args, **fun_kwargs) if isinstance(args, tuple) else kwargs
 
-    def register(self, fun: Callable, key: str = None) -> None:
+    def register(self, fun: Callable = None, key: str = None) -> Union[None, Callable]:
         """
         Register a function
         usable as a wrapper or standard function call
         :param fun: function to register
         :param key: name to register as, default function name
         """
+        if fun is None and key:
+            return partial(self.register, key=key)
+
         key = key if key else fun.__name__
         self._registered[key] = fun
 

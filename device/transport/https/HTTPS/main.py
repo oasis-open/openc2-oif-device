@@ -32,10 +32,25 @@ def result():
         "headers": dict(request.headers),
         "content": safe_json(message.decode('utf-8'))
     })
+
+    rsp = {
+        "status": 200,
+        "status_text": "received",
+        # command id??
+    }
+
     print(f"Received command from {orc_id}@{orc_socket} - {data}")
     if msg_json['action'] == "query" and "command" in msg_json['target']:
         print("QUERY COMMAND")
-        rsp = {}
+        cmd_id = msg_json['target']['command']
+        prev_cmd = state.get(cmd_id)
+        if prev_cmd:
+            rsp = {
+                "status_text": "previous command found",
+                "response": {
+                    "command": prev_cmd
+                }
+            }
 
     else:
         print("Writing to buffer")
@@ -55,11 +70,6 @@ def result():
             routing_key=profile
         )
 
-        rsp = {
-            "status": 200,
-            "status_text": "received",
-            # command id??
-        }
         print(f"Corr_id: {corr_id}")
         for wait in range(0, MAX_WAIT):
             print(f"Checking for response... {MAX_WAIT} - {wait}")
