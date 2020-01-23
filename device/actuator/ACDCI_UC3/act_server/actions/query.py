@@ -34,11 +34,3 @@ def features(act, target=[], args={}, *extra_args, **extra_kwargs):
         )
 
         return {k: v for k, v in rtn.items() if v}
-
-
-@Query.register
-def file(act, target=[], args={}, *extra_args, **extra_kwargs):
-    # return exceptions.not_implemented()
-    return dict(
-        status=200
-    )
