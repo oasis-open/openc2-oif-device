@@ -48,3 +48,5 @@ Initially, the associated TC members have designated one or more persons to serv
 
 Questions or comments about this TC Open Repository's activities should be composed as GitHub issues or comments. If use of an issue/comment is not possible or appropriate, questions may be directed by email to the Maintainer(s) <a href="#currentMaintainers">listed above</a>. Please send general questions about TC Open Repository participation to OASIS Staff at repository-admin@oasis-open.org and any specific CLA-related questions to repository-cla@oasis-open.org. 
 
+## [OpenC2 Language](https://openc2.org/) Version Compliance
+- This repository complies to the Open C2 Language CS v1.0 specification as of 19 Dec. 2019

@@ -1,4 +1,4 @@
-FROM python:3.7-alpine
+FROM alpine:latest
 
 MAINTAINER Screaming_Bunny
 
@@ -8,16 +8,33 @@ license="BSD" \
 version="2.0" \
 description="This is the Base Alpine Python3 container for Screaming Bunny."
 
-ENV PYTHONUNBUFFERED=0
+ENV DOCKERIZE_VERSION=v0.6.1 \
+    PYTHONUNBUFFERED=0
 
 ADD modules/ /tmp/modules
+ADD https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz /tmp/dockerize.tar.gz
 ADD https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py
 
 # Package Installation
 # Packages - https://pkgs.alpinelinux.org/packages
+RUN apk upgrade --update && \
+apk add --no-cache python3 \
+  bash \
+  shadow \
+  tar \
+  dos2unix && \
+apk add --no-cache --virtual .build-deps \
+  g++ \
+  gcc \
+  musl-dev \
+  yaml-dev \
+  python3-dev && \
+#
+# Dockerize Config
+tar -C /usr/local/bin -xzvf /tmp/dockerize.tar.gz && \
 #
 # Python PIP Install
-RUN python3 /tmp/get-pip.py && \
+python3 /tmp/get-pip.py && \
 pip3 install --upgrade pip && \
 #
 # SB_Utils install
@@ -26,7 +43,9 @@ python3 setup.py install && \
 cd && \
 #
 # Cleanup
-rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+apk del .build-deps tar && \
+rm /var/cache/apk/* && \
+rm -rf *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \
