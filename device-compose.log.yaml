@@ -60,6 +60,4 @@ services:
       - 127.0.0.1:${LOG_PORT:-514}:514/udp
     volumes:
       - ./logs:/var/log/syslog
-    external_links:
-      - logger_elastic
     restart: on-failure:5
