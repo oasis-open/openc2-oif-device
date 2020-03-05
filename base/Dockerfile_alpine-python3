@@ -44,8 +44,7 @@ cd && \
 #
 # Cleanup
 apk del .build-deps tar && \
-rm /var/cache/apk/* && \
-rm -rf *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \

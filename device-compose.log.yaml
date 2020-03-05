@@ -52,12 +52,12 @@ services:
       context: ./logger/server
       dockerfile: Dockerfile
     environment:
-      ES_HOST: es_logger
+      ES_HOST: logger_elastic
       ES_PORT: 9200
       LOG_PREFIX: 'device'
       HOST_PORT: ${LOG_PORT:-514}
-      ports:
-        - 127.0.0.1:${LOG_PORT:-514}:514/udp
+    ports:
+      - 127.0.0.1:${LOG_PORT:-514}:514/udp
     volumes:
       - ./logs:/var/log/syslog
     restart: on-failure:5
