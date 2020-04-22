@@ -107,7 +107,10 @@ class ConsoleStyle:
         print(tmp)
 
     def h2(self, txt):
-        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_WHITE"))
+        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_MAGENTA"))
+
+    def h3(self, txt):
+        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_YELLOW"))
 
     def debug(self, txt):
         print(self.colorize(txt, "FG_WHITE"))
