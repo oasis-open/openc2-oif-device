@@ -62,10 +62,10 @@ CONFIG = FrozenDict(
     ImagePrefix="g2inc",
     Logging=FrozenDict(
         Default=(
-            ("device", "-p device -f device-compose.yaml -f device-compose.log.yaml"),
+            ("device", "-p device -f device-compose.yaml"),
         ),
         Central=(
-            ("device", "-p device -f device-compose.yaml"),
+            ("device", "-p device -f device-compose.yaml -f device-compose.log.yaml"),
         )
     ),
     Composes=tuple(file for file in os.listdir(RootDir) if re.match(r"^\w*?-compose(\.\w*?)?\.yaml$", file))
@@ -114,6 +114,26 @@ if __name__ == "__main__":
         rm=True
     )
 
+    Stylize.info("Building base alpine twisted python3 image")
+    build_image(
+        docker_sys=system,
+        console=Stylize,
+        path="./base",
+        dockerfile="./Dockerfile_alpine-python3_twisted",
+        tag=f"{CONFIG.ImagePrefix}/oif-python_twisted",
+        rm=True
+    )
+
+    Stylize.info("Building base actuator image")
+    build_image(
+        docker_sys=system,
+        console=Stylize,
+        path="./device/actuator/Base",
+        dockerfile="./Dockerfile",
+        tag=f"{CONFIG.ImagePrefix}/oif-device-actutator-base",
+        rm=True
+    )
+
     # -------------------- Build Compose Images -------------------- #
     Stylize.h1(f"[Step {get_count()}]: Creating compose images ...")
     from yaml import load
@@ -159,6 +179,6 @@ if __name__ == "__main__":
 
     Stylize.success("\nConfiguration Complete")
     for key, opts in CONFIG.Logging.items():
-        Stylize.info(f"{key} logging")
+        Stylize.h3(f"{key} logging")
         for opt in opts:
             Stylize.info(f"-- Run 'docker-compose {opt[1]} up' to start the {opt[0]} compose")
