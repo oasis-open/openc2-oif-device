@@ -67,6 +67,7 @@ CONFIG = FrozenDict(
     BaseRepo=f"{Base_URL}ScreamingBunny",
     ImageReplace=(
         ("base", r"gitlab.*?docker:alpine( as.*)?", r"alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
+        ("python3_twisted", r"gitlab.*plus:alpine-python3_twisted( as.*)?", fr"g2inc/oif-python_twisted\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
         ("python3", r"gitlab.*plus:alpine-python3( as.*)?", fr"g2inc/oif-python\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
     ),
     Repos=FrozenDict(

@@ -2,9 +2,22 @@
 
 ## Container/Services ReadMe
 ### Actuator
-- [ISR](../device/actuator/isr/ReadMe.md)
+- [ACDCI UC1](../device/actuator/ACDCI_UC1/ReadMe.md)
+- [ACDCI UC2](../device/actuator/ACDCI_UC2/ReadMe.md)
+- [ACDCI UC3](../device/actuator/ACDCI_UC3/ReadMe.md)
+- [ACDCI UC4](../device/actuator/ACDCI_UC4/ReadMe.md)
+- [ACDCI UC5](../device/actuator/ACDCI_UC5/ReadMe.md)
+- [ACDCI UC6](../device/actuator/ACDCI_UC6/ReadMe.md)
+- [ACDCI UC7](../device/actuator/ACDCI_UC7/ReadMe.md)
+- [ACDCI UC8](../device/actuator/ACDCI_UC8/ReadMe.md)
+- [ACDCI UC9](../device/actuator/ACDCI_UC9/ReadMe.md)
+- [Base](../device/actuator/Base/ReadMe.md)
+- [EWF](../device/actuator/EWF/ReadMe.md)
+- [ISR](../device/actuator/ISR/ReadMe.md)
+- [SLPF](../device/actuator/SLPF/ReadMe.md)
 
 ### Transport
+- [CoAP](../device/transport/coap/README.md)
 - [HTTPS](../device/transport/https/README.md)
 - [MQTT](../device/transport/mqtt/ReadMe.md)
 
@@ -14,12 +27,12 @@
 
 #### Default Container/Service
 #### Credentials
-- OIF GUI - admin/password
-	- Note: Admin and User GUI use the same credentials but not the same login
+- No credentials for device
 
 ##### Ports
-- Logger GUI - HOST:8081
+- CoAP - Device: HOST:5682(default)
 - HTTPS - Device: HOST:5001(default)
+- MQTT - No ports
 
 ## Requirements
 - Docker v18+
@@ -30,10 +43,8 @@
 ## Configuration
 - Run `configure.py` with the desired options prior to starting the Device for the first time
 	- Options
-		- `-b` or `--build-image` -- Build base containers
     	- `-f FILE` or `--log_file FILE` -- Enables logging to the designated file
     	- `-h` or `--help` -- Shows the help and exits
-		- `-l` or `--log-gui` -- Build Logger GUI for use in container
     	- `-v` or `--verbose` -- Enables verbose output   
     	
     ```bash
@@ -45,15 +56,19 @@
 - Options
 	- * `-f FILE` or `--file FILE` -- Specify an alternate compose file (default: docker-compose.yml)
 	- `-p NAME` or `--project-name NAME` -- Specify an alternate project name (default: directory name)
-	- `d` or `--detach` -- Detached mode: Run containers in the background, print new container names. Incompatible with --abort-on-container-exit.
+	- `-d` or `--detach` -- Detached mode: Run containers in the background, print new container names. Incompatible with --abort-on-container-exit.
 - Starting
-	- Run the `docker-compose` command for the Device as shown below
+	- Run the `docker-compose` command for the Device
+		
+		```bash
+		docker-compose ...... up [-d]
+		```
 
--  Stoping
+-  Stopping
 	-  If running attatched (showing log output, no -d option)
 		-  Use 'Ctrl + C' 
 	-  If running detatched (not showing log output, -d option)
-		-  Run the `docker-compose` that was used to start the Device **except** replace `up ...` with `down`
+		-  Use the `docker-compose` that was used to start the Device **except** replace `up ...` with `down`
 			
 			```bash
 			docker-compose ...... down
@@ -72,7 +87,7 @@
 
 ### Docker Compose Files
 ### Central Logging
-- __Still in Beta__
+- __Still Developing__
 - Run the `docker-compose` as normal with the additional option of a second '-f/--file'
 - Allows for a central location for logging rather than the docker default of per container
 - Runs on default port of 8081 for logger web GUI
@@ -80,6 +95,9 @@
 	```bash
 	docker-compose -f device-compose.yaml -f device-compose.log.yaml ...
 	```
+ 
+- Note: If using this option, any additional containers should be added to the log yaml
+ 
 	
 #### Device
 - Use [`docker-compose`](https://docs.docker.com/compose/reference/overview/) to start the device on the system
