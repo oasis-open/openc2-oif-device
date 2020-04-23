@@ -1,5 +1,3 @@
-from .utils import ActuatorBase
-
 from .actions import (
     Copy,
     Locate,
@@ -7,6 +5,7 @@ from .actions import (
     Report,
     Scan
 )
+from .utils import ActuatorBase
 
 
 class Actuator(ActuatorBase):

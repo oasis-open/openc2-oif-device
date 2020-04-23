@@ -1,9 +1,8 @@
-from .utils import ActuatorBase
-
 from .actions import (
     Query,
     Scan
 )
+from .utils import ActuatorBase
 
 
 class Actuator(ActuatorBase):

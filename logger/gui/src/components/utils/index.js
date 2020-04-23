@@ -1,9 +1,9 @@
 import {
   ThemeChooser,
   ThemeSwitcher
-} from './theme-switcher'
+} from './theme-switcher';
 
 export {
   ThemeChooser,
   ThemeSwitcher
-}
+};

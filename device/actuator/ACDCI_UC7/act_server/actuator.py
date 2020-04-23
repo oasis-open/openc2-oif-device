@@ -1,9 +1,9 @@
-from .utils import ActuatorBase
 
 from .actions import (
     Query,
     Remediate
 )
+from .utils import ActuatorBase
 
 
 class Actuator(ActuatorBase):

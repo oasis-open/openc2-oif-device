@@ -1,7 +1,6 @@
 import copy
 import json
 import sys
-import uuid
 
 from io import BufferedIOBase, TextIOBase
 from ipaddress import (
@@ -17,18 +16,6 @@ from typing import (
     Any,
     Union
 )
-
-
-def prefixUUID(pre: str = "PREFIX", max_len: int = 30) -> str:
-    """
-    Prefix a UUID to a set length
-    :param pre: prefix
-    :param max_len: maximum length of the string
-    :return: prefixed UUID
-    """
-    uid_max = max_len - (len(pre) + 10)
-    uid = str(uuid.uuid4()).replace("-", "")[:uid_max]
-    return f"{pre}-{uid}"[:max_len]
 
 
 def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase]) -> dict:

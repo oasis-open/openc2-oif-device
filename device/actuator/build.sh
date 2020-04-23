@@ -5,6 +5,7 @@ BASEDIR=$(dirname "$0")
 IMAGE_NAME=$1
 
 for DIR in $BASEDIR/*/; do
+  if [ "$DIR" != "${BASEDIR}/Base/" ]; then
     TAG=$(python3 -c "import re; print(re.sub(r'(^\./|/$)', '', \"${DIR}\").lower())")
     if [[ -f "${DIR}Dockerfile" ]]; then
         echo -e "Building $IMAGE_NAME:$TAG\n"
@@ -13,4 +14,5 @@ for DIR in $BASEDIR/*/; do
         echo -e "No Dockerfile found for ${TAG}\n\n"
     fi
     echo -e "-----------------------------------------------------------------------\n\n"
+  fi
 done

@@ -172,3 +172,7 @@ fabric.properties
 */act_server/utils
 */DockerFile
 /clean_schemas.py
+
+# Unignore files for base image
+!/Base/Dockerfile
+!/Base/act_server/utils/

@@ -1,8 +1,8 @@
 import os
 
 from functools import partial
-
 from sb_utils import decode_msg, encode_msg, Consumer, Producer
+
 from .actuator import Actuator
 
 

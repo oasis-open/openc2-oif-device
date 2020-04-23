@@ -1,7 +1,10 @@
-import React, { Suspense, lazy } from 'react'
-import PropTypes from 'prop-types'
-import { validThemes } from './themes'
-import './assets/css/loader.css'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet-async';
+import validThemes from './themes';
+import './assets/css/loader.css';
+
+import * as themeActions from './theme-actions';
 
 const setItem = (key, obj) => {
   if (!key) return null;
@@ -10,124 +13,43 @@ const setItem = (key, obj) => {
   } catch (err) {
     return null;
   }
-}
+};
 
-const getItem = (key) => {
+const getItem = key => {
   if (!key) return null;
   try {
-    let item = localStorage.getItem(key)
+    const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : null;
   } catch (err) {
     return null;
   }
-}
-
-const loader = (styles, cb) => {
-  const head = document.getElementsByTagName('head')[0];
-  let styleElm = document.createElement('style')
-  styleElm.setAttribute("type", "text/css")
-  styleElm.setAttribute("data-type", "theme")
-  styleElm.innerHTML = styles !== '' ? styles : ''
-  head.append(styleElm)
-
-  if (typeof(cb) === "function") {
-    cb()
-  }
-}
-
-// check if boootstrap styles are loaded
-const isLoaded = () =>  {
-  const head = document.getElementsByTagName('head')[0];
-  const nodes = head.childNodes;
-  let loaded = false;
-
-  nodes.forEach(node => {
-    let tag = (node.tagName || '').toLowerCase()
-    let dataAttrs = node.dataset || {}
-    let theme = dataAttrs.hasOwnProperty('type') ? (dataAttrs.type == 'theme') : false
-    let styles = node.innerHTML !== ''
-
-    if (tag == 'style' && theme && styles) {
-      loaded = true;
-    }
-  })
-  return loaded;
-}
-
-// remove any bootstrap style
-const removeCurrentTheme = () => {
-  const head = document.getElementsByTagName('head')[0];
-  const nodes = head.childNodes;
-
-  nodes.forEach(node => {
-    let tag = (node.tagName || '').toLowerCase()
-    let dataAttrs = node.dataset || {}
-    let theme = dataAttrs.hasOwnProperty('type') ? (dataAttrs.type == 'theme') : false
-
-    if (tag == 'style' && theme) {
-      head.removeChild(node)
-    }
-  })
-}
+};
 
 //------------------------------------------------------------------------------
 // Top level ThemeSwitcher Component
 //------------------------------------------------------------------------------
-class ThemeSwitcher extends React.Component {
+class ThemeSwitcher extends Component {
   constructor(props, context) {
     super(props, context);
     this.load = this.load.bind(this);
     this.loadTheme = this.loadTheme.bind(this);
 
-    let themes = [...this.props.themeOptions]
+    const themeOptions = new Set(this.props.themeOptions.filter(t => validThemes.includes(t)));
 
-    let defaultTheme = getItem(this.props.storeThemeKey)
-    themes.push(defaultTheme ? defaultTheme : this.props.defaultTheme)
-
-    themes = Object.assign(
-      ...this.props.themeOptions.map(t => ({[t]: validThemes.includes(t) ? require('./themes/'+t).default : ''})),
-      this.props.themes
-    )
-    themes = Object.assign(...Object.keys(themes).map(k => (null, '', ' ').includes(themes[k]) ? {} : {[k]: themes[k]}))
+    let defaultTheme = getItem(this.props.storeThemeKey);
+    defaultTheme = defaultTheme || this.props.defaultTheme;
+    themeOptions.add(defaultTheme);
 
     this.state = {
-      loaded: false,
-      currentTheme: null,
-      themes: themes
-    }
-  }
+      currentTheme: defaultTheme,
+      themes: this.props.themes || {},
+      themeOptions
+    };
 
-  componentDidMount() {
-    if (!isLoaded()) {
-      this.load(); // load default theme
-    }
-  }
-
-  loadTheme(name) {
-    name = Object.keys(this.state.themes).indexOf(name) >= 0 ? name : this.props.defaultTheme
-    removeCurrentTheme()
-
-    setItem(this.props.storeThemeKey, name);
-    loader(this.state.themes[name], () => {
-      this.setState({
-        loaded: true,
-        currentTheme: name
-      })
-    })
-  }
-
-  load(theme) {
-    this.setState({
-      loaded: false
-    })
-
-    if (!theme) {
-      let storedTheme = getItem(this.props.storeThemeKey)
-      // see if a theme was previously stored, will return null if storedThemeKey not set
-      theme = storedTheme ? storedTheme : this.props.defaultTheme
-    }
-
-    this.loadTheme(theme)
+    this.loadTheme(defaultTheme);
+    setTimeout(() => {
+      themeOptions.forEach(theme => this.loadTheme(theme));
+    }, 100);
   }
 
   // pass reference to this down to ThemeChooser component
@@ -135,12 +57,54 @@ class ThemeSwitcher extends React.Component {
     return {
       defaultTheme: this.props.defaultTheme,
       themeSwitcher: this,
-      themes: this.props.themeOptions.filter(t => true),
+      themes: [ ...this.state.themeOptions ],
       currentTheme: this.state.currentTheme
+    };
+  }
+
+  async loadTheme(theme) {
+    if (!this.state.themeOptions.has(theme)) { return; }
+
+    if (!(theme in this.state.themes)) {
+      themeActions.loadTheme(theme).then(rsp => {
+        this.setState(prevState => ({
+          themes: {
+            ...prevState.themes,
+            [rsp.theme]: rsp.styles
+          }
+        }));
+      });
     }
   }
 
-  render() {
+  async load(theme) {
+    if (!theme) {
+      const storedTheme = getItem(this.props.storeThemeKey);
+      // see if a theme was previously stored, will return null if storedThemeKey not set
+      // eslint-disable-next-line no-param-reassign
+      theme = storedTheme || this.props.defaultTheme;
+    }
+
+    if (!this.state.themeOptions.has(theme)) { return; }
+
+    setItem(this.props.storeThemeKey, theme);
+    this.setState({
+      currentTheme: theme
+    });
+
+    if (Object.keys(this.state.themes).indexOf(theme) === -1) {
+      return themeActions.loadTheme(theme).then(rsp => {
+        this.setState(prevState => ({
+          themes: {
+            ...prevState.themes,
+            [rsp.theme]: rsp.styles
+          }
+        }));
+      });
+    }
+  }
+
+  getContents() {
     if (Object.keys(this.state.themes).length === 0) {
       return (
         <div style={{
@@ -159,16 +123,28 @@ class ThemeSwitcher extends React.Component {
             <p className='pt-0 mt-0'>Loading...</p>
           </div>
         </div>
-      )
-    } else {
-      return this.props.children || <span />
+      );
     }
+    return this.props.children || <span />;
+  }
+
+  render() {
+    return (
+      <div>
+        <Helmet>
+          <style type="text/css" data-type="theme">
+            { this.state.themes[this.state.currentTheme] || '' }
+          </style>
+        </Helmet>
+        { this.getContents() }
+      </div>
+    );
   }
 }
 
 ThemeSwitcher.childContextTypes = {
   defaultTheme: PropTypes.string,
-  themeSwitcher: PropTypes.object,
+  themeSwitcher: PropTypes.instanceOf(ThemeSwitcher),
   themes: PropTypes.array,
   currentTheme: PropTypes.string
 };
@@ -177,14 +153,16 @@ ThemeSwitcher.propTypes = {
   defaultTheme: PropTypes.string,
   storeThemeKey: PropTypes.string,
   themes: PropTypes.object,
-  themeOptions: PropTypes.array
+  themeOptions: PropTypes.array,
+  children: PropTypes.element
 };
 
 ThemeSwitcher.defaultProps = {
   defaultTheme: 'lumen',
   storeThemeKey: null,
   themes: null,
-  themeOptions: ['cerulean', 'cosmo', 'cyborg', 'darkly', 'flatly', 'journal', 'litera', 'lumen', 'lux', 'materia', 'minty', 'pulse', 'sandstone', 'simplex', 'sketchy', 'slate', 'solar', 'spacelab', 'superhero', 'united', 'yeti']
+  themeOptions: validThemes,
+  children: null
 };
 
 export default ThemeSwitcher;

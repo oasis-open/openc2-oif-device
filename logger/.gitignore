@@ -239,6 +239,4 @@ venv.bak/
 
 # Custom Ignore
 .idea
-!gui/src/components/***/lib/
-webpack.stats.json
-package-lock.json
+es_data
