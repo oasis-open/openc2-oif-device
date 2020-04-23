@@ -1,10 +1,9 @@
-from .utils import ActuatorBase
-
 from .actions import (
     Deny,
     Query,
     Report
 )
+from .utils import ActuatorBase
 
 
 class Actuator(ActuatorBase):

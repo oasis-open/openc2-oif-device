@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://oasis-open.org/openc2/oc2ls/v1.0.1",
-  "title": "Language schema with errata",
-  "description": "oc2srs version 1.0 json schema",
+  "title": "ACDCI_RFT_DOP v1.0.1",
+  "description": "OpenC2 LS version 1.0 + ACDCI_RFT_DOP",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -72,36 +72,12 @@
       "type": "string",
       "oneOf": [
         {
-          "const": "scan",
-          "description": "Systematic examination of some aspect of the entity or its environment."
-        },
-        {
           "const": "locate",
           "description": "Find an object physically, logically, functionally, or by organization."
         },
         {
           "const": "query",
           "description": "Initiate a request for information."
-        },
-        {
-          "const": "deny",
-          "description": "Prevent a certain event or action from completion, such as preventing a flow from reaching a destination or preventing access."
-        },
-        {
-          "const": "contain",
-          "description": "Isolate a file, process, or entity so that it cannot modify or access assets or processes."
-        },
-        {
-          "const": "delete",
-          "description": "Remove an entity (e.g., data, files, flows)."
-        },
-        {
-          "const": "investigate",
-          "description": "Task the recipient to aggregate and report information as it pertains to a security event or incident."
-        },
-        {
-          "const": "remediate",
-          "description": "Task the recipient to eliminate a vulnerability or attack point."
         }
       ]
     },
@@ -113,23 +89,35 @@
       "minProperties": 1,
       "maxProperties": 1,
       "properties": {
-        "device": {
-          "$ref": "#/definitions/Device",
-          "description": "The properties of a hardware device."
-        },
-        "email_addr": {
-          "$ref": "#/definitions/Email-Addr",
-          "description": "A single email address."
-        },
         "features": {
           "$ref": "#/definitions/Features",
           "description": "A set of items used with the query Action to determine an Actuator's capabilities."
         },
-        "file": {
-          "$ref": "#/definitions/File",
-          "description": "Properties of a file."
+        "acdci_rft_dop:drone_team_df": {
+          "$ref": "#/definitions/Drone-Team-DF",
+          "description": "Distinguishing characteristics of a specific drone"
         }
       }
+    },
+    "Actuator": {
+      "title": "Actuator",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "acdci_rft_dop": {
+          "$ref": "#/definitions/P-Actuator",
+          "description": "Specifiers defined in the acdci_rft_dop actuator profile"
+        }
+      }
+    },
+    "P-Actuator": {
+      "title": "P Actuator",
+      "type": "object",
+      "description": "acdci_rft_dop actuator specifiers",
+      "additionalProperties": false,
+      "properties": {}
     },
     "Args": {
       "title": "Args",
@@ -155,17 +143,137 @@
         }
       }
     },
-    "Actuator": {
-      "title": "Actuator",
+    "Date-Time": {
+      "title": "Date Time",
+      "type": "integer",
+      "description": "Date and Time",
+      "minimum": 0
+    },
+    "Duration": {
+      "title": "Duration",
+      "type": "integer",
+      "description": "A length of time",
+      "minimum": 0
+    },
+    "Response-Type": {
+      "title": "Response Type",
+      "type": "string",
+      "oneOf": [
+        {
+          "const": "none",
+          "description": "No response"
+        },
+        {
+          "const": "ack",
+          "description": "Respond when Command received"
+        },
+        {
+          "const": "status",
+          "description": "Respond with progress toward Command completion"
+        },
+        {
+          "const": "complete",
+          "description": "Respond when all aspects of Command completed"
+        }
+      ]
+    },
+    "Features": {
+      "title": "Features",
+      "type": "array",
+      "description": "An array of zero to ten names used to query an Actuator for its supported capabilities.",
+      "uniqueItems": true,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/definitions/Feature"
+      }
+    },
+    "Feature": {
+      "title": "Feature",
+      "type": "string",
+      "description": "Specifies the results to be returned from a query features Command",
+      "oneOf": [
+        {
+          "const": "versions",
+          "description": "List of OpenC2 Language versions supported by this Actuator"
+        },
+        {
+          "const": "profiles",
+          "description": "List of profiles supported by this Actuator"
+        },
+        {
+          "const": "pairs",
+          "description": "List of supported Actions and applicable Targets"
+        },
+        {
+          "const": "rate_limit",
+          "description": "Maximum number of Commands per minute supported by design or policy"
+        }
+      ]
+    },
+    "Drone-Team-DF": {
+      "title": "Drone Team DF",
       "type": "object",
+      "description": "Distinguishing characteristics of a specific drone",
       "additionalProperties": false,
-      "minProperties": 1,
-      "maxProperties": 1,
+      "required": [
+        "heading"
+      ],
       "properties": {
-        "x-srs": {
-          "title": "Surveillance Radar System",
-          "type": "object",
-          "minProperties": 1
+        "size": {
+          "$ref": "#/definitions/Size",
+          "description": "Micro UAV, Raven class, Global Hawk class"
+        },
+        "position": {
+          "$ref": "#/definitions/Geo",
+          "description": "lat/long pair"
+        },
+        "speed": {
+          "type": "number",
+          "description": "<0..n> meters per seconds"
+        },
+        "heading": {
+          "type": "number",
+          "description": "<0..360> Degrees",
+          "minimum": 0,
+          "maximum": 360
+        },
+        "frequency_range": {
+          "$ref": "#/definitions/Frequency-Range",
+          "description": "Frequency range in which to search"
+        },
+        "altitude": {
+          "type": "number",
+          "description": "<0..n> meters"
+        }
+      }
+    },
+    "Geo": {
+      "title": "Geo",
+      "type": "object",
+      "description": "lat/long pair",
+      "additionalProperties": false,
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      }
+    },
+    "Frequency-Range": {
+      "title": "Frequency Range",
+      "type": "object",
+      "description": "frequency range",
+      "additionalProperties": false,
+      "properties": {
+        "lower_bound": {
+          "type": "number",
+          "description": "<0..n> Hertz"
+        },
+        "upper_bound": {
+          "type": "number",
+          "description": "<0..n> Hertz"
         }
       }
     },
@@ -200,75 +308,59 @@
           "type": "number",
           "description": "Maximum number of requests per minute supported by design or policy"
         },
-        "x-srs": {
-          "title": "Surveillance Radar System",
-          "type": "object",
-          "minProperties": 1
+        "acdci_rft_dop": {
+          "$ref": "#/definitions/P-Results",
+          "description": "Result properties defined in the acdci_rft_dop Profile"
         }
       }
     },
     "Action-Targets": {
       "title": "Action Targets",
       "type": "object",
-      "description": "Map of each action supported by this actuator to the list of targets applicable to that action",
+      "description": "Map of each action supported by this actuator to the list of targets applicable to that action.",
       "additionalProperties": false,
       "minProperties": 1,
       "properties": {
-        "scan": {
-          "$ref": "#/definitions/Targets"
+        "query": {
+          "type": "array",
+          "description": "",
+          "uniqueItems": true,
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/Tgt-query",
+            "description": ""
+          }
         },
         "locate": {
-          "$ref": "#/definitions/Targets"
-        },
-        "query": {
-          "$ref": "#/definitions/Targets"
-        },
-        "deny": {
-          "$ref": "#/definitions/Targets"
-        },
-        "contain": {
-          "$ref": "#/definitions/Targets"
-        },
-        "delete": {
-          "$ref": "#/definitions/Targets"
-        },
-        "investigate": {
-          "$ref": "#/definitions/Targets"
-        },
-        "remediate": {
-          "$ref": "#/definitions/Targets"
+          "type": "array",
+          "description": "",
+          "uniqueItems": true,
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/Tgt-locate",
+            "description": ""
+          }
         }
       }
     },
-    "Targets": {
-      "title": "Targets",
-      "type": "array",
-      "description": "List of JSON Pointers to Target types",
-      "uniqueItems": true,
-      "minItems": 1,
-      "maxItems": 100,
-      "items": {
-        "$ref": "#/definitions/Target$Pointer"
-      }
-    },
-    "Target$Pointer": {
-      "title": "Target$Pointer",
+    "Tgt-locate": {
+      "title": "Tgt locate",
       "type": "string",
       "oneOf": [
         {
-          "const": "device",
+          "const": "acdci_rft_dop:drone_team_df",
           "description": ""
-        },
-        {
-          "const": "email_addr",
-          "description": ""
-        },
+        }
+      ]
+    },
+    "Tgt-query": {
+      "title": "Tgt query",
+      "type": "string",
+      "oneOf": [
         {
           "const": "features",
-          "description": ""
-        },
-        {
-          "const": "file",
           "description": ""
         }
       ]
@@ -278,179 +370,19 @@
       "type": "integer",
       "oneOf": [
         {
-          "const": 102,
-          "description": "Processing - an interim Response used to inform the Producer that the Consumer has accepted the Command but has not yet completed it."
-        },
-        {
           "const": 200,
-          "description": "OK - the Command has succeeded."
-        },
-        {
-          "const": 400,
-          "description": "BadRequest - the Consumer cannot process the Command due to something that is perceived to be a Producer error (e.g., malformed Command syntax)."
-        },
-        {
-          "const": 401,
-          "description": "Unauthorized - the Command Message lacks valid authentication credentials for the target resource or authorization has been refused for the submitted credentials."
-        },
-        {
-          "const": 403,
-          "description": "Forbidden - the Consumer understood the Command but refuses to authorize it."
+          "description": "OK - Drone found"
         },
         {
           "const": 404,
-          "description": "NotFound - the Consumer has not found anything matching the Command."
-        },
-        {
-          "const": 500,
-          "description": "InternalError - the Consumer encountered an unexpected condition that prevented it from performing the Command."
-        },
-        {
-          "const": 501,
-          "description": "NotImplemented - the Consumer does not support the functionality required to perform the Command."
-        },
-        {
-          "const": 503,
-          "description": "ServiceUnavailable - the Consumer is currently unable to perform the Command due to a temporary overloading or maintenance of the Consumer."
+          "description": "NotFound - Drone not found"
         }
       ]
     },
-    "Device": {
-      "title": "Device",
-      "type": "object",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "hostname": {
-          "$ref": "#/definitions/Hostname",
-          "description": "A hostname that can be used to connect to this device over a network"
-        },
-        "idn_hostname": {
-          "$ref": "#/definitions/IDN-Hostname",
-          "description": "An internationalized hostname that can be used to connect to this device over a network"
-        },
-        "device_id": {
-          "type": "string",
-          "description": "An identifier that refers to this device within an inventory or management system"
-        }
-      }
-    },
-    "Email-Addr": {
-      "title": "Email Addr",
+    "Version": {
+      "title": "Version",
       "type": "string",
-      "description": "Email address, [[RFC5322]](#rfc5322), Section 3.4.1",
-      "format": "email"
-    },
-    "Features": {
-      "title": "Features",
-      "type": "array",
-      "description": "An array of zero to ten names used to query an Actuator for its supported capabilities.",
-      "uniqueItems": true,
-      "maxItems": 10,
-      "items": {
-        "$ref": "#/definitions/Feature"
-      }
-    },
-    "File": {
-      "title": "File",
-      "type": "object",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name of the file as defined in the file system"
-        },
-        "path": {
-          "type": "string",
-          "description": "The absolute path to the location of the file in the file system"
-        },
-        "hashes": {
-          "$ref": "#/definitions/Hashes",
-          "description": "One or more cryptographic hash codes of the file contents"
-        }
-      }
-    },
-    "Properties": {
-      "title": "Properties",
-      "type": "array",
-      "description": "A list of names that uniquely identify properties of an Actuator.",
-      "uniqueItems": true,
-      "minItems": 1,
-      "items": {
-        "type": "string"
-      }
-    },
-    "Date-Time": {
-      "title": "Date Time",
-      "type": "integer",
-      "description": "Date and Time",
-      "minimum": 0
-    },
-    "Duration": {
-      "title": "Duration",
-      "type": "integer",
-      "description": "A length of time",
-      "minimum": 0
-    },
-    "Feature": {
-      "title": "Feature",
-      "type": "string",
-      "description": "Specifies the results to be returned from a query features Command",
-      "oneOf": [
-        {
-          "const": "versions",
-          "description": "List of OpenC2 Language versions supported by this Actuator"
-        },
-        {
-          "const": "profiles",
-          "description": "List of profiles supported by this Actuator"
-        },
-        {
-          "const": "pairs",
-          "description": "List of supported Actions and applicable Targets"
-        },
-        {
-          "const": "rate_limit",
-          "description": "Maximum number of Commands per minute supported by design or policy"
-        }
-      ]
-    },
-    "Hashes": {
-      "title": "Hashes",
-      "type": "object",
-      "description": "Cryptographic Hash values",
-      "additionalProperties": false,
-      "minProperties": 1,
-      "properties": {
-        "md5": {
-          "type": "string",
-          "description": "MD5 hash as defined in [[RFC1321]](#rfc1321)",
-          "contentEncoding": "base16"
-        },
-        "sha1": {
-          "type": "string",
-          "description": "SHA1 hash as defined in [[RFC6234]](#rfc6234)",
-          "contentEncoding": "base16"
-        },
-        "sha256": {
-          "type": "string",
-          "description": "SHA256 hash as defined in [[RFC6234]](#rfc6234)",
-          "contentEncoding": "base16"
-        }
-      }
-    },
-    "Hostname": {
-      "title": "Hostname",
-      "type": "string",
-      "description": "Internet host name as specified in [[RFC1123]](#rfc1123)",
-      "format": "hostname"
-    },
-    "IDN-Hostname": {
-      "title": "IDN Hostname",
-      "type": "string",
-      "description": "Internationalized Internet host name as specified in [[RFC5890]](#rfc5890), Section 2.3.2.3.",
-      "format": "idn-hostname"
+      "description": "Major.Minor version number"
     },
     "Nsid": {
       "title": "Nsid",
@@ -459,32 +391,55 @@
       "minLength": 1,
       "maxLength": 16
     },
-    "Response-Type": {
-      "title": "Response Type",
+    "P-Results": {
+      "title": "P Results",
+      "type": "object",
+      "description": "acdci_rft_dop results",
+      "additionalProperties": false,
+      "properties": {
+        "gps_location_drone": {
+          "$ref": "#/definitions/Geo",
+          "description": "lat/long pair of the drone"
+        },
+        "gps_operator_location": {
+          "$ref": "#/definitions/Geo",
+          "description": "lat/long pair of drone operator"
+        },
+        "success_ld": {
+          "type": "boolean",
+          "description": "True or False"
+        },
+        "success_ol": {
+          "type": "boolean",
+          "description": "True or False"
+        },
+        "drone_freq": {
+          "type": "number",
+          "description": "<0..n> Hertz"
+        },
+        "success_freq": {
+          "type": "boolean",
+          "description": "True or False"
+        }
+      }
+    },
+    "Size": {
+      "title": "Size",
       "type": "string",
       "oneOf": [
         {
-          "const": "none",
-          "description": "No response"
+          "const": "Micro UAV",
+          "description": ""
         },
         {
-          "const": "ack",
-          "description": "Respond when Command received"
+          "const": "Raven class",
+          "description": ""
         },
         {
-          "const": "status",
-          "description": "Respond with progress toward Command completion"
-        },
-        {
-          "const": "complete",
-          "description": "Respond when all aspects of Command completed"
+          "const": "Global Hawk class",
+          "description": ""
         }
       ]
-    },
-    "Version": {
-      "title": "Version",
-      "type": "string",
-      "description": "Major.Minor version number"
     }
   }
 }
