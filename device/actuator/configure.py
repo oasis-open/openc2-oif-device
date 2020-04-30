@@ -126,7 +126,7 @@ class ConsoleStyle:
         print(self.colorize(txt))
 
     def verbose(self, style, txt):
-        if style is not 'verbose' and hasattr(self, style) and callable(getattr(self, style)):
+        if style != 'verbose' and hasattr(self, style) and callable(getattr(self, style)):
             if options.verbose:
                 getattr(self, style)(txt)
             else:
@@ -138,7 +138,7 @@ def install(package):
     try:
         importlib.import_module(package[0])
     except ImportError:
-        print(f'{package[1]} not installed')
+        print(f'{package[1]} not installed, installing')
         try:
             pkg_install = subprocess.Popen([sys.executable, "-m", "pip", "install", package[1]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = pkg_install.communicate()
