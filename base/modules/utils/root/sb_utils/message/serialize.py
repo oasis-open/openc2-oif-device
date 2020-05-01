@@ -4,7 +4,6 @@ Message Conversion functions
 import base64
 import bson
 import cbor2
-import edn_format
 import json
 import msgpack
 import shutil
@@ -47,7 +46,6 @@ serializations = ext_dicts.FrozenDict(
         bencode=helpers.bencode_encode,
         bson=bson.dumps,
         cbor=cbor2.dumps,
-        edn=edn_format.dumps,
         json=json.dumps,
         msgpack=lambda m: msgpack.packb(m, use_bin_type=True),
         s_expression=helpers.sp_encode,
@@ -63,7 +61,6 @@ serializations = ext_dicts.FrozenDict(
         bencode=helpers.bencode_decode,
         bson=bson.loads,
         cbor=cbor2.loads,
-        edn=edn_format.loads,
         json=json.loads,
         msgpack=msgpack.unpackb,
         s_expression=helpers.sp_decode,
