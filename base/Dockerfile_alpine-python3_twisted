@@ -1,23 +1,40 @@
-ARG BASE_IMAGE=${BASE_IMAGE:-'alpine:latest'}
+# BASE_IMAGE - arg is the tag of the container built from Dockerfile_alpine-python3
+ARG BASE_IMAGE
 FROM $BASE_IMAGE
 
 MAINTAINER Screaming_Bunny
 
-LABEL name="Base Alpine Python3 Twisted" \
+LABEL name="Twisted Alpine Python3" \
 vendor="Screaming Bunny" \
 license="BSD" \
 version="2.0" \
-description="This is the Base Alpine Python3 container for Screaming Bunny."
+description="This is the Twisted Alpine Python3 with SB_Utils container for Screaming Bunny."
 
-ENV DOCKERIZE_VERSION=${DOCKERIZE_VERSION:-v0.6.1} \
-    PYTHONUNBUFFERED=${PYTHONUNBUFFERED:-0}
+ADD modules/utils/twisted /tmp/sb_utils
 
-ADD basic_setup.sh /
-ADD python_setup.sh /
-ADD twisted_setup.sh /
-ADD modules/utils /tmp/modules
-
-# Check basic setup
-RUN chmod +x /basic_setup.sh /python_setup.sh /twisted_setup.sh && \
-if [ "$BASE_IMAGE" = "alpine:latest" ]; then /basic_setup.sh && /python_setup.sh; fi && \
-/twisted_setup.sh
+# Package Installation
+# Packages - https://pkgs.alpinelinux.org/packages
+RUN apk add --no-cache python3 && \
+apk add --no-cache --virtual .build-deps \
+  g++ \
+  gcc \
+  musl-dev \
+  yaml-dev \
+  python3-dev && \
+#
+# Python PIP Install
+python3 /tmp/get-pip.py && \
+pip3 install --upgrade pip && \
+#
+# SB_Utils install
+cd /tmp/sb_utils && \
+python3 setup.py install && \
+cd && \
+#
+# Cleanup
+apk del .build-deps \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+#
+# Check versions
+python3 --version && \
+pip3 --version

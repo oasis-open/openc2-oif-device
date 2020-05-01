@@ -8,8 +8,21 @@ license="BSD" \
 version="2.0" \
 description="This is the Base Alpine container for Screaming Bunny."
 
-ENV DOCKERIZE_VERSION=v0.6.1
+ENV DOCKERIZE_VERSION v0.6.1
 
-ADD basic_setup.sh /
+ADD https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz /tmp/dockerize.tar.gz
 
-RUN chmod +x /basic_setup.sh && /basic_setup.sh
+# Package installation
+# Packages - https://pkgs.alpinelinux.org/packages
+RUN apk upgrade --update && \
+apk add --no-cache bash \
+    shadow \
+    tar \
+    dos2unix && \
+#
+# Dockerize Config
+tar -C /usr/local/bin -xzvf /tmp/dockerize.tar.gz && \
+#
+# Cleanup
+apk del tar && \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
