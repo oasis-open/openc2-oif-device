@@ -1,4 +1,5 @@
-FROM alpine:latest
+ARG BASE_IMAGE=${BASE_IMAGE:-'alpine:latest'}
+FROM $BASE_IMAGE
 
 MAINTAINER Screaming_Bunny
 
@@ -8,44 +9,14 @@ license="BSD" \
 version="2.0" \
 description="This is the Base Alpine Python3 container for Screaming Bunny."
 
-ENV DOCKERIZE_VERSION=v0.6.1 \
+ENV DOCKERIZE_VERSION=${DOCKERIZE_VERSION:-v0.6.1} \
     PYTHONUNBUFFERED=0
 
-ADD modules/utils/root /tmp/modules
-ADD https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz /tmp/dockerize.tar.gz
-ADD https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py
+ADD basic_setup.sh /
+ADD python_setup.sh /
+ADD modules/utils /tmp/modules
 
-# Package Installation
-# Packages - https://pkgs.alpinelinux.org/packages
-RUN apk upgrade --update && \
-apk add --no-cache python3 \
-  bash \
-  shadow \
-  tar \
-  dos2unix && \
-apk add --no-cache --virtual .build-deps \
-  g++ \
-  gcc \
-  musl-dev \
-  yaml-dev \
-  python3-dev && \
-#
-# Dockerize Config
-tar -C /usr/local/bin -xzvf /tmp/dockerize.tar.gz && \
-#
-# Python PIP Install
-python3 /tmp/get-pip.py && \
-pip3 install --upgrade pip && \
-#
-# SB_Utils install
-cd /tmp/modules && \
-python3 setup.py install && \
-cd && \
-#
-# Cleanup
-apk del .build-deps tar && \
-rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
-#
-# Check versions
-python3 --version && \
-pip3 --version
+# Check basic setup
+RUN chmod +x /basic_setup.sh /python_setup.sh && \
+if [ "$BASE_IMAGE" = "alpine:latest" ]; then /basic_setup.sh; fi && \
+/python_setup.sh

@@ -4,16 +4,16 @@ This is a tutorial on how to allow your device to receive messages from the O.I.
 
 ### Add an Actuator to the Docker Stack
 
-Open the [Device Compose file](../device-compose.yaml) to add your actuator to the stack. You can copy and edit the actuator-isr image and replace it with your actuator's info. Read more on Docker Compose [here](https://docs.docker.com/compose/overview/).
+Open the [Device Compose file](../device-compose.yaml) to add your actuator to the stack. You can copy and edit the actuator-slpf image and replace it with your actuator's info. Read more on Docker Compose [here](https://docs.docker.com/compose/overview/).
 
 Here is what our actuator looks like:
 
 ```yaml
-actuator-isr:                               # container name
-    hostname: actuator-isr                  # hostname of container 
+actuator-slpf:                              # container name
+    hostname: actuator-slpf                 # hostname of container 
     image: g2inc/oif-device-actutator-isr   # image name
     build:
-      context: ./device/isr                 # location of Dockerfile
+      context: ./device/slpf                # location of Dockerfile
     env_file:
     - ./environment/queue.connect.env       # path to shared environment variables
     environment:

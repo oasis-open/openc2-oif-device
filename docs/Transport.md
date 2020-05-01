@@ -92,7 +92,7 @@ from sb_utils import Producer
     [{
         "deviceID": "337917b5-9330-4107-94d2-5d7929019c23", 
         "socket": "127.0.0.1:5001", 
-        "profile": ["openc2_isr_actuator_profile"], 
+        "profile": ["openc2_slpf_actuator_profile"], 
         "encoding": "json"
     }]
 }

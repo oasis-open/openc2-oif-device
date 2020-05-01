@@ -2,23 +2,12 @@
 
 ## Container/Services ReadMe
 ### Actuator
-- [ACDCI UC1](../device/actuator/ACDCI_UC1/ReadMe.md)
-- [ACDCI UC2](../device/actuator/ACDCI_UC2/ReadMe.md)
-- [ACDCI UC3](../device/actuator/ACDCI_UC3/ReadMe.md)
-- [ACDCI UC4](../device/actuator/ACDCI_UC4/ReadMe.md)
-- [ACDCI UC5](../device/actuator/ACDCI_UC5/ReadMe.md)
-- [ACDCI UC6](../device/actuator/ACDCI_UC6/ReadMe.md)
-- [ACDCI UC7](../device/actuator/ACDCI_UC7/ReadMe.md)
-- [ACDCI UC8](../device/actuator/ACDCI_UC8/ReadMe.md)
-- [ACDCI UC9](../device/actuator/ACDCI_UC9/ReadMe.md)
 - [Base](../device/actuator/Base/ReadMe.md)
-- [EWF](../device/actuator/EWF/ReadMe.md)
-- [ISR](../device/actuator/ISR/ReadMe.md)
 - [SLPF](../device/actuator/SLPF/ReadMe.md)
 
 ### Transport
-- [CoAP](../device/transport/coap/README.md)
-- [HTTPS](../device/transport/https/README.md)
+- [CoAP](../device/transport/coap/ReadMe.md)
+- [HTTPS](../device/transport/https/ReadMe.md)
 - [MQTT](../device/transport/mqtt/ReadMe.md)
 
 ### Logger
@@ -39,6 +28,11 @@
 - Docker-Compose v1.20+
 - Python 3.6+
 - pip 18+
+
+## Getting Started
+- Clone/Fork/Download the repo
+- Create a local copy on you system, if not downloaded
+- Be sure Docker is running
 
 ## Configuration
 - Run `configure.py` with the desired options prior to starting the Device for the first time
@@ -61,28 +55,28 @@
 	- Run the `docker-compose` command for the Device
 		
 		```bash
-		docker-compose ...... up [-d]
+		docker-compose ... up [-d]
 		```
 
 -  Stopping
-	-  If running attatched (showing log output, no -d option)
+	-  If running attached (showing log output, no -d option)
 		-  Use 'Ctrl + C' 
-	-  If running detatched (not showing log output, -d option)
+	-  If running detached (not showing log output, -d option)
 		-  Use the `docker-compose` that was used to start the Device **except** replace `up ...` with `down`
 			
 			```bash
-			docker-compose ...... down
+			docker-compose ... down
 			```
 - Building Images
 	- Run the `docker-compose` that was used to start the Device **except** replace `up ...` with `build`
 	- Options
-		- SERVICE_NAME - The name of the service to rebuild the image, if not specified all will build
+		- SERVICE_NAME - The name of the service (as named in the specified compose file) to rebuild the image, if not specified all services will build if theirs is a context specified
 	- Notes
 		- Does not need to be run prior to starting, the containers will autobuild if not available
 		- Should be run after adding a new Protocol or Serialization
 	
 	```bash
-	docker-compose ...... build [SERVICE_NAME]
+	docker-compose ... build [SERVICE_NAME]
 	```
 
 ### Docker Compose Files
@@ -120,6 +114,6 @@
 - Give actuator a name and generate a UUID for it.
 - Select a parent device.
     -  Note: device should be registered before the actuator.
-- Upload/Copy-Paste schema. Schema for the default included ISR actuator can be found at [device/actuator/isr/act_server/schema.json](../device/actuator/isr/act_server/schema.json).
-- This information can also be found under the [ISR Actuator](../device/actuator/isr/ReadMe.md) page.
+- Upload/Copy-Paste schema. Schema for the default included SLPF actuator can be found at [device/actuator/slpf/act_server/schema.json](../device/actuator/slpf/act_server/schema.json).
+- This information can also be found under the [SLPF Actuator](../device/actuator/slpf/ReadMe.md) page.
 - If you are registering a new actuator for the first time while utilizing the MQTT transport you may need to update the `MQTT_TOPICS` environment variable. Read the MQTT Topics section [here](../transport/mqtt/ReadMe.md)

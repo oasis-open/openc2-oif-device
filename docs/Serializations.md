@@ -6,7 +6,7 @@
 - [CBOR](https://tools.ietf.org/html/rfc7049)
 - [Extensible Data Notation (EDN)](http://edn-format.org/)
 - [JSON](https://tools.ietf.org/html/rfc8259) - Official
-- [MessagePack (msgpack)](https://msgpack.org)
+- [MessagePack (MsgPack)](https://msgpack.org)
 - [S-expressions](https://people.csail.mit.edu/rivest/Sexp.txt)
 - [Smile](https://github.com/FasterXML/smile-format-specification)
 - [Toml](https://github.com/toml-lang/toml)
@@ -57,7 +57,7 @@
 	```
 
 3. Add the non standard packages used for the encoding to the `modules/utils/root/setup.cfg` under the options/install_requires section
-	- Note: A package version is not required, but recomended 
+	- Note: A package version is not required, but recommended 
 	- For BSON, bson
 	- For YAML, pyyaml
 
@@ -75,7 +75,7 @@
 
 ### Adding serializations to the GUI
 #### Option 1
-###### This is preferred as it is persistant across multiple instances derived from a single source
+###### This is preferred as it is persistent across multiple instances derived from a single source
 1. Open the `orchestrator/core/orc_server/data/fixtures/orchestrator.json` file
 2. Add an entry for the new serialization to the file, incrementing the pk field
 	- Note: The name field can be any combination of uppercase or lowercase with numbers and special characters, it however __must match__ the serialization key, from above, when all characters are lowercase
@@ -110,7 +110,7 @@
 3. Rerun the `configure.py` script to add the additional serializations
 
 #### Option 2
-###### This is not preferred as it is not persistant across multiple instances derived from a single source. This options is better oriented for serialization testing
+###### This is not preferred as it is not persistent across multiple instances derived from a single source. This options is better oriented for serialization testing
 1. Rerun the `configure.py` script to add the additional serializations
 2. Open a web browser to the admin page of the Orchestrator
 	- This is the same log/pass as the user page

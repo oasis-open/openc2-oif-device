@@ -3,6 +3,7 @@ import fnmatch
 import importlib
 import io
 import os
+import pip
 import re
 import shutil
 import stat
@@ -107,7 +108,10 @@ class ConsoleStyle:
         print(tmp)
 
     def h2(self, txt):
-        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_WHITE"))
+        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_MAGENTA"))
+
+    def h3(self, txt):
+        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_YELLOW"))
 
     def debug(self, txt):
         print(self.colorize(txt, "FG_WHITE"))
@@ -135,7 +139,7 @@ class ConsoleStyle:
         print(self.colorize(txt))
 
     def verbose(self, style, txt):
-        if style is not "verbose" and hasattr(self, style) and callable(getattr(self, style)):
+        if style != "verbose" and hasattr(self, style) and callable(getattr(self, style)):
             if self._verbose:
                 getattr(self, style)(txt)
             else:
@@ -177,12 +181,13 @@ def install_pkg(package):
         importlib.import_module(package[0])
     except ImportError:
         print(f'{package[1]} not installed')
-        try:
-            pkg_install = subprocess.Popen([sys.executable, "-m", "pip", "install", package[1]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = pkg_install.communicate()
-        except Exception as e:
-            print(e)
+        failed = bool(pip.main(["install", package[1]]))
+
+        print(f"Install of {package[1]} {'failed' if failed else 'success'}'")
+        if failed:
+            exit(1)
     finally:
+        print(f'{package[1]} installed')
         setattr(sys.modules[__name__], package[0], importlib.import_module(package[0]))
 
 
