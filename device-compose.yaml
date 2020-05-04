@@ -64,11 +64,11 @@ services:
       retries: 5
     restart: on-failure:5
 
-  actuator-isr:
-    hostname: actuator-isr
-    image:  g2inc/oif-device-actutator-isr
+  actuator-slpf:
+    hostname: actuator-slpf
+    image:  g2inc/oif-device-actutator-slpf
     build:
-      context: ./device/actuator/isr
+      context: ./device/actuator/slpf
     env_file:
     - ./environment/queue.connect.env
     environment:

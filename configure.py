@@ -65,7 +65,10 @@ CONFIG = FrozenDict(
             ("device", "-p device -f device-compose.yaml"),
         ),
         Central=(
-            ("device", "-p device -f device-compose.yaml -f device-compose.log.yaml"),
+            ("device", "-p device -f device-compose.yaml -f device-compose.log_central.yaml"),
+        ),
+        Local_Central=(
+            ("device", "-p device -f device-compose.yaml -f device-compose.log_local.yaml"),
         )
     ),
     Composes=tuple(file for file in os.listdir(RootDir) if re.match(r"^\w*?-compose(\.\w*?)?\.yaml$", file))

@@ -3,29 +3,31 @@
 This is a tutorial on adding additional, custom transport mechanisms to the O.I.F.
 
 ## Adding a Transport to the Docker Stack
+- Open the [Device Compose file](device-compose.yaml) or [Orchestrator Compose file](orchestrator-compose.yaml) to add your transport to the stack. You can copy and edit either the `transport-https` or `transport-mqtt` services and replace it with your own transport's info. Read more on Docker Compose [here](https://docs.docker.com/compose/overview/).
+- Here is what our HTTPS transport looks like:
+	
+	```yaml
+	transport-https:                                 # container name
+	    hostname: transport-https                    # hostname of container
+	    image: oif/transport:orchestrator-https      # image name
+	    build:
+	      context: ./orchestrator/transport/https    # location of dockerfile
+	      dockerfile: Dockerfile                     # dockerfile name
+	    env_file:
+	      - ./environment/queue.connect.env          # path to shared environment variables
+	    external_links:
+	      - queue                                    # link to internal buffer (used to send/receive commands internally within O.I.F.)
+	    ports:
+	      - 5000:5000                                # port exposed for HTTP
+	    depends_on:
+	      - queue                                    # indicates that this container should wait for queue to exist before running
+	```
 
-Open the [Device Compose file](device-compose.yaml) or [Orchestrator Compose file](orchestrator-compose.yaml) to add your transport to the stack. You can copy and edit either the `transport-https` or `transport-mqtt` images and replace it with your own transport's info. Read more on Docker Compose [here](https://docs.docker.com/compose/overview/).
-
-Here is what our HTTPS transport looks like:
-
-```yaml
-transport-https:                                 # container name
-    hostname: transport-https                    # hostname of container
-    image: oif/transport:orchestrator-https      # image name
-    build:
-      context: ./orchestrator/transport/https    # location of dockerfile
-      dockerfile: Dockerfile                     # dockerfile name
-    env_file:
-      - ./environment/queue.connect.env          # path to shared environment variables
-    external_links:
-      - queue                                    # link to internal buffer (used to send/receive commands internally within O.I.F.)
-    ports:
-      - 5000:5000                                # port exposed for HTTP
-    depends_on:
-      - queue                                    # indicates that this container should wait for queue to exist before running
-```
-
-Once added to the compose, your transport will be brought up as a part of the docker-compose stack and be added to the stack's docker network.
+- Once added to the compose, your transport will be brought up as a part of the docker-compose stack and be added to the stack's docker network
+- For specific info about a transport, see the read me for each:
+	- [CoAP](../device/transport/coap/ReadMe.md)
+	- [HTTPS](../device/transport/https/ReadMe.md)
+	- [MQTT](../device/transport/mqtt/ReadMe.md)
 
 ## Listening to the Internal Buffer
 
@@ -114,19 +116,7 @@ from sb_utils import Producer
 
 From this information, you are able to build the headers for your transport as needed to follow existing transport specs as closely as possible.
 
-## Making the transport usable in the O.I.F. GUI
-
-In order to have the transport that you have created selectable in the "Register Device" section of the GUI you will need to add it to the [fixtures file](orchestrator/core/orc_server/data/fixtures/orchestrator.json) and add it as an additional `orchestrator.protocol`. The other transports look like this:
-
-```json
-{
-    "model": "orchestrator.protocol",
-    "pk": 1,
-    "fields": {
-      "name": "HTTPS"
-    }
-},
-```
-
-You will need to increment `"pk"` (private key) to the next unused integer, and update `"name"` to the desired protocol name.
+## Making the transport usable from the O.I.F. GUI
+- See the Trasnport documentation for the O.I.F. and adding/creating a transport
+- Transports are configured as pairs for use within O.I.F. and as such should have an Orchestrator (Producer) and Device (Consumer) piece
 

@@ -80,21 +80,38 @@
 	```
 
 ### Docker Compose Files
-### Central Logging
+#### Central Logging
 - __Still Developing__
 - Run the `docker-compose` as normal with the additional option of a second '-f/--file'
 - Allows for a central location for logging rather than the docker default of per container
 - Runs on default port of 8081 for logger web GUI
+- Note: If using this option, any additional services should be added to the log yaml
+
+#### Local Central Logging
+- Local central logging allows for the logs to be local to the device
+- Enabled by using the following command
 
 	```bash
-	docker-compose -f device-compose.yaml -f device-compose.log.yaml ...
+	docker-compose -f device-compose.yaml -f device-compose.log_local.yaml ...
+	```
+
+#### Central Logging
+- Central logging allows for the logs to be sent to a central location
+- Before running this command, edit the `device-compose.log_central.yaml` file such that the `ES_HOST`, `ES_PORT`, and `LOG_PREFIX` of the logger_server service are set properly 
+	- ES_HOST - IP/Hostname of the [Elasticsearch](https://www.elastic.co/elasticsearch/) server to send the logs to.  This is the IP/Hostname of the O.I.F. Orchestrator if the central logging is enabled on it.
+	- ES_PORT - Port of the Elasticsearch server that is to receive logs, default of 9200
+	- LOG_PREFIX - Prefix the logs will show when viewed in the logger gui. Recomended when using multiple devices with the same central logging Elasticsearch.
+- Enabled by using the following command
+
+	```bash
+	docker-compose -f device-compose.yaml -f device-compose.log_central.yaml ...
 	```
  
-- Note: If using this option, any additional containers should be added to the log yaml
- 
 	
-#### Device
+#### Standard Logging
 - Use [`docker-compose`](https://docs.docker.com/compose/reference/overview/) to start the device on the system
+- Logs are displayed on the terminal with the service name at the start of the line with a randon color for each
+- This is the default option if the `-d/--detached` option or central logging is not used
 
 	```bash
 	docker-compose -f device-compose.yaml [-p NAME] up [-d]
@@ -106,6 +123,7 @@
 - Select a transport
     - HTTPS: Enter host and port (Default Port 5001)
     - MQTT: Enter host and port of the broker (Default Port 1883)
+	    - See MQTT section in [Transports](./Transport.md) for more info
 - Select which serializations in which the device utilizes.
     - Default included device supports JSON, CBOR, and XML.
 - Note: include a note about what type of device you are adding.
