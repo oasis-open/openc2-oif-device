@@ -35,7 +35,7 @@ python3 setup.py install && \
 cd && \
 #
 # Cleanup
-apk del .build-deps \
+apk del .build-deps && \
 rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
 #
 # Check versions
