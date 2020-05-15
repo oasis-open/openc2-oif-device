@@ -7,7 +7,7 @@ volumes:
       com.screaming_bunny.description: 'Persistent Log Data Volume'
 
 services:
-  gui:
+  logger_gui:
     hostname: gui
     image: gitlab.labs.g2-inc.net:4567/screamingbunny/logger/gui
     environment:
@@ -25,7 +25,7 @@ services:
         syslog-format: rfc5424
         tag: "gui"
 
-  server:
+  logger_server:
     hostname: server
     image: gitlab.labs.g2-inc.net:4567/screamingbunny/logger/server
     environment:

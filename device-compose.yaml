@@ -12,7 +12,6 @@ services:
     image: g2inc/oif-device-transport-mqtt
     build:
       context: ./device/transport/mqtt
-    working_dir: /opt/transport/MQTT
     env_file:
       - ./environment/queue.connect.env
       - ./environment/mqtt_transport.env
@@ -20,16 +19,12 @@ services:
       - queue
     depends_on:
       - queue
-    entrypoint:
-      - sh
-      - dev_start.sh
 
   transport-https:
     hostname: transport-https
     image:  g2inc/oif-device-transport-https
     build:
       context: ./device/transport/https
-    working_dir: /opt/transport
     env_file:
       - ./environment/queue.connect.env
     external_links:
@@ -38,9 +33,6 @@ services:
       - 5001:5001
     depends_on:
       - queue
-    entrypoint:
-      - sh
-      - dev_start.sh
 
   transport-coap:
     hostname: transport-coap
@@ -48,25 +40,20 @@ services:
     build:
       context: ./device/transport/coap
       dockerfile: Dockerfile
-    working_dir: /opt/transport/COAP
     env_file:
       - ./environment/queue.connect.env
     external_links:
       - queue
     ports:
-      - '5682:5682/udp'
+      - 5682:5682/udp
     depends_on:
       - queue
-    entrypoint:
-      - sh
-      - dev_start.sh
 
   queue:
     hostname: rabbit
     image: rabbitmq:management-alpine
     ports:
-      - '1883:1883'
-      - '15673:15672'
+      - 15672:15672
     command: sh -c "rabbitmq-plugins enable rabbitmq_mqtt; docker-entrypoint.sh rabbitmq-server"
     volumes:
       - queue:/var/lib/rabbitmq
@@ -77,11 +64,11 @@ services:
       retries: 5
     restart: on-failure:5
 
-  actuator-isr:
-    hostname: actuator-isr
-    image:  g2inc/oif-device-actutator-isr
+  actuator-slpf:
+    hostname: actuator-slpf
+    image:  g2inc/oif-device-actutator-slpf
     build:
-      context: ./device/actuator/isr
+      context: ./device/actuator/slpf
     env_file:
     - ./environment/queue.connect.env
     environment:
@@ -90,7 +77,4 @@ services:
       - queue
     depends_on:
       - queue
-    entrypoint:
-      - sh
-      - start.sh
     restart: on-failure:5

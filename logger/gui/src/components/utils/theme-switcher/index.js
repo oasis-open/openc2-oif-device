@@ -1,7 +1,7 @@
-import ThemeSwitcher from './switcher'
-import ThemeChooser from './chooser'
+import ThemeSwitcher from './switcher';
+import ThemeChooser from './chooser';
 
 export {
   ThemeChooser,
   ThemeSwitcher
-}
+};

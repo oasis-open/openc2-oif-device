@@ -1,7 +1,6 @@
 import copy
 import json
 import sys
-import uuid
 
 from io import BufferedIOBase, TextIOBase
 from ipaddress import (
@@ -19,19 +18,7 @@ from typing import (
 )
 
 
-def prefixUUID(pre: str = "PREFIX", max_len: int = 30) -> str:
-    """
-    Prefix a UUID to a set length
-    :param pre: prefix
-    :param max_len: maximum length of the string
-    :return: prefixed UUID
-    """
-    uid_max = max_len - (len(pre) + 10)
-    uid = str(uuid.uuid4()).replace("-", "")[:uid_max]
-    return f"{pre}-{uid}"[:max_len]
-
-
-def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase]) -> dict:
+def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase], *args, **kwargs) -> dict:
     """
     Safely load a json file
     :param file_obj: json file path/object to load
@@ -39,11 +26,11 @@ def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase]) -> dict:
     """
     try:
         if isinstance(file_obj, (BufferedIOBase, TextIOBase)):
-            return json.load(file_obj)
+            return json.load(file_obj, *args, **kwargs)
 
         if isinstance(file_obj, str):
             with open(file_obj, "rb") as f:
-                return json.load(f)
+                return json.load(f, *args, **kwargs)
 
     except Exception as e:
         return {}

@@ -38,7 +38,7 @@ init_now = datetime.now()
 
 if options.log_file:
     name, ext = os.path.splitext(options.log_file)
-    ext = ".log" if ext is "" else ext
+    ext = ".log" if ext == "" else ext
     fn = f"{name}-{init_now:%Y.%m.%d_%H.%M.%S}{ext}"
     # log_file = open(fn, "w+")
     log_file = open(options.log_file, "w+")
@@ -65,7 +65,10 @@ CONFIG = FrozenDict(
             ("device", "-p device -f device-compose.yaml"),
         ),
         Central=(
-            ("device", "-p device -f device-compose.yaml -f device-compose.log.yaml"),
+            ("device", "-p device -f device-compose.yaml -f device-compose.log_central.yaml"),
+        ),
+        Local_Central=(
+            ("device", "-p device -f device-compose.yaml -f device-compose.log_local.yaml"),
         )
     ),
     Composes=tuple(file for file in os.listdir(RootDir) if re.match(r"^\w*?-compose(\.\w*?)?\.yaml$", file))
@@ -104,6 +107,16 @@ if __name__ == "__main__":
     # -------------------- Build Base Images -------------------- #
     Stylize.h1(f"[Step {get_count()}]: Build Base Images ...")
 
+    Stylize.info("Building base alpine image")
+    build_image(
+        docker_sys=system,
+        console=Stylize,
+        path="./base",
+        dockerfile="./Dockerfile_alpine",
+        tag=f"{CONFIG.ImagePrefix}/oif-alpine",
+        rm=True
+    )
+
     Stylize.info("Building base alpine python3 image")
     build_image(
         docker_sys=system,
@@ -111,16 +124,22 @@ if __name__ == "__main__":
         path="./base",
         dockerfile="./Dockerfile_alpine-python3",
         tag=f"{CONFIG.ImagePrefix}/oif-python",
+        buildargs=dict(
+            BASE_IMAGE=f"{CONFIG.ImagePrefix}/oif-alpine"
+        ),
         rm=True
     )
 
-    Stylize.info("Building base alpine twisted python3 image")
+    Stylize.info("Building base alpine python3 twisted image")
     build_image(
         docker_sys=system,
         console=Stylize,
         path="./base",
         dockerfile="./Dockerfile_alpine-python3_twisted",
         tag=f"{CONFIG.ImagePrefix}/oif-python_twisted",
+        buildargs=dict(
+            BASE_IMAGE=f"{CONFIG.ImagePrefix}/oif-python"
+        ),
         rm=True
     )
 

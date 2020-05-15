@@ -1,8 +1,7 @@
-from .utils import ActuatorBase
-
 from .actions import (
     Query
 )
+from .utils import ActuatorBase
 
 
 class Actuator(ActuatorBase):

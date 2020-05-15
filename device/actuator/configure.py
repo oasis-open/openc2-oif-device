@@ -126,7 +126,7 @@ class ConsoleStyle:
         print(self.colorize(txt))
 
     def verbose(self, style, txt):
-        if style is not 'verbose' and hasattr(self, style) and callable(getattr(self, style)):
+        if style != 'verbose' and hasattr(self, style) and callable(getattr(self, style)):
             if options.verbose:
                 getattr(self, style)(txt)
             else:
@@ -138,7 +138,7 @@ def install(package):
     try:
         importlib.import_module(package[0])
     except ImportError:
-        print(f'{package[1]} not installed')
+        print(f'{package[1]} not installed, installing')
         try:
             pkg_install = subprocess.Popen([sys.executable, "-m", "pip", "install", package[1]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = pkg_install.communicate()
@@ -207,7 +207,7 @@ Args['BASE_NAME'] = Args.get('BASE_IMAGE_NAME', Args.get('IMAGE_NAME', 'g2inc/oi
 CONFIG = FrozenDict(
     **CONFIG,
     Args=FrozenDict(Args),
-    Actuators=tuple(d for d in os.listdir(CONFIG.WorkDir) if os.path.isdir(os.path.join(CONFIG.WorkDir, d)) and not d.startswith(('.', '_'))),
+    Actuators=tuple(d for d in os.listdir(CONFIG.WorkDir) if os.path.isdir(os.path.join(CONFIG.WorkDir, d)) and not d.startswith(('.', '_', 'Base'))),
     DockerTemplate=string.Template(open(CONFIG.TemplateFile, 'r').read()) if os.path.isfile(CONFIG.TemplateFile) else ''
 )
 del Args
@@ -221,15 +221,7 @@ if __name__ == '__main__':
 
     # -------------------- Make Docker Files -------------------- #
     Stylize.h1('Make Dockerfiles ...')
-    util_module = os.path.join(CONFIG.WorkDir, "_modules", "utils")
-
     for act in CONFIG.Actuators:
-        # Copy base utils
-        act_util = os.path.join(CONFIG.WorkDir, act, "act_server", "utils")
-        if os.path.isdir(act_util):
-            shutil.rmtree(act_util)
-        shutil.copytree(util_module, act_util)
-
         # Make Dockerfile
         mk_dockerfile(act, CONFIG.Args)
         print("")

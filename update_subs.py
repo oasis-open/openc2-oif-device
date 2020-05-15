@@ -61,7 +61,7 @@ else:
 CONFIG = FrozenDict(
     RootDir=os.path.dirname(os.path.realpath(__file__)),
     Requirements=(
-        ('git', 'gitpython==2.1.11'),
+        ('git', 'gitpython'),
         ('colorama', 'colorama')
     ),
     BaseRepo=f"{Base_URL}ScreamingBunny",
@@ -71,7 +71,6 @@ CONFIG = FrozenDict(
         ("python3", r"gitlab.*plus:alpine-python3( as.*)?", fr"g2inc/oif-python\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
     ),
     Repos=FrozenDict(
-        Actuators=('ISR', ),
         Transport=('HTTPS', 'MQTT', 'CoAP'),
     )
 )

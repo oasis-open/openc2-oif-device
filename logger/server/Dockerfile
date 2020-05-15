@@ -17,12 +17,12 @@ COPY docker-entrypoint.sh /
 # Packages - https://pkgs.alpinelinux.org/packages
 #
 # Requirements install
-RUN apk add --no-cache gcc python3-dev libc-dev && \
+RUN apk add --no-cache --virtual .build-deps gcc python3-dev libc-dev && \
 pip3 install -r /tmp/requirements.txt && \
 # Entrypint config
 chmod +x /docker-entrypoint.sh && \
 # Cleanup
-apk del gcc python3-dev libc-dev && \
+apk del .build-deps && \
 rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
 
 # Ports
@@ -37,4 +37,4 @@ VOLUME '/var/log/syslog'
 # Startup Command
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-CMD ["python3", "./syslog.py"]
+CMD ["python3", "-u", "syslog.py"]

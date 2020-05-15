@@ -1,4 +1,4 @@
-# Created by .ignore support plugin (hsz.mobi)
+
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
@@ -9,9 +9,6 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
-
-# Generated files
-.idea/**/contentModel.xml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -33,8 +30,6 @@
 # .idea/modules.xml
 # .idea/*.iml
 # .idea/modules
-# *.iml
-# *.ipr
 
 # CMake
 cmake-build-*/
@@ -66,9 +61,6 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.ser
-
 ### Node template
 # Logs
 logs
@@ -76,10 +68,6 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Runtime data
 pids
@@ -92,12 +80,11 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
-*.lcov
 
 # nyc test coverage
 .nyc_output
 
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
 # Bower dependency directory (https://bower.io/)
@@ -116,9 +103,6 @@ jspm_packages/
 # TypeScript v1 declaration files
 typings/
 
-# TypeScript cache
-*.tsbuildinfo
-
 # Optional npm cache directory
 .npm
 
@@ -136,7 +120,6 @@ typings/
 
 # dotenv environment variables file
 .env
-.env.test
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -151,17 +134,18 @@ typings/
 .vuepress/dist
 
 # Serverless directories
-.serverless/
+.serverless
 
-# FuseBox cache
-.fusebox/
+# OSX
+.DS_Store
 
-# DynamoDB Local files
-.dynamodb/
+# flow-typed
+flow-typed/npm/*
+!flow-typed/npm/module_vx.x.x.js
 
-
-# Custom Ignore
-analyzer.stats.html
-analyzer.stats.json
-webpack.stats.json
+### Custom Ignore
+!src/components/***/lib/
+!/internals/*
+analyzer.stats.*
+webpack.stats.*
 package-lock.json
