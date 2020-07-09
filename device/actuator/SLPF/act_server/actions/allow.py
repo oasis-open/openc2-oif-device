@@ -22,7 +22,7 @@ def default(act, *extra_args, **extra_kwargs):
 
 
 @Allow.register
-def ip_addr(act, target="", args={}, *extra_args, **extra_kwargs):
+def ipv4_addr(act, target="", args={}, *extra_args, **extra_kwargs):
     if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
         print("Invalid Allow Args")
         return exceptions.bad_argument()
@@ -30,15 +30,40 @@ def ip_addr(act, target="", args={}, *extra_args, **extra_kwargs):
     ip = valid_ip(target)
     if ip:
         direction = args.get("direction", None)  # Apply to both INPUT and OUTPUT if None
-        print(f"Allow ip: {ip} - {direction}")
+        print(f"Allow ipv4: {ip} - {direction}")
         return exceptions.action_exception('allow', except_msg='target implementation TBD')
 
-    print("Invalid Allow/IP_Addr target")
-    return exceptions.bad_request(except_msg="Validation Error: Target: ip_addr")
+    print("Invalid Allow/IPv4_Addr target")
+    return exceptions.bad_request(except_msg="Validation Error: Target: ipv4_addr")
 
 
 @Allow.register
-def ip_connection(act, target={}, args={}, *extra_args, **extra_kwargs):
+def ipv6_addr(act, target="", args={}, *extra_args, **extra_kwargs):
+    if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
+        print("Invalid Allow Args")
+        return exceptions.bad_argument()
+
+    ip = valid_ip(target)
+    if ip:
+        direction = args.get("direction", None)  # Apply to both INPUT and OUTPUT if None
+        print(f"Allow ipv6: {ip} - {direction}")
+        return exceptions.action_exception('allow', except_msg='target implementation TBD')
+
+    print("Invalid Allow/IPv6_Addr target")
+    return exceptions.bad_request(except_msg="Validation Error: Target: ipv6_addr")
+
+
+@Allow.register
+def ipv4_connection(act, target={}, args={}, *extra_args, **extra_kwargs):
+    if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
+        print("Invalid Allow Args")
+        return exceptions.bad_argument()
+
+    return exceptions.action_exception('allow', except_msg='target implementation TBD')
+
+
+@Allow.register
+def ipv6_connection(act, target={}, args={}, *extra_args, **extra_kwargs):
     if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
         print("Invalid Allow Args")
         return exceptions.bad_argument()
