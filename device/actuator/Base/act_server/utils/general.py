@@ -18,7 +18,7 @@ from typing import (
 )
 
 
-def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase]) -> dict:
+def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase], *args, **kwargs) -> dict:
     """
     Safely load a json file
     :param file_obj: json file path/object to load
@@ -26,11 +26,11 @@ def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase]) -> dict:
     """
     try:
         if isinstance(file_obj, (BufferedIOBase, TextIOBase)):
-            return json.load(file_obj)
+            return json.load(file_obj, *args, **kwargs)
 
         if isinstance(file_obj, str):
             with open(file_obj, "rb") as f:
-                return json.load(f)
+                return json.load(f, *args, **kwargs)
 
     except Exception as e:
         return {}

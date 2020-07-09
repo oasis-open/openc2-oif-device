@@ -15,17 +15,17 @@ from typing import (
 from sb_utils import QueryDict
 
 
-class Dispatch(object):
+class Dispatch:
     _namespace: str
     _func_kwargs: Dict[str, Any] = dict
     _registered: QueryDict
 
-    def __init__(self, namespace: str = None, dispatch_transform: Callable[[tuple, dict], Tuple[Union[tuple, None], dict]] = None, **kwargs) -> None:
+    def __init__(self, namespace: str = "Dispatch", dispatch_transform: Callable[[tuple, dict], Tuple[Union[tuple, None], dict]] = None, **kwargs) -> None:
         """
         Initialize a Dispatch object
-        :param namespace: Namespace of the dispatch
+        :param namespace: Namespace of the dispatch - default 'Dispatch'
         :param dispatch_transform: function to call prior to a registered function - fun(tuple, dict) -> Tuple[Union[None, tuple], dict]
-        :param kwargs:
+        :param kwargs: kwargs to pass to the function being called
         """
         self._namespace = namespace
         self._dispatch_transform = dispatch_transform
@@ -87,6 +87,8 @@ class Dispatch(object):
         :param dispatch: Dispatch instance to register
         """
         if dispatch.namespace:
+            if dispatch.namespace in self._registered:
+                raise NameError(f"Cannot register a namespace twice, { dispatch.namespace } already exists")
             self._registered[dispatch.namespace] = dispatch._registered
         else:
             raise AttributeError("Cannot register a dispatch without a namespace")

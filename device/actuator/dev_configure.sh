@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CI_REGISTRY="gitlab.labs.g2-inc.net:4567"
+CI_REGISTRY="gitlab.ad.tsdcloudprojects.com:5005"
 IMAGE_NAME="${CI_REGISTRY}/screamingbunny/device/actuator"
 export BASE_IMAGE_NAME="${IMAGE_NAME}:base"
 

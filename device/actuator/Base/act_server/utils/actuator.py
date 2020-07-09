@@ -42,29 +42,14 @@ class ActuatorBase(object):
         self._dispatch.register(exceptions.action_not_implemented, "default")
         self._pairs = None
 
-        self._valid_actions = ()
-        self._valid_targets = ()
-
         # Get valid Actions & Targets from the schema
-        if len({"meta", "types"} - set(self._config.schema.keys())) == 0:  # JADN
-            self._profile = self._config.schema.get("meta", {}).get("title", "N/A").replace(" ", "_").lower()
-            self._validator = None
+        self._profile = self._config.schema.get("title", "N/A").replace(" ", "_").lower()
+        self._validator = general.ValidatorJSON(self._config.schema)
 
-            for key in ("Action", "Target"):
-                key_def = [x for x in self._config.schema.get("types", []) if x[0] == key]
-                key_def = key_def[0] if len(key_def) == 1 else None
-                if key_def:
-                    setattr(self, f"_valid_{key.lower()}s", tuple(a[1] for a in key_def[4]))
-                else:
-                    raise KeyError(f"{key} not found in schema")
-        else:  # JSON
-            self._profile = self._config.schema.get("title", "N/A").replace(" ", "_").lower()
-            self._validator = general.ValidatorJSON(self._config.schema)
+        schema_defs = self._config.schema.get("definitions", {})
 
-            schema_defs = self._config.schema.get("definitions", {})
-
-            self._valid_actions = tuple(a["const"] for a in schema_defs.get("Action", {}).get("oneOf", []))
-            self._valid_targets = tuple(schema_defs.get("Target", {}).get("properties", {}).keys())
+        self._valid_actions = tuple(a["const"] for a in schema_defs.get("Action", {}).get("oneOf", []))
+        self._valid_targets = tuple(schema_defs.get("Target", {}).get("properties", {}).keys())
 
     def __repr__(self) -> str:
         return f"Actuator({self.profile})"
@@ -100,20 +85,16 @@ class ActuatorBase(object):
         """
         return self._config.schema
 
-    def action(self, msg_id: Union[str, int] = None, msg: dict = {}) -> Union[dict, None]:
+    def action(self, msg_id: Union[str, int] = None, msg: dict = None) -> Union[dict, None]:
         """
         Process command message
         :param msg_id: ID of message
         :param msg: message instance
         :return: message results
         """
-        if self._validator:
-            errors = list(self._validator.iter_errors_as(msg, "OpenC2_Command"))
-            val_cmd = len(errors) == 0
-        else:
-            print("No validator defined")
-            errors = []
-            val_cmd = True
+        msg = msg or {}
+        errors = list(self._validator.iter_errors_as(msg, "OpenC2_Command"))
+        val_cmd = len(errors) == 0
 
         if val_cmd:
             action = msg.get("action", "action_not_implemented")
@@ -122,10 +103,9 @@ class ActuatorBase(object):
 
             if len(targets) == 1:
                 rtn = self._dispatch.dispatch(key=f"{action}.{targets[0]}", cmd_id=msg_id, **msg)
+                return None if response_requested.lower() == "none" else rtn
             else:
-                rtn = exceptions.bad_request()
-
-            return None if response_requested.lower() == "none" else rtn
+                return exceptions.bad_request()
         else:
             print(f"Invalid Command - {msg} -> [{', '.join(getattr(e, 'message', e) for e in errors)}]")
             return exceptions.bad_request()
