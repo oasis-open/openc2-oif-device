@@ -2,7 +2,7 @@ from setuptools import setup
 
 version = dict(
     major=0,
-    minor=1,
+    minor=2,
     bugfix=0
 )
 

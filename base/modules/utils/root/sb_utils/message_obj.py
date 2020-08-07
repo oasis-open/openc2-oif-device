@@ -8,24 +8,8 @@ from typing import (
     Union
 )
 
-from .message import decode_msg, encode_msg
-
-
-class ContentType(Enum):
-    """
-    The content format of an OpenC2 Message
-    """
-    Binn = 1
-    BSON = 2
-    CBOR = 3
-    JSON = 4
-    MsgPack = 5
-    S_Expression = 6
-    # smile = 7
-    XML = 8
-    UBJSON = 9
-    YAML = 10
-    VPack = 11
+from .general import unixTimeMillis
+from .message import decode_msg, encode_msg, SerialFormats
 
 
 class MessageType(Enum):
@@ -55,20 +39,20 @@ class Message:
     # Media Type that identifies the format of the content, including major version
     # Incompatible content formats must have different content_types
     # Content_type application/openc2 identifies content defined by OpenC2 language specification versions 1.x, i.e., all versions that are compatible with version 1.0
-    content_type: ContentType
+    content_type: SerialFormats
     # Message body as specified by content_type and msg_type
     content: dict
 
     __slots__ = ("recipients", "origin", "created", "msg_type", "status", "request_id", "content_type", "content")
 
-    def __init__(self, recipients: Union[str, List[str]] = "", origin: str = "", created: datetime = None, msg_type: MessageType = None, status: int = None, request_id: uuid.UUID = None, content_type: ContentType = None, content: dict = None):
+    def __init__(self, recipients: Union[str, List[str]] = "", origin: str = "", created: datetime = None, msg_type: MessageType = None, status: int = None, request_id: uuid.UUID = None, content_type: SerialFormats = None, content: dict = None):
         self.recipients = (recipients if isinstance(recipients, list) else [recipients]) if recipients else []
         self.origin = origin
         self.created = created or datetime.utcnow()
         self.msg_type = msg_type or MessageType.Command
         self.status = status or 404
         self.request_id = request_id or uuid.uuid4()
-        self.content_type = content_type or ContentType.JSON
+        self.content_type = content_type or SerialFormats.JSON
         self.content = content or {}
 
     def __setattr__(self, key, val):
@@ -78,7 +62,7 @@ class Message:
         raise AttributeError("Cannot set an unknown attribute")
 
     def __str__(self):
-        return f"Open Message: <{self.msg_type.name}; {self.content}>"
+        return f"OpenC2 Message: <{self.msg_type.name}; {self.content}>"
 
     @classmethod
     def load(cls, m: bytes) -> 'Message':
@@ -94,7 +78,7 @@ class Message:
             msg_type=MessageType(struct.unpack("B", msg_type)[0]),
             status=struct.unpack("I", status)[0],
             request_id=uuid.UUID(bytes=request_id),
-            content_type=ContentType(struct.unpack("B", content_type)[0]),
+            content_type=SerialFormats(struct.unpack("B", content_type)[0]),
             content=decode_msg(content, 'cbor', raw=True)
         )
 
@@ -116,6 +100,27 @@ class Message:
         )
 
     @property
+    def oc2Dict(self) -> dict:
+        msg = dict(
+            # Message body as specified by msg_type (the ID/Name of Content)
+            content=encode_msg(self.content, self.content_type),
+            # A unique identifier created by Producer and copied by Consumer into responses
+            request_id=self.request_id,
+            # Creation date/time of the content
+            created=unixTimeMillis(self.created)
+        )
+
+        if self.origin:
+            # Authenticated identifier of the creator of/authority for a request
+            msg['from'] = self.origin
+
+        if self.recipients:
+            # Authenticated identifier(s) of the authorized recipient(s) of a message
+            msg['to'] = self.recipients
+
+        return msg
+
+    @property
     def list(self) -> list:
         return [
             self.recipients,
@@ -126,6 +131,21 @@ class Message:
             self.request_id,
             self.content_type,
             self.content
+        ]
+
+    @property
+    def oc2List(self) -> list:
+        return [
+            # Message body as specified by msg_type (the ID/Name of Content)
+            encode_msg(self.content, self.content_type),
+            # A unique identifier created by Producer and copied by Consumer into responses
+            self.request_id,
+            # Creation date/time of the content
+            unixTimeMillis(self.created),
+            # Authenticated identifier of the creator of/authority for a request
+            self.origin or None,
+            # Authenticated identifier(s) of the authorized recipient(s) of a message
+            self.recipients or []
         ]
 
     def serialize(self) -> Union[bytes, str]:

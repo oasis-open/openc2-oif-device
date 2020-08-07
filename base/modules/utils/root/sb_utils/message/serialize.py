@@ -11,9 +11,8 @@ import toml
 import ubjson
 import yaml
 
+from enum import Enum
 from typing import Union
-
-
 from . import (
     helpers,
     pybinn,
@@ -73,10 +72,12 @@ serializations = ext_dicts.FrozenDict(
     )
 )
 
+SerialFormats = Enum('SerialFormats', {k.upper(): k for k in serializations['encode']})
+
 del optionals
 
 
-def encode_msg(msg: dict, enc: str, raw: bool = False) -> Union[bytes, str]:
+def encode_msg(msg: dict, enc: SerialFormats = SerialFormats.JSON, raw: bool = False) -> Union[bytes, str]:
     """
     Encode the given message using the serialization specified
     :param msg: message to encode
@@ -84,7 +85,7 @@ def encode_msg(msg: dict, enc: str, raw: bool = False) -> Union[bytes, str]:
     :param raw: message is in raw form (bytes/string) or safe string (base64 bytes as string)
     :return: encoded message
     """
-    enc = enc.lower()
+    enc = enc.lower() if isinstance(enc, str) else enc.value
     msg = general.default_encode(msg)
 
     if enc not in serializations.encode:
@@ -102,7 +103,7 @@ def encode_msg(msg: dict, enc: str, raw: bool = False) -> Union[bytes, str]:
     return base64.b64encode(encoded).decode("utf-8") if isinstance(encoded, bytes) else encoded
 
 
-def decode_msg(msg: Union[bytes, str], enc: str, raw: bool = False) -> dict:
+def decode_msg(msg: Union[bytes, str], enc: SerialFormats, raw: bool = False) -> dict:
     """
     Decode the given message using the serialization specified
     :param msg: message to decode
@@ -110,7 +111,7 @@ def decode_msg(msg: Union[bytes, str], enc: str, raw: bool = False) -> dict:
     :param raw: message is in raw form (bytes/string) or safe string (base64 bytes as string)
     :return: decoded message
     """
-    enc = enc.lower()
+    enc = enc.lower() if isinstance(enc, str) else enc.value
 
     if isinstance(msg, dict):
         return msg

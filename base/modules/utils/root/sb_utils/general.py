@@ -6,6 +6,7 @@ import struct
 import sys
 import uuid
 
+from datetime import datetime
 from typing import (
     Any,
     Callable,
@@ -169,5 +170,9 @@ def floatString(num: Union[float, str]) -> Union[float, str]:
 
     return num
 
+
+def unixTimeMillis(dt: datetime):
+    epoch = datetime.utcfromtimestamp(0)
+    return (dt - epoch).total_seconds() * 1000.0
 
 # Utility Classes

@@ -8,7 +8,7 @@ __path__ = extend_path(__path__, __name__)
 from .amqp_tools import Consumer, Producer
 from .general import prefixUUID, default_decode, default_encode, safe_cast, safe_json, toStr
 from .ext_dicts import FrozenDict, ObjectDict, QueryDict
-from .message import decode_msg, encode_msg
+from .message import decode_msg, encode_msg, SerialFormats
 from .message_obj import Message
 
 __all__ = [
@@ -29,5 +29,6 @@ __all__ = [
     # Message Utils
     'Message',
     'decode_msg',
-    'encode_msg'
+    'encode_msg',
+    'SerialFormats'
 ]

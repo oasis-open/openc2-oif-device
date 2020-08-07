@@ -2,12 +2,7 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE
 
-MAINTAINER Screaming_Bunny
-
 LABEL name="Twisted Alpine Python3" \
-vendor="Screaming Bunny" \
-license="BSD" \
-version="2.0" \
 description="This is the Twisted Alpine Python3 with SB_Utils container for Screaming Bunny."
 
 ADD modules/utils/twisted /tmp/sb_utils
@@ -21,10 +16,6 @@ apk add --no-cache --virtual .build-deps \
   musl-dev \
   yaml-dev \
   python3-dev && \
-#
-# Python PIP Install
-python3 /tmp/get-pip.py && \
-pip3 install --upgrade pip && \
 #
 # SB_Utils install
 cd /tmp/sb_utils && \
