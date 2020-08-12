@@ -10,7 +10,19 @@ import os  # to determine localhost on a given machine
 from functools import partial
 from inspect import isfunction
 from multiprocessing import Event, Process
-from typing import Union
+from typing import (
+    Callable,
+    Dict,
+    List,
+    Tuple,
+    Union
+)
+
+Callback = Callable[[any, any], None]
+Callbacks = Union[
+    List[Callback],
+    Tuple[Callback, ...]
+]
 
 
 class Consumer(Process):
@@ -22,7 +34,7 @@ class Consumer(Process):
     EXCHANGE = "transport"
     ROUTING_KEY = "*"
 
-    def __init__(self, host: str = HOST, port: int = PORT, exchange: str = EXCHANGE, routing_key: str = ROUTING_KEY, callbacks: Union[list, tuple] = None, debug: bool = False):
+    def __init__(self, host: str = HOST, port: int = PORT, exchange: str = EXCHANGE, routing_key: str = ROUTING_KEY, callbacks: Callbacks = None, debug: bool = False):
         """
         Consume message from queue exchange.
         :param host: host running RabbitMQ
@@ -74,7 +86,7 @@ class Consumer(Process):
                 except KeyboardInterrupt:
                     self.shutdown()
 
-    def _on_message(self, body, message):
+    def _on_message(self, body, message) -> None:
         """
         Default option for a consumer callback, prints out message and message data.
         :param body: contains the body of the message sent
@@ -87,7 +99,7 @@ class Consumer(Process):
         for func in self._callbacks:
             func(body, message)
 
-    def add_callback(self, fun):
+    def add_callback(self, fun: Callback) -> None:
         """
         Add a function to the list of callback functions.
         :param fun: function to add to callbacks
@@ -97,7 +109,7 @@ class Consumer(Process):
                 raise ValueError("Duplicate function found in callbacks")
             self._callbacks = (*self._callbacks, fun)
 
-    def get_exchanges(self):
+    def get_exchanges(self) -> List[str]:
         """
         Get a list of exchange names on the queue
         :return: list of exchange names
@@ -105,7 +117,7 @@ class Consumer(Process):
         exchanges = self._conn.get_manager().get_exchanges()
         return list(filter(None, [exc.get("name", "")for exc in exchanges]))
 
-    def get_queues(self):
+    def get_queues(self) -> List[str]:
         """
         Get a list of queue names on the queue
         :return: list of queue names
@@ -113,23 +125,36 @@ class Consumer(Process):
         queues = self._conn.get_manager().get_queues()
         return list(filter(None, [que.get("name", "") for que in queues]))
 
-    def get_binds(self):
+    def get_binds(self, bind_queue: Union[str, List[str]] = None, bind_exchange: Union[str, List[str]] = None) -> List[Dict[str, str]]:
         """
         Get a list of exchange/topic bindings
         :return: list of exchange/topic bindings
         """
         binds = []
         manager = self._conn.get_manager()
-        for queue in self.get_queues():
+        queues = self.get_queues()
+        for queue in queues:
+            if bind_queue:
+                if isinstance(bind_queue, list) and queue not in bind_queue:
+                    continue
+                elif isinstance(bind_queue, str) and queue != bind_queue:
+                    continue
+
             for bind in manager.get_queue_bindings(vhost="/", qname=queue):
+                exchange = bind.get("source", "")
+                if bind_exchange:
+                    if isinstance(bind_exchange, list) and exchange not in bind_exchange:
+                        continue
+                    elif isinstance(bind_exchange, str) and exchange != bind_exchange:
+                        continue
                 binds.append({
-                    "exchange": bind.get("source", ""),
+                    "exchange": exchange,
                     "routing_key": bind.get("routing_key", "")
                 })
 
         return binds
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """
         Shutdown the consumer and cleanly close the process
         """
@@ -157,7 +182,7 @@ class Producer:
         self._debug = debug
         self._conn = kombu.Connection(hostname=host, port=port, userid="guest", password="guest", virtual_host="/")
 
-    def publish(self, message: Union[dict, str] = "", headers: dict = None, exchange: str = EXCHANGE, routing_key: str = ROUTING_KEY):
+    def publish(self, message: Union[dict, str], headers: dict = None, exchange: str = EXCHANGE, routing_key: str = ROUTING_KEY) -> None:
         """
         Publish a message to th AMQP Queue
         :param message: message to be published

@@ -64,11 +64,13 @@ CONFIG = FrozenDict(
         ('git', 'gitpython'),
         ('colorama', 'colorama')
     ),
+    ImagePrefix="g2inc",
     BaseRepo=f"{Base_URL}ScreamingBunny",
     ImageReplace=(
         ("base", r"gitlab.*?docker:alpine( as.*)?", r"alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
-        ("python3_twisted", r"gitlab.*plus:alpine-python3_twisted( as.*)?", fr"g2inc/oif-python_twisted\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
-        ("python3", r"gitlab.*plus:alpine-python3( as.*)?", fr"g2inc/oif-python\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
+        ("python3_actuator", r"gitlab.*plus:alpine-python3_actuator( as.*)?", fr"g2inc/oif-python_actuator\g<1>\n"),
+        ("python3_twisted", r"gitlab.*plus:alpine-python3_twisted( as.*)?", fr"g2inc/oif-python_twisted\g<1>\n"),
+        ("python3", r"gitlab.*plus:alpine-python3( as.*)?", fr"g2inc/oif-python\g<1>\n"),
     ),
     Repos=FrozenDict(
         Transport=('HTTP', 'HTTPS', 'MQTT', 'CoAP'),
@@ -139,7 +141,12 @@ if __name__ == '__main__':
         Stylize.h2(f"Updating Actuators")
         update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator', options.repo_branch)
 
-        rslt = subprocess.call([sys.executable, os.path.join("actuator", "configure.py")])
+        rslt = subprocess.call(
+            [sys.executable, os.path.join("actuator", "configure.py")],
+            env={
+                'BASE_IMAGE_NAME': f"{CONFIG.ImagePrefix}/oif-python_actuator"
+            }
+        )
         if rslt != 0:
             exit(rslt)
 

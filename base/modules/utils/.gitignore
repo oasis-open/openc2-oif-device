@@ -171,3 +171,5 @@ fabric.properties
 conversions_examples.txt
 conversions_sizes.txt
 dev_test.py
+signature_test.py
+root/*.pem

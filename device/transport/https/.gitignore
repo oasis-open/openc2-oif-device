@@ -171,3 +171,5 @@ venv.bak/
 
 # Custom ignore
 .idea/
+HTTPS/certs
+!HTTPS/certs/README.md
