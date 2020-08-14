@@ -223,7 +223,7 @@ Args['BASE_NAME'] = Args.get('BASE_IMAGE_NAME', Args.get('IMAGE_NAME', 'g2inc/oi
 CONFIG = FrozenDict(
     **CONFIG,
     Args=FrozenDict(Args),
-    Actuators=tuple(d for d in os.listdir(CONFIG.WorkDir) if os.path.isdir(os.path.join(CONFIG.WorkDir, d)) and not d.startswith(('.', '_', 'Base'))),
+    Actuators=tuple(d for d in os.listdir(CONFIG.WorkDir) if os.path.isdir(os.path.join(CONFIG.WorkDir, d)) and not d.startswith(('.', '_'))),
     DockerTemplate=string.Template(open(CONFIG.TemplateFile, 'r').read()) if os.path.isfile(CONFIG.TemplateFile) else ''
 )
 del Args

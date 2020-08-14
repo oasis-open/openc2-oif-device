@@ -1,3 +1,7 @@
+"""
+Screaming Bunny Utils
+Actuator namespace
+"""
 from .actuator import ActuatorBase
 from .dispatch import Dispatch
 from .exceptions import (
@@ -15,6 +19,7 @@ from .general import (
     valid_ip
 )
 
+# Actuator Tools
 __all__ = [
     'ActuatorBase',
     'Dispatch',

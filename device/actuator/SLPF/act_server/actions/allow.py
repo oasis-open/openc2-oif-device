@@ -1,7 +1,7 @@
 """
 Allow Target functions
 """
-from ..utils import Dispatch, exceptions, valid_ip
+from sb_utils.actuator import Dispatch, exceptions, valid_ip
 
 Allow = Dispatch("allow")
 

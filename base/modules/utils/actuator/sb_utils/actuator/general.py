@@ -14,6 +14,7 @@ from ipaddress import (
 from jsonschema import Draft7Validator, ValidationError
 from typing import (
     Any,
+    List,
     Union
 )
 
@@ -53,24 +54,25 @@ def valid_ip(ip: Union[bytes, str]) -> Union[None, IPv4Address, IPv6Address, IPv
 class ValidatorJSON(Draft7Validator):
     # Custom Methods
     def iter_errors_as(self, instance: dict, _type: str) -> list:
-        if "oneOf" in self.schema and self._is_exported(_type):
-            exp = self._get_definition(_type)
-            exp_type = exp.get('type', '')
-            if exp_type == 'object':
-                tmp_schema = copy.deepcopy(self.schema)
-                del tmp_schema['oneOf']
-                del tmp_schema['definitions'][_type]
-                tmp_schema.update(exp)
+        if self._is_exported(_type):
+            if "oneOf" in self.schema:
+                exp = self._get_definition(_type)
+                exp_type = exp.get('type', '')
+                if exp_type == 'object':
+                    tmp_schema = copy.deepcopy(self.schema)
+                    del tmp_schema['oneOf']
+                    del tmp_schema['definitions'][_type]
+                    tmp_schema.update(exp)
 
-                return self.iter_errors(instance, _schema=tmp_schema)
-            else:
-                raise TypeError(f'field type object is expected, field type: {exp_type}')
+                    return self.iter_errors(instance, _schema=tmp_schema)
+                else:
+                    raise TypeError(f'field type object is expected, field type: {exp_type}')
 
-        elif "properties" in self.schema and self._is_exported(_type):
-            props = [*self.schema['properties'].keys()]
-            msg_wrapper = props[props.index(_type.lower())]
-            instance = {msg_wrapper: instance}
-            return self.iter_errors(instance)
+            elif "properties" in self.schema:
+                props = [*self.schema['properties'].keys()]
+                msg_wrapper = props[props.index(_type.lower())]
+                instance = {msg_wrapper: instance}
+                return self.iter_errors(instance)
 
         else:
             raise TypeError(f'field type is not an exported field')
@@ -124,17 +126,19 @@ class ValidatorJSON(Draft7Validator):
         :param _type: name of type to check if exported
         :return: bool - type is exported type
         """
+        exported: List[str] = []
         if "oneOf" in self.schema:
-            exported = [exp.get('$ref', '') for exp in self.schema.get('oneOf', [])]
+            exported = [e.get('$ref', '') for e in self.schema.get('oneOf', [])]
         elif "properties" in self.schema:
             _type = _type.lower()
-            exported = {*self.schema.get('properties', {}).keys()}
-            exported.update({exp.get('$ref', '') for exp in self.schema.get('properties', {}).values()})
+            exp = {*self.schema.get('properties', {}).keys()}
+            exp.update({exp.get('$ref', '') for exp in self.schema.get('properties', {}).values()})
             exported = list(exported)
         else:
             raise TypeError("Schema format invalid")
 
-        return any([exp.endswith(f'{_type}') for exp in exported])
+        print(_type, exported)
+        return any([e.endswith(f'{_type}') for e in exported])
 
     def _get_definition(self, _type: str) -> dict:
         """

@@ -7,6 +7,7 @@ import uuid
 
 from sb_utils import FrozenDict
 from typing import (
+    List,
     Tuple,
     Union
 )
@@ -32,12 +33,14 @@ class ActuatorBase(object):
         schema_file = os.path.join(root, "schema.json")
 
         config = general.safe_load(config_file)
-        if len({"actuator_id", "schema"} - set(config.keys())) != 0:
+        if "actuator_id" not in config.keys():
             config.setdefault("actuator_id", act_id)
-            config.setdefault("schema", general.safe_load(schema_file))
             json.dump(config, open(config_file, "w"), indent=4)
 
-        self._config = FrozenDict(config)
+        self._config = FrozenDict(
+            **config,
+            schema=general.safe_load(schema_file)
+        )
         self._dispatch = dispatch.Dispatch(act=self, dispatch_transform=self._dispatch_transform)
         self._dispatch.register(exceptions.action_not_implemented, "default")
         self._pairs = None
@@ -53,6 +56,14 @@ class ActuatorBase(object):
 
     def __repr__(self) -> str:
         return f"Actuator({self.profile})"
+
+    @property
+    def nsid(self) -> List[str]:
+        """
+        NSID this actuator is configured
+        :return: actuator nsid
+        """
+        return list(self._config.schema.get("definitions", {}).get("Actuator", {}).get("properties", {}).keys())
 
     @property
     def pairs(self) -> FrozenDict:

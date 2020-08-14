@@ -1,5 +1,4 @@
-FROM g2inc/oif-python_twisted
-RUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*
+FROM g2inc/oif-python_actuator
 
 MAINTAINER Screaming_Bunny
 
@@ -10,8 +9,8 @@ version="v0.0.1" \
 description="This is the Base Actuator container"
 
 ADD requirements.txt /tmp/requirements.txt
-ADD act_server /opt/actuator/act_server
 ADD docker_start.sh /opt/actuator/start.sh
+ADD act_server /opt/actuator/act_server
 
 # Package installation
 # Packages - https://pkgs.alpinelinux.org/packages

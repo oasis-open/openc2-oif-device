@@ -5,7 +5,7 @@ from .actions import (
     Query,
     Update
 )
-from .utils import ActuatorBase
+from sb_utils.actuator import ActuatorBase
 
 
 class Actuator(ActuatorBase):

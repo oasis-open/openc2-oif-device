@@ -9,6 +9,7 @@ version="$VERSION" \
 description="This is the ${ACT_NAME} Actuator container"
 
 ADD requirements.txt /tmp/requirements.txt
+ADD docker_start.sh /opt/actuator/start.sh
 ADD act_server /opt/actuator/act_server${EXTRA_ADD}
 
 # Package installation
@@ -17,5 +18,15 @@ ADD act_server /opt/actuator/act_server${EXTRA_ADD}
 # Requirements install
 RUN ${EXTRA_INIT}pip3 install -r /tmp/requirements.txt && \${EXTRA_CONFIG}
 #
+# Mod Startup Scripts
+chmod +x /opt/actuator/start.sh && \
+dos2unix /opt/actuator/start.sh && \
+#
 # Cleanup
 ${EXTRA_CLEAN}rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
+
+# Actuator Working Directory
+WORKDIR /opt/actuator/
+
+# Startup Command
+CMD ["./start.sh"]

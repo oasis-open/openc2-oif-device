@@ -14,6 +14,7 @@ from typing import (
     Callable,
     Dict,
     List,
+    Literal,
     Tuple,
     Union
 )
@@ -24,6 +25,19 @@ Callbacks = Union[
     Tuple[Callback, ...]
 ]
 
+EXCHANGE_TYPE = Literal['direct', 'fanout', 'headers', 'topic']
+BINDINGS = Dict[
+    str,  # Queue Name
+    List[Union[  # Exchange
+        str,  # Exchange Name, type is direct
+        Tuple[
+            str,  # Exchange Name
+            EXCHANGE_TYPE,  # exchange type
+            str  # routing key
+        ]
+    ]]
+]
+
 
 class Consumer(Process):
     """
@@ -31,26 +45,37 @@ class Consumer(Process):
     """
     HOST = os.environ.get("QUEUE_HOST", "localhost")
     PORT = os.environ.get("QUEUE_PORT", 5672)
-    EXCHANGE = "transport"
-    ROUTING_KEY = "*"
 
-    def __init__(self, host: str = HOST, port: int = PORT, exchange: str = EXCHANGE, routing_key: str = ROUTING_KEY, callbacks: Callbacks = None, debug: bool = False):
+    def __init__(self, host: str = HOST, port: int = PORT, binding: BINDINGS = None, callbacks: Callbacks = None, debug: bool = False, **kwargs):
         """
-        Consume message from queue exchange.
+        Consume message from the given bindings
         :param host: host running RabbitMQ
         :param port: port which handles AMQP (default 5672)
-        :param exchange: specifies where to read messages from
-        :param routing_key:
+        :param binding: Queue/Exchange bindings to listen on
+            Dict[
+                str,  # Queue Name
+                List[Union[  # Exchange
+                    str,  # Exchange Name, type is direct
+                    List[Tuple[
+                        str,  # Exchange Name
+                        Literal['direct', 'fanout', 'headers', 'topic']  # exchange type
+                    ]]
+                ]]
+            ]
         :param callbacks: list of callback functions which are called upon receiving a message
         :param debug: print debugging messages
+        :param **kwargs: extra args
+        - Backwards compatibility:
+            :param exchange: specifies where to read messages from
+            :param routing_key:
         """
         super().__init__()
         self._exit = Event()
 
         self._url = f"amqp://{host}:{port}"
-        self._exchange_name = exchange
         self._callbacks = ()
         self._debug = debug
+        self._queues = []
 
         if isinstance(callbacks, (list, tuple)):
             for func in callbacks:
@@ -58,12 +83,20 @@ class Consumer(Process):
 
         # Initialize connection we are consuming from based on defaults/passed params
         self._conn = kombu.Connection(hostname=host, port=port, userid="guest", password="guest", virtual_host="/")
-        self._exchange = kombu.Exchange(self._exchange_name, type="topic")
-        self._routing_key = routing_key
+        if binding:
+            for queue, exchanges in binding.items():
+                queue_bindings = []
+                for exchange in exchanges:
+                    name, _type, key = (exchange, 'direct', queue) if isinstance(exchange, str) else exchange
+                    e = kombu.Exchange(name, type=_type)
+                    queue_bindings.append(kombu.binding(exchange=e, routing_key=key))
+                self._queues.append(kombu.Queue(name=queue, bindings=queue_bindings))
 
-        # At this point, consumers are reading messages regardless of queue name
-        # so I am just setting it to be the same as the exchange.
-        self._queue = kombu.Queue(name=self._routing_key, exchange=self._exchange, routing_key=self._routing_key)
+        elif 'exchange' in kwargs and 'routing_key' in kwargs:
+            exchange = kombu.Exchange(kwargs['exchange'], type="direct")
+            # At this point, consumers are reading messages regardless of queue name
+            # so I am just setting it to be the same as the exchange.
+            self._queues = [kombu.Queue(name=kwargs['routing_key'], exchange=exchange, routing_key=kwargs['routing_key'])]
 
         # Start consumer as an independent process
         self.start()
@@ -74,9 +107,10 @@ class Consumer(Process):
         """
         Runs the consumer until stopped.
         """
-        with kombu.Consumer(self._conn, queues=self._queue, callbacks=[self._on_message], accept=["text/plain", "application/json"]):
+        with kombu.Consumer(self._conn, queues=self._queues, callbacks=[self._on_message], accept=["text/plain", "application/json"]):
             if self._debug:
-                print(f"Connected to {self._url} on exchange [{self._exchange_name}], routing_key [{self._routing_key}] and waiting to consume...")
+                for q in self._queues:
+                    print(f"Connected to {self._url} on queue {q.name} with [{q.bindings}] and waiting to consume...")
 
             while not self._exit.is_set():
                 try:
@@ -182,26 +216,22 @@ class Producer:
         self._debug = debug
         self._conn = kombu.Connection(hostname=host, port=port, userid="guest", password="guest", virtual_host="/")
 
-    def publish(self, message: Union[dict, str], headers: dict = None, exchange: str = EXCHANGE, routing_key: str = ROUTING_KEY) -> None:
+    def publish(self, message: Union[dict, str], headers: dict = None, exchange: str = EXCHANGE, routing_key: str = ROUTING_KEY, exchange_type: EXCHANGE_TYPE = 'direct') -> None:
         """
         Publish a message to th AMQP Queue
         :param message: message to be published
         :param headers: header key-values to publish with the message
         :param exchange: specifies the top level specifier for message publish
         :param routing_key: determines which queue the message is published to
+        :param exchange_type: Type of the exchange - ['direct', 'fanout', 'headers', 'topic']
         """
         self._conn.connect()
-        queue = kombu.Queue(routing_key, kombu.Exchange(exchange, type="topic"), routing_key=routing_key)
-        queue.maybe_bind(self._conn)
-        queue.declare()
-
         producer = kombu.Producer(self._conn.channel())
         producer.publish(
             message,
             headers=headers or {},
-            exchange=queue.exchange,
-            routing_key=queue.routing_key,
-            declare=[queue]
+            exchange=kombu.Exchange(exchange, type=exchange_type),
+            routing_key=routing_key
         )
         producer.close()
         self._conn.release()

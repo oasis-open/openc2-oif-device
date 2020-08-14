@@ -1,7 +1,7 @@
 """
 Deny Target functions
 """
-from ..utils import Dispatch, exceptions, valid_ip
+from sb_utils.actuator import Dispatch, exceptions, valid_ip
 
 Deny = Dispatch("deny")
 
