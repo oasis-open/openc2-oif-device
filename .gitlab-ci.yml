@@ -11,7 +11,10 @@ stages:
 before_script:
   - REPO=${CI_REPOSITORY_URL#*@}
   - REPO_URL=git@${REPO%.com/*}.com:${REPO#*/}
-  - yum install -y git openssh-clients
+  - yum install --disablerepo=epel -y git openssh-clients ca-certificates
+  - update-ca-trust force-enable
+  - echo "$HII_CA_PUBLIC" | base64 --decode | tr -d '\r' > /etc/pki/ca-trust/source/anchors/hii_ca.crt
+  - update-ca-trust extract
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   - echo "$SSH_PRIVATE_KEY" | base64 --decode | tr -d '\r' > ~/.ssh/id_rsa
   - chmod 600 ~/.ssh/id_rsa
@@ -25,6 +28,7 @@ Build:
   stage: build
   script:
     - git checkout ${CI_COMMIT_REF_NAME:-develop}
+    - pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org gitpython colorama
     - python3 update_subs.py --verbose --url_base https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_REGISTRY%:*} --repo_branch ${CI_COMMIT_REF_NAME:-develop}
     - git add --all
     - git add -f device/actuator/*/act_server/utils/
