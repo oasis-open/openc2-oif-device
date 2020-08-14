@@ -20,6 +20,7 @@ before_script:
   - chmod 600 ~/.ssh/id_rsa
   - chmod +x ./.git_ssh
   - ssh-keyscan -t rsa ${CI_REGISTRY%:*} >> ~/.ssh/known_hosts
+  - pip config set global.cert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
   - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
   - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
   - git config push.default matching
@@ -28,7 +29,6 @@ Build:
   stage: build
   script:
     - git checkout ${CI_COMMIT_REF_NAME:-develop}
-    - pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org gitpython colorama
     - python3 update_subs.py --verbose --url_base https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_REGISTRY%:*} --repo_branch ${CI_COMMIT_REF_NAME:-develop}
     - git add --all
     - git commit -m "Update from repo ${TRIGGER_REPO:-"Commit"} - $(date -u +"%F %T %Z") [CI Skip]" && (echo "Pushing as $(git config --get user.name) - $(git config --get user.email)" && GIT_SSH="$PWD/.git_ssh" git push ${REPO_URL})
