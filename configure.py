@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import atexit
 import os
 import re
@@ -130,26 +129,16 @@ if __name__ == "__main__":
         rm=True
     )
 
-    Stylize.info("Building base alpine python3 twisted image")
-    build_image(
-        docker_sys=system,
-        console=Stylize,
-        path="./base",
-        dockerfile="./Dockerfile_alpine-python3_twisted",
-        tag=f"{CONFIG.ImagePrefix}/oif-python_twisted",
-        buildargs=dict(
-            BASE_IMAGE=f"{CONFIG.ImagePrefix}/oif-python"
-        ),
-        rm=True
-    )
-
     Stylize.info("Building base actuator image")
     build_image(
         docker_sys=system,
         console=Stylize,
-        path="./device/actuator/Base",
-        dockerfile="./Dockerfile",
-        tag=f"{CONFIG.ImagePrefix}/oif-device-actutator-base",
+        path="./base",
+        dockerfile="./Dockerfile_alpine-python3_actuator",
+        tag=f"{CONFIG.ImagePrefix}/oif-python_actuator",
+        buildargs=dict(
+            BASE_IMAGE=f"{CONFIG.ImagePrefix}/oif-python"
+        ),
         rm=True
     )
 

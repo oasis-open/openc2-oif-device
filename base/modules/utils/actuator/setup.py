@@ -7,7 +7,7 @@ version = dict(
 )
 
 setup(
-    name='ScreamingBunny Utils',
+    name='ScreamingBunny Utils.Actuator',
     version='{major}.{minor}.{bugfix}'.format(**version),
     package_data={
         'SB_Utils': [

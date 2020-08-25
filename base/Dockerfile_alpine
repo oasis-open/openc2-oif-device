@@ -1,7 +1,5 @@
 FROM alpine:latest
 
-MAINTAINER Screaming_Bunny
-
 LABEL name="Base Alpine" \
 vendor="Screaming Bunny" \
 license="BSD" \

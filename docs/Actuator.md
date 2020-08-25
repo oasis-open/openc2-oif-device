@@ -37,9 +37,8 @@ Orchestrator (you create the command here) -> Buffer -> Transport -> Device-side
 
 You may want to copy our wrapper for the AMQP library, [Kombu](https://kombu.readthedocs.io/en/latest/), as well as other utilities.
 - [SB_Utils](../base/modules/utils)
-    - Contains two packages, root is the primary package and twisted is the supporting twisted python option
-    - To use the twisted package, the root package should be installed first
-- [actuator](../device/actuator/Base/utils)
+    - Contains two packages, root is the primary package and actuator is the supporting actuator base options
+    - To use the actuator package, the root package should be installed first
 
 To connect your actuator to the buffer you will need to add some code to connect to the AMQP broker (we use RabbitMQ), which is included with the Device's Docker Compose file. You can find an example from the test [ISR Actuator](../device/isr/act_server/__main__.py).  
 

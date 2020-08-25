@@ -1,33 +1,50 @@
 # BASE_IMAGE - arg is the tag of the container built from Dockerfile_alpine
 ARG BASE_IMAGE
+
+# Builder
+FROM $BASE_IMAGE as builder
+
+ADD https://github.com/arangodb/velocypack/archive/master.zip /tmp/velocypack.zip
+
+RUN apk add --no-cache \
+  cmake \
+  g++ \
+  gcc \
+  make \
+  unzip && \
+#
+# VelocityPack Install
+unzip /tmp/velocypack.zip -d /tmp/ && \
+cd /tmp/velocypack-master && \
+mkdir -p ./build && \
+(cd build && cmake .. && make install DESTDIR=/opt/velocitypack)
+
+
+# Base Image
 FROM $BASE_IMAGE
 
-MAINTAINER Screaming_Bunny
-
 LABEL name="Base Alpine Python3" \
-vendor="Screaming Bunny" \
-license="BSD" \
-version="2.0" \
 description="This is the Base Alpine Python3 with SB_Utils container for Screaming Bunny."
 
 ENV PYTHONUNBUFFERED=0
 
 ADD modules/utils/root /tmp/sb_utils
 ADD https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py
+COPY --from=builder /opt/velocitypack /
 
 # Package Installation
 # Packages - https://pkgs.alpinelinux.org/packages
-RUN apk add --no-cache python3 && \
+RUN apk add --no-cache libstdc++ python3 && \
 apk add --no-cache --virtual .build-deps \
-  g++ \
   gcc \
+  make \
   musl-dev \
-  yaml-dev \
-  python3-dev && \
+  python3-dev \
+  yaml-dev && \
 #
 # Python PIP Install
 python3 /tmp/get-pip.py && \
-pip3 install --upgrade pip && \
+pip3 install --no-cache-dir --upgrade pip && \
 #
 # SB_Utils install
 cd /tmp/sb_utils && \
@@ -35,9 +52,11 @@ python3 setup.py install && \
 cd && \
 #
 # Cleanup
-apk del .build-deps && \
+apk del --no-cache .build-deps \
 rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \
-pip3 --version
+pip3 --version && \
+json-to-vpack --help && \
+vpack-to-json --help
