@@ -1,5 +1,5 @@
 FROM g2inc/oif-python
-RUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*
+
 
 MAINTAINER Screaming_Bunny
 

@@ -24,7 +24,8 @@
 	"""
 	ACTION Target functions
 	"""
-	from ..utils import Dispatch, exceptions, FrozenDict
+    from sb_utils import FrozenDict
+    from sb_utils.actuator import Dispatch, exceptions
 	
 	ACTION = Dispatch("ACTION")
 	
@@ -120,7 +121,7 @@
 	- Repeat the line `self._dispatch.register_dispatch(ACTION)` and replace `ACTION` with an imported action from `actions`
 
 	```python
-	from .utils import ActuatorBase
+    from sb_utils.actuator import ActuatorBase
 
 	from .actions import (
 	    Query,
@@ -144,20 +145,11 @@
 
 3. Build/pull container
     - Build
-		- Run the `configure.py` script in hte parent folder to create the Dockerfiles for the actuators
+		- Run the `configure.py` script in the parent folder to create the Dockerfiles for the actuators
 		- Return to the actuator folder and run the following commands, replacing `ACTUATOR` with the name of the actuator in lowercase
     	
 	    ```bash
-	    docker login gitlab.labs.g2-inc.net:4567
-	    docker build -f Dockerfile -t gitlab.labs.g2-inc.net:4567/screamingbunny/device/actuator:ACTUATOR .
-	    ```
-    
-    - Pull
-    	- Run the following commands, replacing `ACTUATOR` with the name of the actuator in lowercase
-    	
-	    ```bash
-	    docker login gitlab.labs.g2-inc.net:4567
-	    docker pull gitlab.labs.g2-inc.net:4567/screamingbunny/device/actuator:ACTUATOR
+	    docker build -f Dockerfile -t PATH:ACTUATOR .
 	    ```
 
 4. Start the container
@@ -168,8 +160,8 @@
     
      ```bash
     docker run \
-	--hostname isr \
-	--name isr \
+	--hostname slpf \
+	--name slpf \
     -e QUEUE_HOST=queue \
     -e QUEUE_PORT=5672 \
     -e QUEUE_USER=guest \
@@ -179,15 +171,15 @@
     -v $(PWD)/act_server:/opt/actuator/act_server \
 	--link queue \
 	--rm \
-    gitlab.labs.g2-inc.net:4567/screamingbunny/device/actuator:base
+    PATH:ACTUATOR
 	```
     
 - Production
     
     ```bash
      docker run \
-	--hostname core \
-	--name core \
+	--hostname slpf \
+	--name slpf \
     -e QUEUE_HOST=queue \
     -e QUEUE_PORT=5672 \
     -e QUEUE_USER=guest \
@@ -196,5 +188,5 @@
     -e QUEUE_ACTUATOR_KEY=actuator \
 	--link queue \
 	--rm \
-    gitlab.labs.g2-inc.net:4567/screamingbunny/device/actuator:base
+    PATH:ACTUATOR
 	```

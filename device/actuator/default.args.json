@@ -1,6 +1,6 @@
 {
   "ACT_NAME": "Actuator",
-  "BASE_NAME": "g2inc/oif-python:latest",
+  "BASE_NAME": "g2inc/oif-actuator:latest",
   "MAINTAINER": "Screaming_Bunny",
   "VERSION": "v0.0.1",
   "EXTRA_ENV": "",

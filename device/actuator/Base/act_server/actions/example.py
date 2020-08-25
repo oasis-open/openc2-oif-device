@@ -5,7 +5,7 @@ This is an example target registration for an action
     Note: the function will be registered with its name unless an argument string is given specifying the registered name
 """
 
-from ..utils import Dispatch, exceptions
+from sb_utils.actuator import Dispatch, exceptions
 
 Example = Dispatch("example")
 

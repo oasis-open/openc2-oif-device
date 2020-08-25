@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Running Base Actuator"
+echo "Running SLPF Actuator"
 
 dockerize -wait tcp://$QUEUE_HOST:$QUEUE_PORT -timeout 30s
 

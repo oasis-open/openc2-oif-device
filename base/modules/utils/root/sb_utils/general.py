@@ -17,6 +17,15 @@ from typing import (
 
 
 # Util Functions
+def toBytes(b: Any) -> bytes:
+    """
+    Convert a given type to a default byte string
+    :param : item to convert to a byte string
+    :return: converted byte string
+    """
+    return b if isinstance(b, bytes) else bytes(str(b), sys.getdefaultencoding())
+
+
 def toStr(s: Any) -> str:
     """
     Convert a given type to a default string

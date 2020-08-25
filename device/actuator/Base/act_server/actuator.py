@@ -1,7 +1,7 @@
 from .actions import (
     Query
 )
-from .utils import ActuatorBase
+from sb_utils.actuator import ActuatorBase
 
 
 class Actuator(ActuatorBase):
