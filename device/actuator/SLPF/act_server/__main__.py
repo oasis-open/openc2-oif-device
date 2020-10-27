@@ -1,9 +1,17 @@
 import os
+import signal
+import sys
 
 from functools import partial
 from sb_utils import decode_msg, encode_msg, Consumer, Producer
 
 from .actuator import Actuator
+
+# Signals
+signals = {
+    signal.SIGINT: 'SIGINT',
+    signal.SIGTERM: 'SIGTERM'
+}
 
 
 # OnMessage Function
@@ -33,6 +41,13 @@ def on_message(act: Actuator, prod: Producer, body, message):
         )
 
 
+def on_exit(signum, stack):
+    print(f'Received {signals[signum]} signal')
+    consumer.shutdown()
+    actuator.shutdown()
+    sys.exit(signum)
+
+
 if __name__ == '__main__':
     # Get dir of current file to set as root for actuator instance
     root = os.path.dirname(os.path.realpath(__file__))
@@ -41,10 +56,7 @@ if __name__ == '__main__':
     actuator = Actuator(root=root)
 
     # Actuator nsid/profile
-    queue = [actuator.profile]
-    nsid = actuator.nsid
-    if len(nsid) > 0:
-        queue = nsid[0]
+    queue = actuator.nsid if len(actuator.nsid) > 0 else [actuator.profile]
 
     # Begin consuming messages from internal message queue
     consumer = None
@@ -52,8 +64,8 @@ if __name__ == '__main__':
 
     # Set Queue Bindings
     bindings = {}
-    for n in nsid:
-        bindings[n] = [
+    for q in queue:
+        bindings[q] = [
             'actuator',
             ('actuator_all', 'fanout', 'actuator_all')
         ]
@@ -68,3 +80,6 @@ if __name__ == '__main__':
     except Exception as e:
         print(f'Error {e}')
         consumer.shutdown()
+
+    for sig in signals:
+        signal.signal(sig, on_exit)
