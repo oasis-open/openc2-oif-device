@@ -126,9 +126,9 @@ if __name__ == '__main__':
     Stylize.underline('Starting Update')
 
     # -------------------- Modules -------------------- #
-    with Stage('Modules', 'base/modules'):
+    with Stage('Modules', 'base/modules/tmp'):
         Stylize.h2("Updating Utilities")
-        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'utils', options.repo_branch)
+        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'sb_utils', options.repo_branch)
 
     # -------------------- Device Transport -------------------- #
     with Stage('Device Transport', os.path.join('device', 'transport')):

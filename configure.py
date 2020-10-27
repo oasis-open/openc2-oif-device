@@ -106,20 +106,20 @@ if __name__ == "__main__":
     # -------------------- Build Base Images -------------------- #
     Stylize.h1(f"[Step {get_count()}]: Build Base Images ...")
 
-    Stylize.info("Building base alpine image")
     build_image(
         docker_sys=system,
         console=Stylize,
+        name="base alpine",
         path="./base",
         dockerfile="./Dockerfile_alpine",
         tag=f"{CONFIG.ImagePrefix}/oif-alpine",
         rm=True
     )
 
-    Stylize.info("Building base alpine python3 image")
     build_image(
         docker_sys=system,
         console=Stylize,
+        name="base alpine python3",
         path="./base",
         dockerfile="./Dockerfile_alpine-python3",
         tag=f"{CONFIG.ImagePrefix}/oif-python",
@@ -133,6 +133,7 @@ if __name__ == "__main__":
     build_image(
         docker_sys=system,
         console=Stylize,
+        name="base actuator",
         path="./base",
         dockerfile="./Dockerfile_alpine-python3_actuator",
         tag=f"{CONFIG.ImagePrefix}/oif-python_actuator",
@@ -159,10 +160,10 @@ if __name__ == "__main__":
             for service, opts in load(orc_compose.read(), Loader=Loader)["services"].items():
                 if "build" in opts and opts["image"] not in compose_images:
                     compose_images.append(opts["image"])
-                    Stylize.info(f"Building {opts['image']} image")
                     build_image(
                         docker_sys=system,
                         console=Stylize,
+                        name=service,
                         rm=True,
                         path=opts["build"]["context"],
                         dockerfile=opts["build"].get("dockerfile", "Dockerfile"),

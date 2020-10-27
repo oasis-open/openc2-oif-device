@@ -4,7 +4,9 @@ ARG BASE_IMAGE
 # Builder
 FROM $BASE_IMAGE as builder
 
-ADD https://github.com/arangodb/velocypack/archive/master.zip /tmp/velocypack.zip
+ENV VPACK_VERSION=0.1.33
+
+ADD modules/tmp/* /tmp/
 
 RUN apk add --no-cache \
   cmake \
@@ -14,8 +16,8 @@ RUN apk add --no-cache \
   unzip && \
 #
 # VelocityPack Install
-unzip /tmp/velocypack.zip -d /tmp/ && \
-cd /tmp/velocypack-master && \
+unzip -d /tmp/ /tmp/velocypack-${VPACK_VERSION}.zip && \
+cd /tmp/velocypack-${VPACK_VERSION} && \
 mkdir -p ./build && \
 (cd build && cmake .. && make install DESTDIR=/opt/velocitypack)
 
@@ -28,16 +30,17 @@ description="This is the Base Alpine Python3 with SB_Utils container for Screami
 
 ENV PYTHONUNBUFFERED=0
 
-ADD modules/utils/root /tmp/sb_utils
-ADD https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py
+COPY modules/tmp/ /tmp/
 COPY --from=builder /opt/velocitypack /
 
 # Package Installation
 # Packages - https://pkgs.alpinelinux.org/packages
-RUN apk add --no-cache libstdc++ python3 && \
+RUN apk add --no-cache libressl libstdc++ python3 && \
 apk add --no-cache --virtual .build-deps \
   gcc \
-  make \
+  libffi-dev \
+  libressl-dev \
+  linux-headers \
   musl-dev \
   python3-dev \
   yaml-dev && \
@@ -47,13 +50,13 @@ python3 /tmp/get-pip.py && \
 pip3 install --no-cache-dir --upgrade pip && \
 #
 # SB_Utils install
-cd /tmp/sb_utils && \
+cd /tmp/sb_utils/root && \
 python3 setup.py install && \
 cd && \
 #
 # Cleanup
-apk del --no-cache .build-deps \
-rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+apk del --no-cache .build-deps && \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.cache /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \

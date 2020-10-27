@@ -148,7 +148,7 @@ CONFIG = FrozenDict(
     EmptyString=("", b"", None),
     Remove=FrozenDict(
         Dirs=(".git", ".idea"),
-        Files=(".git", ".gitlab-ci.yml", "dev-compose.yaml", ".gitmodules", ".pipeline_trigger*")
+        Files=(".git", "*.gitlab-ci.yml", "dev-compose.yaml", ".gitmodules", ".gitignore", ".pipeline_trigger*")
     ),
     MinVersions=FrozenDict(
         Docker=(18, 0, 0),
@@ -300,6 +300,8 @@ def build_image(docker_sys=None, console=None, **kwargs):
         exit(1)
 
     img = None
+    name = kwargs.pop("name") or kwargs["tag"]
+    console.info(f"Building {name} image")
     try:
         img = docker_sys.images.build(**kwargs)
     except docker.errors.ImageNotFound as e:

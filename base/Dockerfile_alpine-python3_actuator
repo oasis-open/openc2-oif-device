@@ -5,13 +5,13 @@ FROM $BASE_IMAGE
 LABEL name="Actuator Alpine Python3" \
 description="This is the Actuator Alpine Python3 with SB_Utils container for Screaming Bunny."
 
-ADD modules/utils/actuator /tmp/sb_utils
+COPY modules/tmp/ /tmp/
 
 # Package Installation
 # Packages - https://pkgs.alpinelinux.org/packages
 #
 # SB_Utils install
-RUN cd /tmp/sb_utils && \
+RUN cd /tmp/sb_utils/actuator && \
 python3 setup.py install && \
 cd && \
 #
