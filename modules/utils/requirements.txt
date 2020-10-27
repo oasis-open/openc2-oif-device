@@ -1,7 +1,0 @@
-bson
-cbor2
-kombu
-msgpack
-xmltodict
-pyrabbit
-pyyaml
