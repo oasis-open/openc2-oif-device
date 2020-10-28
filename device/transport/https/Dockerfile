@@ -11,10 +11,9 @@ version="2.0" \
 description="This is the HTTPS Transport Module container"
 
 ADD requirements.txt /tmp/requirements.txt
-ADD docker_dev_start.sh /opt/transport/dev_start.sh
-
-# Copy directories
 ADD HTTPS/ /opt/transport/HTTPS
+ADD entrypoint.sh /entrypoint.sh
+ADD docker_dev_start.sh /opt/transport/dev_start.sh
 
 # Set working directory
 WORKDIR /opt/transport
@@ -26,23 +25,19 @@ RUN apk update && \
   openssl && \
   pip3 install -r /tmp/requirements.txt && \
   rm -r /root/.cache && \
+  chmod +x /entrypoint.sh && \
   chmod +x /opt/transport/dev_start.sh && \
   chmod +w /opt/transport/HTTPS/certs && \
+  dos2unix /entrypoint.sh && \
   dos2unix /opt/transport/dev_start.sh && \
-#
-# Create certs for flask app, not needed if using own certs
-  openssl genrsa -des3 -passout pass:develop -out /opt/transport/HTTPS/certs/server.pass.key 2048 && \
-  openssl rsa -passin pass:develop -in /opt/transport/HTTPS/certs/server.pass.key -out /opt/transport/HTTPS/certs/server.key && \
-  rm /opt/transport/HTTPS/certs/server.pass.key && \
-  openssl req -new -key /opt/transport/HTTPS/certs/server.key -out /opt/transport/HTTPS/certs/server.csr \
-    -subj "/C=US/O=flask/OU=Screaming Bunny" && \
-  openssl x509 -req -days 365 -in /opt/transport/HTTPS/certs/server.csr -signkey /opt/transport/HTTPS/certs/server.key \
-    -out /opt/transport/HTTPS/certs/server.crt && \
 #
 # Cleanup
 apk del tar && \
 rm /var/cache/apk/* && \
 rm -rf *.tar.gz* /usr/src /root/.gnupg /tmp/*
+
+ENTRYPOINT ["/entrypoint.sh"]
+
 # Run command when container launches
 CMD ["./dev_start.sh"]
 

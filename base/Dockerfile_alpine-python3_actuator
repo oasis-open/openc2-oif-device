@@ -5,19 +5,24 @@ FROM $BASE_IMAGE
 LABEL name="Actuator Alpine Python3" \
 description="This is the Actuator Alpine Python3 with SB_Utils container for Screaming Bunny."
 
-ADD modules/utils/actuator /tmp/sb_utils
+COPY modules/tmp/ /tmp/
 
 # Package Installation
 # Packages - https://pkgs.alpinelinux.org/packages
+RUN apk add --no-cache --virtual .build-deps \
+  gcc \
+  linux-headers \
+  musl-dev \
+  python3-dev && \
 #
 # SB_Utils install
-RUN cd /tmp/sb_utils && \
-python3 setup.py install && \
-cd && \
+pip3 install /tmp/sb_utils/actuator && \
 #
 # Cleanup
+apk del --no-cache .build-deps && \
 rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \
-pip3 --version
+pip3 --version && \
+python3 -c 'from sb_utils import actuator; print(actuator)'

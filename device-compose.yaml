@@ -1,22 +1,43 @@
 version: '3'
 
 volumes:
+  etcd:
+    labels:
+      com.screaming_bunny.container: 'Etcd'
+      com.screaming_bunny.description: 'Persistent Etcd Volume'
+
   queue:
     labels:
       com.screaming_bunny.container: 'RabbitMQ'
       com.screaming_bunny.description: 'Persistent RabbitMQ Volume'
 
 services:
-  transport-mqtt:
-    hostname: transport-mqtt
-    image: g2inc/oif-device-transport-mqtt
+  transport-coap:
+    hostname: transport-coap
+    image: g2inc/oif-device-transport-coap
     build:
-      context: ./device/transport/mqtt
+      context: ./device/transport/coap
+      dockerfile: Dockerfile
     env_file:
       - ./environment/queue.connect.env
-      - ./environment/mqtt_transport.env
     external_links:
       - queue
+    ports:
+      - 5682:5682/udp
+    depends_on:
+      - queue
+
+  transport-http:
+    hostname: transport-http
+    image:  g2inc/oif-device-transport-http
+    build:
+      context: ./device/transport/http
+    env_file:
+      - ./environment/queue.connect.env
+    external_links:
+      - queue
+    ports:
+      - 5000:5001
     depends_on:
       - queue
 
@@ -34,20 +55,67 @@ services:
     depends_on:
       - queue
 
-  transport-coap:
-    hostname: transport-coap
-    image:  g2inc/oif-device-transport-coap
+  transport-mqtt:
+    hostname: transport-mqtt
+    image: g2inc/oif-device-transport-mqtt
     build:
-      context: ./device/transport/coap
-      dockerfile: Dockerfile
+      context: ./device/transport/mqtt
     env_file:
       - ./environment/queue.connect.env
+      - ./environment/etcd.connect.env
+      - ./environment/mqtt_transport.env
     external_links:
+      - etcd
       - queue
-    ports:
-      - 5682:5682/udp
     depends_on:
+      - etcd
       - queue
+
+#  transport-zmq:
+#    hostname: transport-zmq
+#    image: gitlab.ad.tsdcloudprojects.com:5005/screamingbunny/orchestrator/transport/zmq
+#    env_file:
+#      - ./environment/queue.connect.env
+#      - ./environment/etcd.connect.env
+#      - ./environment/zmq_transport.env
+#    external_links:
+#      - etcd
+#      - queue
+#    depends_on:
+#      - etcd
+#      - queue
+
+  actuator-base:
+    hostname: actuator-base
+    image:  g2inc/oif-device-actutator-base
+    build:
+      context: ./device/actuator/base
+    env_file:
+      - ./environment/queue.connect.env
+      - ./environment/etcd.connect.env
+    external_links:
+      - etcd
+      - queue
+    depends_on:
+      - etcd
+      - queue
+    restart: on-failure:5
+
+  actuator-slpf:
+    hostname: actuator-slpf
+    image:  g2inc/oif-device-actutator-slpf
+    build:
+      context: ./device/actuator/slpf
+    env_file:
+      - ./environment/queue.connect.env
+      - ./environment/etcd.connect.env
+    external_links:
+      - etcd
+      - queue
+    depends_on:
+      - etcd
+      - queue
+    restart: on-failure:5
 
   queue:
     hostname: rabbit
@@ -64,17 +132,16 @@ services:
       retries: 5
     restart: on-failure:5
 
-  actuator-slpf:
-    hostname: actuator-slpf
-    image:  g2inc/oif-device-actutator-slpf
-    build:
-      context: ./device/actuator/slpf
-    env_file:
-    - ./environment/queue.connect.env
+  etcd:
+    hostname: etcd
+    image: quay.io/coreos/etcd:v3.3.25
     environment:
-      QUEUE_EXCHANGE: 'actuator'
-    external_links:
-      - queue
-    depends_on:
-      - queue
+      ALLOW_NONE_AUTHENTICATION: 'yes'
+      ETCD_DATA_DIR: '/data/etcd'
+    ports:
+      - 2380:2380
+      - 2379:2379
+    volumes:
+      - etcd:/data/etcd
+    command: sh -c 'etcd -listen-client-urls http://0.0.0.0:2379 -advertise-client-urls http://etcd:2379'
     restart: on-failure:5
