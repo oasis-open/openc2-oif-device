@@ -129,7 +129,6 @@ if __name__ == "__main__":
         rm=True
     )
 
-    Stylize.info("Building base actuator image")
     build_image(
         docker_sys=system,
         console=Stylize,
