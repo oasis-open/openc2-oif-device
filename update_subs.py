@@ -74,6 +74,9 @@ CONFIG = FrozenDict(
     ),
     Repos=FrozenDict(
         Transport=('HTTP', 'HTTPS', 'MQTT', 'CoAP'),
+    ),
+    GIT_ENV=FrozenDict(
+        GIT_SSH="$PWD/.git_ssh"
     )
 )
 
@@ -128,18 +131,18 @@ if __name__ == '__main__':
     # -------------------- Modules -------------------- #
     with Stage('Modules', 'base/modules/tmp'):
         Stylize.h2("Updating Utilities")
-        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'sb_utils', options.repo_branch)
+        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'sb_utils', options.repo_branch, CONFIG.GIT_ENV)
 
     # -------------------- Device Transport -------------------- #
     with Stage('Device Transport', os.path.join('device', 'transport')):
         for transport in CONFIG.Repos.Transport:
             Stylize.h2(f"Updating Device {transport}")
-            update_repo(f"{CONFIG.BaseRepo}/Device/Transport/{transport}.git", transport.lower(), options.repo_branch)
+            update_repo(f"{CONFIG.BaseRepo}/Device/Transport/{transport}.git", transport.lower(), options.repo_branch, CONFIG.GIT_ENV)
 
     # -------------------- Device Actuators -------------------- #
     with Stage('Device', 'device') as d:
         Stylize.h2(f"Updating Actuators")
-        update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator', options.repo_branch)
+        update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator', options.repo_branch, CONFIG.GIT_ENV)
 
         rslt = subprocess.call(
             [sys.executable, os.path.join("actuator", "configure.py")],
@@ -153,7 +156,7 @@ if __name__ == '__main__':
     # -------------------- Logger -------------------- #
     with Stage('Logger'):
         Stylize.h2("Updating Logger")
-        update_repo(f"{CONFIG.BaseRepo}/Logger.git", 'logger', options.repo_branch)
+        update_repo(f"{CONFIG.BaseRepo}/Logger.git", 'logger', options.repo_branch, CONFIG.GIT_ENV)
 
     # -------------------- Dockerfile -------------------- #
     with Stage('Dockerfiles'):

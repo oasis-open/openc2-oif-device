@@ -202,25 +202,28 @@ def recursive_find(rootdir='.', patterns=('*', ), directory=False):
     return results
 
 
-def git_lsremote(url):
+def git_lsremote(url, env: dict = None):
     import_mod('git')
+    env = env or {}
 
     remote_refs = {}
     g = git.cmd.Git()
+    g.update_environment(**env)
     for ref in g.ls_remote(url).split('\n'):
         hash_ref_list = ref.split('\t')
         remote_refs[hash_ref_list[1]] = hash_ref_list[0]
     return remote_refs
 
 
-def update_repo(repo_url, repo_path, branch="master"):
+def update_repo(repo_url, repo_path, branch="master", env: dict = None):
     import_mod('git')
+    env = env or {}
 
     if os.path.isdir(repo_path):
         shutil.rmtree(repo_path, onerror=set_rw)
     try:
-        branch = branch if f"refs/heads/{branch}" in git_lsremote(repo_url) else CONFIG.DefaultBranch
-        repo = git.Repo.clone_from(repo_url, repo_path, branch=branch)
+        branch = branch if f"refs/heads/{branch}" in git_lsremote(repo_url, env) else CONFIG.DefaultBranch
+        repo = git.Repo.clone_from(repo_url, repo_path, branch=branch, env=env)
     except git.cmd.GitCommandError as e:
         print(e)
         return e
