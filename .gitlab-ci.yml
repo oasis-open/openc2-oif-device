@@ -28,6 +28,8 @@ before_script:
 Build:
   stage: build
   script:
+    - echo $REPO_URL
+    - echo ${$REPO_URL%:*}
     - git checkout ${CI_COMMIT_REF_NAME:-develop}
     - python3 update_subs.py --verbose --url_base https://gitlab-ci-token:${CI_JOB_TOKEN}@${GITLAB_CI_REGISTRY%:*} --repo_branch ${CI_COMMIT_REF_NAME:-develop}
     - git add --all
