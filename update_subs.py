@@ -76,7 +76,7 @@ CONFIG = FrozenDict(
         Transport=('HTTP', 'HTTPS', 'MQTT', 'CoAP'),
     ),
     GIT_ENV=FrozenDict(
-        GIT_SSH="$PWD/.git_ssh"
+        GIT_SSH=f"{os.getcwd()}/.git_ssh"
     )
 )
 
