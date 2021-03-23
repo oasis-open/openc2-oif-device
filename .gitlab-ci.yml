@@ -22,9 +22,6 @@ before_script:
   - chmod 600 ~/.ssh/id_rsa
   - chmod +x ./.git_ssh
   - export GIT_SSH="$PWD/.git_ssh"
-  - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-  - ssh-keyscan -t rsa ${CI_SERVER_HOST} | tee -a ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
   - pip config set global.cert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
   - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
   - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
