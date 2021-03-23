@@ -65,7 +65,7 @@ CONFIG = FrozenDict(
         ('colorama', 'colorama')
     ),
     ImagePrefix="g2inc",
-    BaseRepo=f"{Base_URL}ScreamingBunny",
+    BaseRepo=f"{Base_URL}screamingbunny",
     ImageReplace=(
         ("base", r"gitlab.*?docker:alpine( as.*)?", r"alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
         ("python3_actuator", r"gitlab.*plus:alpine-python3_actuator( as.*)?", fr"g2inc/oif-python_actuator\g<1>\n"),
@@ -131,18 +131,19 @@ if __name__ == '__main__':
     # -------------------- Modules -------------------- #
     with Stage('Modules', 'base/modules/tmp'):
         Stylize.h2("Updating Utilities")
-        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'sb_utils', options.repo_branch, CONFIG.GIT_ENV)
+        update_repo(f"{CONFIG.BaseRepo}/utils.git", 'sb_utils', options.repo_branch, CONFIG.GIT_ENV)
 
     # -------------------- Device Transport -------------------- #
     with Stage('Device Transport', os.path.join('device', 'transport')):
         for transport in CONFIG.Repos.Transport:
             Stylize.h2(f"Updating Device {transport}")
-            update_repo(f"{CONFIG.BaseRepo}/Device/Transport/{transport}.git", transport.lower(), options.repo_branch, CONFIG.GIT_ENV)
+            t = transport.lower()
+            update_repo(f"{CONFIG.BaseRepo}/device/transport/{t}.git", t, options.repo_branch, CONFIG.GIT_ENV)
 
     # -------------------- Device Actuators -------------------- #
     with Stage('Device', 'device') as d:
         Stylize.h2(f"Updating Actuators")
-        update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator', options.repo_branch, CONFIG.GIT_ENV)
+        update_repo(f"{CONFIG.BaseRepo}/device/actuator.git", 'actuator', options.repo_branch, CONFIG.GIT_ENV)
 
         rslt = subprocess.call(
             [sys.executable, os.path.join("actuator", "configure.py")],
@@ -156,7 +157,7 @@ if __name__ == '__main__':
     # -------------------- Logger -------------------- #
     with Stage('Logger'):
         Stylize.h2("Updating Logger")
-        update_repo(f"{CONFIG.BaseRepo}/Logger.git", 'logger', options.repo_branch, CONFIG.GIT_ENV)
+        update_repo(f"{CONFIG.BaseRepo}/logger.git", 'logger', options.repo_branch, CONFIG.GIT_ENV)
 
     # -------------------- Dockerfile -------------------- #
     with Stage('Dockerfiles'):
