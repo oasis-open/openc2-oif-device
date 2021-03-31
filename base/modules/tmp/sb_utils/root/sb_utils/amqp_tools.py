@@ -18,6 +18,7 @@ from typing import (
     Tuple,
     Union
 )
+from .general import safe_cast
 
 # Type Hinting
 Callback = Callable[[any, any], None]
@@ -41,7 +42,7 @@ Bindings = Dict[
 
 # Constants
 AMQP_HOST = os.environ.get("QUEUE_HOST", "localhost")
-AMQP_PORT = os.environ.get("QUEUE_PORT", 5672)
+AMQP_PORT: int = safe_cast(os.environ.get("QUEUE_PORT", 5672), int, 5672)
 
 
 class Consumer(Process):
@@ -140,16 +141,16 @@ class Consumer(Process):
             print(f"Message Received @ {datetime.now()}")
 
         message.ack()
-        for func in self._callbacks:
-            func(body, message)
+        for fun in self._callbacks:
+            fun(body, message)
 
     def get_exchanges(self) -> List[str]:
         """
         Get a list of exchange names on the queue
         :return: list of exchange names
         """
-        exchanges = self._conn.get_manager().get_exchanges()
-        return list(filter(None, [exc.get("name", "")for exc in exchanges]))
+        exchanges: List[dict] = self._conn.get_manager().get_exchanges()
+        return [v for e in exchanges for k, v in e.items() if k == "name" and v]
 
     def get_queues(self) -> List[str]:
         """
@@ -157,7 +158,7 @@ class Consumer(Process):
         :return: list of queue names
         """
         queues = self._conn.get_manager().get_queues()
-        return list(filter(None, [que.get("name", "") for que in queues]))
+        return [v for q in queues for k, v in q.items() if k == "name" and v]
 
     def get_binds(self, bind_queue: Union[str, List[str]] = None, bind_exchange: Union[str, List[str]] = None) -> List[Dict[str, str]]:
         """
@@ -171,7 +172,7 @@ class Consumer(Process):
             if bind_queue:
                 if isinstance(bind_queue, list) and queue not in bind_queue:
                     continue
-                elif isinstance(bind_queue, str) and queue != bind_queue:
+                if isinstance(bind_queue, str) and queue != bind_queue:
                     continue
 
             for bind in manager.get_queue_bindings(vhost="/", qname=queue):
@@ -179,7 +180,7 @@ class Consumer(Process):
                 if bind_exchange:
                     if isinstance(bind_exchange, list) and exchange not in bind_exchange:
                         continue
-                    elif isinstance(bind_exchange, str) and exchange != bind_exchange:
+                    if isinstance(bind_exchange, str) and exchange != bind_exchange:
                         continue
                 binds.append({
                     "exchange": exchange,
@@ -204,7 +205,7 @@ class Producer:
     _debug: bool
     _url: str
 
-    def __init__(self, host: str = AMQP_HOST, port: int = AMQP_PORT, debug: bool = False):
+    def __init__(self, host=AMQP_HOST, port=AMQP_PORT, debug=False):
         """
         Sets up connection to broker to write to.
         :param host: hostname for the queue server
@@ -215,7 +216,7 @@ class Producer:
         self._debug = debug
         self._conn = kombu.Connection(hostname=host, port=port, userid="guest", password="guest", virtual_host="/")
 
-    def publish(self, message: Union[dict, str], headers: dict = None, exchange: str = 'transport', routing_key: str = '*', exchange_type: Exchange_Type = 'direct') -> None:
+    def publish(self, message: Union[dict, str], headers: dict = None, exchange='transport', routing_key='*', exchange_type: Exchange_Type = 'direct') -> None:
         """
         Publish a message to th AMQP Queue
         :param message: message to be published

@@ -3,40 +3,40 @@ Actuator Error/Exception Functions
 """
 
 
-def action_not_implemented(*args: tuple, **kwargs: dict) -> dict:
+def action_not_implemented(*args, **kwargs) -> dict:
     """
     Default function if no action function is found
     :return: OpenC2 response message - dict
     """
     return dict(
         status=501,
-        status_text=f"Action not implemented"
+        status_text="Action not implemented"
     )
 
 
-def target_not_implemented(*args: tuple, **kwargs: dict) -> dict:
+def target_not_implemented(*args, **kwargs) -> dict:
     """
     Default function if no target function is found
     :return: OpenC2 response message - dict
     """
     return dict(
         status=501,
-        status_text=f"Target type not implemented"
+        status_text="Target type not implemented"
     )
 
 
-def not_implemented(*args: tuple, **kwargs: dict) -> dict:
+def not_implemented(*args, **kwargs) -> dict:
     """
-    Default responce if pair is valid, bot no action is taken
+    Default response if pair is good, but no action is taken
     :return: OpenC2 response message - dict
     """
     return dict(
         status=501,
-        status_text=f"command valid, no action taken"
+        status_text="command good, no action taken"
     )
 
 
-def bad_argument(*args: tuple, **kwargs: dict) -> dict:
+def bad_argument(*args, **kwargs) -> dict:
     """
     Bad Option exception response
     :return: OpenC2 response message - dict
@@ -48,7 +48,8 @@ def bad_argument(*args: tuple, **kwargs: dict) -> dict:
 
 
 # Temporary error/exceptions
-def action_exception(action="ACTION", status: int = 400, except_msg: str = "", *args: tuple, **kwargs: dict) -> dict:
+# pylint: disable=keyword-arg-before-vararg
+def action_exception(action: str = "ACTION", status: int = 400, except_msg: str = "", *args, **kwargs) -> dict:
     """
     Action exception message creation for errors
     :param action: action of command
@@ -64,7 +65,8 @@ def action_exception(action="ACTION", status: int = 400, except_msg: str = "", *
     )
 
 
-def server_exception(except_msg: str = "", *args: tuple, **kwargs: dict) -> dict:
+# pylint: disable=keyword-arg-before-vararg
+def server_exception(except_msg: str = "", *args, **kwargs) -> dict:
     """
     Server exception response
     :param except_msg: message stating the error
@@ -79,7 +81,8 @@ def server_exception(except_msg: str = "", *args: tuple, **kwargs: dict) -> dict
     )
 
 
-def bad_request(except_msg: str = "", *args: tuple, **kwargs: dict) -> dict:
+# pylint: disable=keyword-arg-before-vararg
+def bad_request(except_msg: str = "", *args, **kwargs) -> dict:
     """
     Bad Request exception response
     :param except_msg: message stating the error

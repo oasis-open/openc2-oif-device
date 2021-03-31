@@ -25,6 +25,13 @@ from typing import (
 
 
 # Util Functions
+def camelCase(s: str, delim: str = '_') -> str:
+    s = s.split(delim)
+    camel = s[0]
+    camel += ''.join(map(str.capitalize, s[1:]))
+    return camel
+
+
 def toBytes(b: Any) -> bytes:
     """
     Convert a given type to a default byte string
@@ -200,5 +207,3 @@ def floatString(num: Union[float, str]) -> Union[float, str]:
 def unixTimeMillis(dt: datetime):
     epoch = datetime.utcfromtimestamp(0)
     return (dt - epoch).total_seconds() * 1000.0
-
-# Utility Classes

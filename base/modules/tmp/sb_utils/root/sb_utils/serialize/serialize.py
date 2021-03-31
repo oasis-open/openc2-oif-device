@@ -4,6 +4,7 @@ Message Conversion functions
 import base64
 import bson
 import cbor2
+import edn_format
 import json
 import msgpack
 import toml
@@ -11,17 +12,9 @@ import ubjson
 import yaml
 
 from typing import Union
-from . import (
-    enums,
-    helpers,
-    pybinn,
-    pysmile
-)
-from .. import (
-    ext_dicts,
-    general
-)
-
+from amazon.ion import simpleion as ion
+from . import enums, helpers, pybinn, pysmile
+from .. import ext_dicts, general
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -35,9 +28,11 @@ serializations = ext_dicts.FrozenDict(
         bencode=helpers.bencode_encode,
         bson=bson.dumps,
         cbor=cbor2.dumps,
+        edn=edn_format.dumps,
         json=json.dumps,
+        ion=lambda m: ion.dumps(m, binary=True),
         msgpack=lambda m: msgpack.packb(m, use_bin_type=True),
-        s_expression=helpers.sp_encode,
+        sexp=helpers.sp_encode,  # S-Expression
         smile=pysmile.encode,
         toml=toml.dumps,
         xml=helpers.xml_encode,
@@ -50,9 +45,11 @@ serializations = ext_dicts.FrozenDict(
         bencode=helpers.bencode_decode,
         bson=bson.loads,
         cbor=cbor2.loads,
+        edn=edn_format.loads,
         json=json.loads,
+        ion=ion.loads,
         msgpack=msgpack.unpackb,
-        s_expression=helpers.sp_decode,
+        sexp=helpers.sp_decode,  # S-Expression
         smile=pysmile.decode,
         toml=toml.loads,
         xml=helpers.xml_decode,
@@ -71,11 +68,8 @@ def encode_msg(msg: dict, enc: enums.SerialFormats = enums.SerialFormats.JSON, r
     :param raw: message is in raw form (bytes/string) or safe string (base64 bytes as string)
     :return: encoded message
     """
-    enc = enc.lower() if isinstance(enc, str) else enc.value
+    enc = (enc if isinstance(enc, str) else enc.value).lower()
     msg = general.default_encode(msg)
-
-    if enc not in serializations.encode:
-        raise ReferenceError(f"Invalid encoding specified, must be one of {', '.join(serializations.encode.keys())}")
 
     if not isinstance(msg, dict):
         raise TypeError(f"Message is not expected type {dict}, got {type(msg)}")
@@ -83,10 +77,12 @@ def encode_msg(msg: dict, enc: enums.SerialFormats = enums.SerialFormats.JSON, r
     if len(msg.keys()) == 0:
         raise KeyError("Message should have at minimum one key")
 
-    encoded = serializations["encode"].get(enc, serializations.encode["json"])(msg)
-    if raw:
-        return encoded
-    return base64.b64encode(encoded).decode("utf-8") if isinstance(encoded, bytes) else encoded
+    if encoder := serializations.encode.get(enc):
+        encoded = encoder(msg)
+        if raw:
+            return encoded
+        return base64.b64encode(encoded).decode("utf-8") if isinstance(encoded, bytes) else encoded
+    raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.encode.keys())}")
 
 
 def decode_msg(msg: Union[bytes, str], enc: enums.SerialFormats, raw: bool = False) -> dict:
@@ -102,14 +98,13 @@ def decode_msg(msg: Union[bytes, str], enc: enums.SerialFormats, raw: bool = Fal
     if isinstance(msg, dict):
         return msg
 
-    if enc not in serializations.decode:
-        raise ReferenceError(f"Invalid encoding specified, must be one of {', '.join(serializations.decode.keys())}")
-
-    if not isinstance(msg, (bytes, bytearray, str)):
-        raise TypeError(f"Message is not expected type {bytes}/{bytearray}/{str}, got {type(msg)}")
+    if not isinstance(msg, (bytes, str)):
+        raise TypeError(f"Message is not expected type {bytes}/{str}, got {type(msg)}")
 
     if not raw and general.isBase64(msg):
         msg = base64.b64decode(msg if isinstance(msg, bytes) else msg.encode())
 
-    msg = serializations["decode"].get(enc, serializations.decode["json"])(msg)
-    return general.default_encode(msg, {bytes: bytes.decode})
+    if decoder := serializations.decode.get(enc):
+        msg = decoder(msg)
+        return general.default_encode(msg, {bytes: bytes.decode})
+    raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.decode.keys())}")

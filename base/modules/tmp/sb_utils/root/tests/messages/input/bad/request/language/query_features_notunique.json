@@ -1,0 +1,9 @@
+{
+  "action": "query",
+  "target": {
+    "features": [
+      "versions",
+      "versions"
+    ]
+  }
+}

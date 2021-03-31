@@ -7,84 +7,35 @@ import decimal
 import logging
 import struct
 
+from dataclasses import dataclass
 from typing import (
+    Any,
     Callable,
     Dict,
+    List,
     Type,
     Union
 )
 
-from . import util
-from .constants import (
-    BYTE_MARKER_END_OF_CONTENT,
-    BYTE_MARKER_END_OF_STRING,
-    HEADER_BIT_HAS_RAW_BINARY,
-    HEADER_BIT_HAS_SHARED_NAMES,
-    HEADER_BIT_HAS_SHARED_STRING_VALUES,
-    HEADER_BYTE_1,
-    HEADER_BYTE_2,
-    HEADER_BYTE_3,
-    HEADER_BYTE_4,
-    MAX_SHARED_NAMES,
-    MAX_SHARED_STRING_LENGTH_BYTES,
-    MAX_SHARED_STRING_VALUES,
-    MAX_SHORT_NAME_ASCII_BYTES,
-    MAX_SHORT_NAME_UNICODE_BYTES,
-    MAX_SHORT_VALUE_STRING_BYTES,
-    TOKEN_BYTE_BIG_DECIMAL,
-    TOKEN_BYTE_BIG_INTEGER,
-    TOKEN_BYTE_FLOAT_32,
-    TOKEN_BYTE_FLOAT_64,
-    TOKEN_BYTE_INT_32,
-    TOKEN_BYTE_INT_64,
-    TOKEN_BYTE_LONG_STRING_ASCII,
-    TOKEN_KEY_EMPTY_STRING,
-    TOKEN_KEY_LONG_STRING,
-    TOKEN_LITERAL_EMPTY_STRING,
-    TOKEN_LITERAL_END_ARRAY,
-    TOKEN_LITERAL_END_OBJECT,
-    TOKEN_LITERAL_FALSE,
-    TOKEN_LITERAL_NULL,
-    TOKEN_LITERAL_START_ARRAY,
-    TOKEN_LITERAL_START_OBJECT,
-    TOKEN_LITERAL_TRUE,
-    TOKEN_MISC_BINARY_7BIT,
-    TOKEN_MISC_BINARY_RAW,
-    TOKEN_MISC_LONG_TEXT_ASCII,
-    TOKEN_PREFIX_KEY_ASCII,
-    TOKEN_PREFIX_KEY_SHARED_LONG,
-    TOKEN_PREFIX_KEY_SHARED_SHORT,
-    TOKEN_PREFIX_SHARED_STRING_LONG,
-    TOKEN_PREFIX_SHARED_STRING_SHORT,
-    TOKEN_PREFIX_SMALL_INT,
-    TOKEN_PREFIX_TINY_ASCII
-)
+from . import constants, util
 
 log = logging.getLogger()
 if not log.handlers:
     log.addHandler(logging.NullHandler())
 
 
-def _utf_8_encode(s):
-    try:
-        return s.encode("UTF-8")
-    except UnicodeEncodeError:
-        return s
-
-
 class SMILEEncodeError(Exception):
     pass
 
 
+@dataclass
 class SharedStringNode:
     """
     Helper class used for keeping track of possibly shareable String references (for field names
     and/or short String values)
     """
-    def __init__(self, value, index, nxt):
-        self.value = value
-        self.index = index
-        self.next = nxt
+    value: Union[bytes, str]
+    nxt: Any
 
 
 class SmileEncoder:
@@ -98,6 +49,14 @@ class SmileEncoder:
     Note: actually we could live with shorter one; absolute minimum would be for encoding
     64-character Strings.
     """
+    encode_as_7bit: bool
+    seen_name_count: int
+    seen_string_count: int
+    output: bytearray
+    share_keys: bool
+    share_values: bool
+    shared_keys: List
+    shared_values: List
     _encoders: Dict[Type, Callable]
 
     def __init__(self, shared_keys: bool = True, shared_values: bool = True, encode_as_7bit: bool = True):
@@ -122,7 +81,7 @@ class SmileEncoder:
 
         # Encoder Switch
         self._encoders = {
-            bool: lambda b: self.write_true() if b else self.write_false(),
+            bool: self.write_boolean,
             dict: self._encode_dict,
             float: self.write_number,
             int: self.write_number,
@@ -141,22 +100,29 @@ class SmileEncoder:
         with same generator (and even in that case this is optional thing to do).
         As a result usually only {@link SmileFactory} calls this method.
         """
-        last = HEADER_BYTE_4
+        last = constants.HEADER_BYTE_4
         if self.share_keys:
-            last |= HEADER_BIT_HAS_SHARED_NAMES
+            last |= constants.HEADER_BIT_HAS_SHARED_NAMES
         if self.share_values:
-            last |= HEADER_BIT_HAS_SHARED_STRING_VALUES
+            last |= constants.HEADER_BIT_HAS_SHARED_STRING_VALUES
         if not self.encode_as_7bit:
-            last |= HEADER_BIT_HAS_RAW_BINARY
-        self.write_bytes(HEADER_BYTE_1, HEADER_BYTE_2, HEADER_BYTE_3, int(last))
+            last |= constants.HEADER_BIT_HAS_RAW_BINARY
+        self.write_bytes(constants.HEADER_BYTE_1, constants.HEADER_BYTE_2, constants.HEADER_BYTE_3, int(last))
 
     def write_ender(self) -> None:
         """
         Write optional end marker (BYTE_MARKER_END_OF_CONTENT - 0xFF)
         """
-        self.write_byte(BYTE_MARKER_END_OF_CONTENT)
+        self.write_byte(constants.BYTE_MARKER_END_OF_CONTENT)
 
     # Encoding writers
+    def write_null(self) -> None:
+        """
+        Generated source for method writeNull
+        """
+        self.write_byte(constants.TOKEN_LITERAL_NULL)
+
+    # Binary writers
     def write_7bit_binary(self, data: Union[bytes, str], offset: int = 0) -> None:
         l = len(data)
         self.write_positive_vint(l)
@@ -218,17 +184,6 @@ class SmileEncoder:
                 self.write_byte(int(i & 0x01))
                 #  last bit
 
-    def write_big_number(self, i: str) -> None:
-        """
-        Write Big Number
-        :param i: Big Number
-        """
-        if i is None:
-            self.write_null()
-        else:
-            self.write_byte(TOKEN_BYTE_BIG_INTEGER)
-            self.write_7bit_binary(bytearray(str(i)))
-
     def write_binary(self, data: bytes) -> None:
         """
         Write Data
@@ -238,19 +193,12 @@ class SmileEncoder:
             self.write_null()
             return
         if self.encode_as_7bit:
-            self.write_byte(TOKEN_MISC_BINARY_7BIT)
+            self.write_byte(constants.TOKEN_MISC_BINARY_7BIT)
             self.write_7bit_binary(data)
         else:
-            self.write_byte(TOKEN_MISC_BINARY_RAW)
+            self.write_byte(constants.TOKEN_MISC_BINARY_RAW)
             self.write_positive_vint(len(data))
             self.write_bytes(data)
-
-    def write_boolean(self, state: bool) -> None:
-        """
-        Write Boolean
-        :param state: Bool state
-        """
-        self.write_byte(state and TOKEN_LITERAL_TRUE or TOKEN_LITERAL_FALSE)
 
     def write_byte(self, c: Union[bytes, int, str]) -> None:
         """
@@ -277,6 +225,148 @@ class SmileEncoder:
         for arg in args:
             self.write_byte(arg)
 
+    # Boolean writers
+    def write_boolean(self, state: bool) -> None:
+        """
+        Write Boolean
+        :param state: Bool state
+        """
+        self.write_byte(state and constants.TOKEN_LITERAL_TRUE or constants.TOKEN_LITERAL_FALSE)
+
+    # String writers
+    def write_string(self, text: str) -> None:
+        """
+        Write String
+        :param text: String text
+        """
+        if text is None:
+            self.write_null()
+            return
+        if not text:
+            self.write_byte(constants.TOKEN_LITERAL_EMPTY_STRING)
+            return
+        # Longer string handling off-lined
+        if len(text) > constants.MAX_SHARED_STRING_LENGTH_BYTES:
+            self.write_non_shared_string(text)
+            return
+
+        # Then: is it something we can share?
+        if self.share_values:
+            ix = self._find_seen_string_value(text)
+            if ix >= 0:
+                self.write_shared_string_value_reference(ix)
+                return
+
+        if len(text) <= constants.MAX_SHORT_VALUE_STRING_BYTES:
+            if self.share_values:
+                self._add_seen_string_value(text)
+            self.write_bytes(int(constants.TOKEN_PREFIX_TINY_ASCII - 1) + len(text), text)
+        else:
+            self.write_bytes(constants.TOKEN_BYTE_LONG_STRING_ASCII, text, constants.BYTE_MARKER_END_OF_STRING)
+
+    # Object writers
+    def write_end_object(self) -> None:
+        """
+        Write end object token
+        """
+        self.write_byte(constants.TOKEN_LITERAL_END_OBJECT)
+
+    def write_field_name(self, name: Union[bytes, str]) -> None:
+        """
+        Write Field Name
+        :param name: Name
+        """
+        str_len = len(name)
+        if not name:
+            self.write_byte(constants.TOKEN_KEY_EMPTY_STRING)
+            return
+
+        # First: is it something we can share?
+        if self.share_keys:
+            ix = self._find_seen_name(name)
+            if ix >= 0:
+                self.write_shared_name_reference(ix)
+                return
+
+        if str_len > constants.MAX_SHORT_NAME_UNICODE_BYTES:
+            # can not be a 'short' String; off-line (rare case)
+            self.write_non_short_field_name(name)
+            return
+
+        if str_len <= constants.MAX_SHORT_NAME_ASCII_BYTES:
+            self.write_bytes(int((constants.TOKEN_PREFIX_KEY_ASCII - 1) + str_len), name)
+        else:
+            self.write_bytes(constants.TOKEN_KEY_LONG_STRING, name, constants.BYTE_MARKER_END_OF_STRING)
+
+        if self.share_keys:
+            self._add_seen_name(name)
+
+    def write_start_object(self) -> None:
+        """
+        Write start object token
+        """
+        self.write_byte(constants.TOKEN_LITERAL_START_OBJECT)
+
+    def write_string_field(self, name: str, value: str) -> None:
+        """
+        Write String Field
+        :param name: Name
+        :param value: Value
+        """
+        self.write_field_name(name)
+        self.write_string(value)
+
+    # Array writers
+    def write_end_array(self) -> None:
+        """
+        Write end array token
+        """
+        self.write_byte(constants.TOKEN_LITERAL_END_ARRAY)
+
+    def write_start_array(self) -> None:
+        """
+        Write start array token
+        """
+        self.write_byte(constants.TOKEN_LITERAL_START_ARRAY)
+
+    # Reference writers
+    def write_shared_name_reference(self, ix: int) -> None:
+        """
+        Write Shared Name Ref
+        :param ix: Index
+        """
+        if ix >= len(self.shared_keys) - 1:
+            raise ValueError(f"Trying to write shared name with index {ix} but have only seen {len(self.shared_keys)}!")
+        if ix < 64:
+            self.write_byte(int(constants.TOKEN_PREFIX_KEY_SHARED_SHORT + ix))
+        else:
+            self.write_bytes(int(constants.TOKEN_PREFIX_KEY_SHARED_LONG + (ix >> 8)), int(ix))
+
+    def write_shared_string_value_reference(self, ix: int) -> None:
+        """
+        Write shared string
+        :param int ix: Index
+        """
+        if ix > len(self.shared_values) - 1:
+            raise ValueError(f"Internal error: trying to write shared String value with index {ix}; but have only seen {len(self.shared_values)} so far!")
+        if ix < 31:
+            #  add 1, as byte 0 is omitted
+            self.write_byte(constants.TOKEN_PREFIX_SHARED_STRING_SHORT + 1 + ix)
+        else:
+            self.write_bytes(constants.TOKEN_PREFIX_SHARED_STRING_LONG + (ix >> 8), int(ix))
+
+    # Numeric Writers
+    def write_big_number(self, i: str) -> None:
+        """
+        Write Big Number
+        :param i: Big Number
+        """
+        if i is None:
+            self.write_null()
+        else:
+            self.write_byte(constants.TOKEN_BYTE_BIG_INTEGER)
+            self.write_7bit_binary(bytearray(str(i)))
+
     def write_decimal_number(self, num: str) -> None:
         """
         Write decimal
@@ -287,53 +377,75 @@ class SmileEncoder:
         else:
             self.write_number(decimal.Decimal(num))
 
-    def write_end_array(self) -> None:
-        """
-        Write end array token
-        """
-        self.write_byte(TOKEN_LITERAL_END_ARRAY)
-
-    def write_end_object(self) -> None:
-        """
-        Write end object token
-        """
-        self.write_byte(TOKEN_LITERAL_END_OBJECT)
-
-    def write_false(self) -> None:
-        """
-        Write True Value
-        """
-        self.write_byte(TOKEN_LITERAL_FALSE)
-
-    def write_field_name(self, name: Union[bytes, str]) -> None:
-        """
-        Write Field Name
-        :param name: Name
-        """
-        str_len = len(name)
-        if not name:
-            self.write_byte(TOKEN_KEY_EMPTY_STRING)
-            return
-
-        # First: is it something we can share?
-        if self.share_keys:
-            ix = self._find_seen_name(name)
-            if ix >= 0:
-                self.write_shared_name_reference(ix)
+    def write_int(self, i: int) -> None:
+        #  First things first: let's zigzag encode number
+        i = util.zigzag_encode(i)
+        if util.is_int32(i):
+            #  tiny (single byte) or small (type + 6-bit value) number?
+            if 0x3F >= i >= 0:
+                if i <= 0x1F:
+                    self.write_byte(int(constants.TOKEN_PREFIX_SMALL_INT + i))
+                else:
+                    # nope, just small, 2 bytes (type, 1-byte zigzag value) for 6 bit value
+                    self.write_bytes(constants.TOKEN_BYTE_INT_32, int(0x80 + i))
                 return
-
-        if str_len > MAX_SHORT_NAME_UNICODE_BYTES:
-            # can not be a 'short' String; off-line (rare case)
-            self.write_non_short_field_name(name)
-            return
-
-        if str_len <= MAX_SHORT_NAME_ASCII_BYTES:
-            self.write_bytes(int((TOKEN_PREFIX_KEY_ASCII - 1) + str_len), name)
+            #  Ok: let's find minimal representation then
+            b0 = int(0x80 + (i & 0x3F))
+            i >>= 6
+            if i <= 0x7F:
+                #  13 bits is enough (== 3 byte total encoding)
+                self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i), b0)
+                return
+            b1 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i), b1, b0)
+                return
+            b2 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i), b2, b1, b0)
+                return
+            #  no, need all 5 bytes
+            b3 = int(i & 0x7F)
+            self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i >> 7), b3, b2, b1, b0)
         else:
-            self.write_bytes(TOKEN_KEY_LONG_STRING, name, BYTE_MARKER_END_OF_STRING)
-
-        if self.share_keys:
-            self._add_seen_name(name)
+            #  4 can be extracted from lower int
+            b0 = int(0x80 + (i & 0x3F))
+            #  sign bit set in the last byte
+            b1 = int((i >> 6) & 0x7F)
+            b2 = int((i >> 13) & 0x7F)
+            b3 = int((i >> 20) & 0x7F)
+            #  fifth one is split between ints:
+            i = util.bsr(i, 27)
+            b4 = int(i & 0x7F)
+            #  which may be enough?
+            i = int(i >> 7)
+            if i == 0:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, b4, b3, b2, b1, b0)
+                return
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b4, b3, b2, b1, b0)
+                return
+            b5 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b5, b4, b3, b2, b1, b0)
+                return
+            b6 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b6, b5, b4, b3, b2, b1, b0)
+                return
+            b7 = int((i & 0x7F))
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b7, b6, b5, b4, b3, b2, b1, b0)
+                return
+            b8 = int(i & 0x7F)
+            i >>= 7
+            #  must be done, with 10 bytes! (9 * 7 + 6 == 69 bits; only need 63)
+            self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b8, b7, b6, b5, b4, b3, b2, b1, b0)
 
     def write_integral_number(self, num: str, neg: bool = False) -> None:
         """
@@ -359,17 +471,17 @@ class SmileEncoder:
         enough not to be shareable
         :param text: Text
         """
-        if len(text) <= MAX_SHORT_VALUE_STRING_BYTES:
-            self.write_bytes(int(TOKEN_PREFIX_TINY_ASCII - 1) + len(text), text)
+        if len(text) <= constants.MAX_SHORT_VALUE_STRING_BYTES:
+            self.write_bytes(int(constants.TOKEN_PREFIX_TINY_ASCII - 1) + len(text), text)
         else:
-            self.write_bytes(TOKEN_MISC_LONG_TEXT_ASCII, text, BYTE_MARKER_END_OF_STRING)
+            self.write_bytes(constants.TOKEN_MISC_LONG_TEXT_ASCII, text, constants.BYTE_MARKER_END_OF_STRING)
 
     def write_non_short_field_name(self, name: str) -> None:
         """
         Write nonshort field name
         :param name: Name
         """
-        self.write_byte(TOKEN_KEY_LONG_STRING)
+        self.write_byte(constants.TOKEN_KEY_LONG_STRING)
         try:
             utf_8_name = name.encode("utf-8")
         except UnicodeEncodeError:
@@ -377,130 +489,121 @@ class SmileEncoder:
         self.write_bytes(utf_8_name)
         if self.share_keys:
             self._add_seen_name(name)
-        self.write_byte(BYTE_MARKER_END_OF_STRING)
-
-    def write_null(self) -> None:
-        """
-        Generated source for method writeNull
-        """
-        self.write_byte(TOKEN_LITERAL_NULL)
+        self.write_byte(constants.BYTE_MARKER_END_OF_STRING)
 
     def write_number(self, num: Union[int, float, str, decimal.Decimal]) -> None:
         """
         Write Number
         :param num: number
         """
-        def w_decimal(d: Union[float, decimal.Decimal]) -> None:
-            if isinstance(d, decimal.Decimal):
-                self.write_byte(TOKEN_BYTE_BIG_DECIMAL)
-                scale = d.as_tuple().exponent
-                self.write_signed_vint(scale)
-                self.write_7bit_binary(bytearray(str(d.to_integral_value())))
-            else:
-                try:
-                    d = util.float_to_bits(d)
-                    self.write_bytes(
-                        TOKEN_BYTE_FLOAT_32,
-                        int(d & 0x7F),
-                        *[(d >> 7*i) & 0x7F for i in range(1, 5)]
-                    )
-                except struct.error:
-                    d = util.float_to_raw_long_bits(d)
-                    self.write_bytes(
-                        TOKEN_BYTE_FLOAT_64,
-                        int(d & 0x7F),
-                        *[(d >> 7*i) & 0x7F for i in range(1, 10)]
-                    )
+        if isinstance(num, (float, decimal.Decimal)):
+            self.write_number_decimal(num)
+        if isinstance(num, int):
+            self.write_number_int(num)
+        if isinstance(num, str):
+            self.write_number_str(num)
 
-        def w_int(i: int) -> None:
-            #  First things first: let's zigzag encode number
-            i = util.zigzag_encode(i)
-            if util.is_int32(i):
-                #  tiny (single byte) or small (type + 6-bit value) number?
-                if 0x3F >= i >= 0:
-                    if i <= 0x1F:
-                        self.write_byte(int(TOKEN_PREFIX_SMALL_INT + i))
-                    else:
-                        # nope, just small, 2 bytes (type, 1-byte zigzag value) for 6 bit value
-                        self.write_bytes(TOKEN_BYTE_INT_32, int(0x80 + i))
-                    return
-                #  Ok: let's find minimal representation then
-                b0 = int(0x80 + (i & 0x3F))
-                i >>= 6
-                if i <= 0x7F:
-                    #  13 bits is enough (== 3 byte total encoding)
-                    self.write_bytes(TOKEN_BYTE_INT_32, int(i), b0)
-                    return
-                b1 = int(i & 0x7F)
-                i >>= 7
-                if i <= 0x7F:
-                    self.write_bytes(TOKEN_BYTE_INT_32, int(i), b1, b0)
-                    return
-                b2 = int(i & 0x7F)
-                i >>= 7
-                if i <= 0x7F:
-                    self.write_bytes(TOKEN_BYTE_INT_32, int(i), b2, b1, b0)
-                    return
-                #  no, need all 5 bytes
-                b3 = int(i & 0x7F)
-                self.write_bytes(TOKEN_BYTE_INT_32, int(i >> 7), b3, b2, b1, b0)
-            else:
-                #  4 can be extracted from lower int
-                b0 = int(0x80 + (i & 0x3F))
-                #  sign bit set in the last byte
-                b1 = int((i >> 6) & 0x7F)
-                b2 = int((i >> 13) & 0x7F)
-                b3 = int((i >> 20) & 0x7F)
-                #  fifth one is split between ints:
-                i = util.bsr(i, 27)
-                b4 = int(i & 0x7F)
-                #  which may be enough?
-                i = int(i >> 7)
-                if i == 0:
-                    self.write_bytes(TOKEN_BYTE_INT_64, b4, b3, b2, b1, b0)
-                    return
-                if i <= 0x7F:
-                    self.write_bytes(TOKEN_BYTE_INT_64, int(i), b4, b3, b2, b1, b0)
-                    return
-                b5 = int(i & 0x7F)
-                i >>= 7
-                if i <= 0x7F:
-                    self.write_bytes(TOKEN_BYTE_INT_64, int(i), b5, b4, b3, b2, b1, b0)
-                    return
-                b6 = int(i & 0x7F)
-                i >>= 7
-                if i <= 0x7F:
-                    self.write_bytes(TOKEN_BYTE_INT_64, int(i), b6, b5, b4, b3, b2, b1, b0)
-                    return
-                b7 = int((i & 0x7F))
-                i >>= 7
-                if i <= 0x7F:
-                    self.write_bytes(TOKEN_BYTE_INT_64, int(i), b7, b6, b5, b4, b3, b2, b1, b0)
-                    return
-                b8 = int(i & 0x7F)
-                i >>= 7
-                #  must be done, with 10 bytes! (9 * 7 + 6 == 69 bits; only need 63)
-                self.write_bytes(TOKEN_BYTE_INT_64, int(i), b8, b7, b6, b5, b4, b3, b2, b1, b0)
+    def write_number_decimal(self, d: Union[float, decimal.Decimal]) -> None:
+        if isinstance(d, decimal.Decimal):
+            self.write_byte(constants.TOKEN_BYTE_BIG_DECIMAL)
+            scale = d.as_tuple().exponent
+            self.write_signed_vint(scale)
+            self.write_7bit_binary(bytearray(str(d.to_integral_value())))
+            return
+        try:
+            d = util.float_to_bits(d)
+            self.write_bytes(
+                constants.TOKEN_BYTE_FLOAT_32,
+                int(d & 0x7F),
+                *[(d >> 7 * i) & 0x7F for i in range(1, 5)]
+            )
+        except struct.error:
+            d = util.float_to_raw_long_bits(d)
+            self.write_bytes(
+                constants.TOKEN_BYTE_FLOAT_64,
+                int(d & 0x7F),
+                *[(d >> 7 * i) & 0x7F for i in range(1, 10)]
+            )
 
-        def w_str(s: str) -> None:
-            if not s:
-                self.write_null()
-            else:
-                s = s.strip("-")
-                if s.isdigit():
-                    self.write_integral_number(s, s.startswith("-"))
+    def write_number_int(self, i: int) -> None:
+        #  First things first: let's zigzag encode number
+        i = util.zigzag_encode(i)
+        if util.is_int32(i):
+            #  tiny (single byte) or small (type + 6-bit value) number?
+            if 0x3F >= i >= 0:
+                if i <= 0x1F:
+                    self.write_byte(int(constants.TOKEN_PREFIX_SMALL_INT + i))
                 else:
-                    self.write_decimal_number(s)
+                    # nope, just small, 2 bytes (type, 1-byte zigzag value) for 6 bit value
+                    self.write_bytes(constants.TOKEN_BYTE_INT_32, int(0x80 + i))
+                return
+            #  Ok: let's find minimal representation then
+            b0 = int(0x80 + (i & 0x3F))
+            i >>= 6
+            if i <= 0x7F:
+                #  13 bits is enough (== 3 byte total encoding)
+                self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i), b0)
+                return
+            b1 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i), b1, b0)
+                return
+            b2 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i), b2, b1, b0)
+                return
+            #  no, need all 5 bytes
+            b3 = int(i & 0x7F)
+            self.write_bytes(constants.TOKEN_BYTE_INT_32, int(i >> 7), b3, b2, b1, b0)
+        else:
+            #  4 can be extracted from lower int
+            b0 = int(0x80 + (i & 0x3F))
+            #  sign bit set in the last byte
+            b1 = int((i >> 6) & 0x7F)
+            b2 = int((i >> 13) & 0x7F)
+            b3 = int((i >> 20) & 0x7F)
+            #  fifth one is split between ints:
+            i = util.bsr(i, 27)
+            b4 = int(i & 0x7F)
+            #  which may be enough?
+            i = int(i >> 7)
+            if i == 0:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, b4, b3, b2, b1, b0)
+                return
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b4, b3, b2, b1, b0)
+                return
+            b5 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b5, b4, b3, b2, b1, b0)
+                return
+            b6 = int(i & 0x7F)
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b6, b5, b4, b3, b2, b1, b0)
+                return
+            b7 = int((i & 0x7F))
+            i >>= 7
+            if i <= 0x7F:
+                self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b7, b6, b5, b4, b3, b2, b1, b0)
+                return
+            b8 = int(i & 0x7F)
+            i >>= 7
+            #  must be done, with 10 bytes! (9 * 7 + 6 == 69 bits; only need 63)
+            self.write_bytes(constants.TOKEN_BYTE_INT_64, int(i), b8, b7, b6, b5, b4, b3, b2, b1, b0)
 
-        writer = {
-            float: w_decimal,
-            int: w_int,
-            str: w_str,
-            decimal.Decimal: w_decimal
-
-        }.get(type(num), None)
-        if writer:
-            writer(num)
+    def write_number_str(self, s: str) -> None:
+        if s:
+            s = s.strip("-")
+            if s.isdigit():
+                self.write_integral_number(s, s.startswith("-"))
+            else:
+                self.write_decimal_number(s)
+        else:
+            self.write_null()
 
     def write_positive_vint(self, i: int) -> None:
         """
@@ -530,43 +633,6 @@ class SmileEncoder:
                 b3 = int(i & 0x7F)
                 self.write_bytes(int(i >> 7), b3, b2, b1, b0)
 
-    def write_start_array(self) -> None:
-        """
-        Write start array token
-        """
-        self.write_byte(TOKEN_LITERAL_START_ARRAY)
-
-    def write_start_object(self) -> None:
-        """
-        Write start object token
-        """
-        self.write_byte(TOKEN_LITERAL_START_OBJECT)
-
-    def write_shared_name_reference(self, ix: int) -> None:
-        """
-        Write Shared Name Ref
-        :param ix: Index
-        """
-        if ix >= len(self.shared_keys) - 1:
-            raise ValueError(f"Trying to write shared name with index {ix} but have only seen {len(self.shared_keys)}!")
-        if ix < 64:
-            self.write_byte(int(TOKEN_PREFIX_KEY_SHARED_SHORT + ix))
-        else:
-            self.write_bytes(int(TOKEN_PREFIX_KEY_SHARED_LONG + (ix >> 8)), int(ix))
-
-    def write_shared_string_value_reference(self, ix: int) -> None:
-        """
-        Write shared string
-        :param int ix: Index
-        """
-        if ix > len(self.shared_values) - 1:
-            raise ValueError(f"Internal error: trying to write shared String value with index {ix}; but have only seen {len(self.shared_values)} so far!")
-        if ix < 31:
-            #  add 1, as byte 0 is omitted
-            self.write_byte(TOKEN_PREFIX_SHARED_STRING_SHORT + 1 + ix)
-        else:
-            self.write_bytes(TOKEN_PREFIX_SHARED_STRING_LONG + (ix >> 8), int(ix))
-
     def write_signed_vint(self, i: int) -> None:
         """
         Helper method for writing 32-bit signed value, using
@@ -577,62 +643,15 @@ class SmileEncoder:
         """
         self.write_positive_vint(util.zigzag_encode(i))
 
-    def write_string(self, text: str) -> None:
-        """
-        Write String
-        :param text: String text
-        """
-        if text is None:
-            self.write_null()
-            return
-        if not text:
-            self.write_byte(TOKEN_LITERAL_EMPTY_STRING)
-            return
-        # Longer string handling off-lined
-        if len(text) > MAX_SHARED_STRING_LENGTH_BYTES:
-            self.write_non_shared_string(text)
-            return
-
-        # Then: is it something we can share?
-        if self.share_values:
-            ix = self._find_seen_string_value(text)
-            if ix >= 0:
-                self.write_shared_string_value_reference(ix)
-                return
-
-        if len(text) <= MAX_SHORT_VALUE_STRING_BYTES:
-            if self.share_values:
-                self._add_seen_string_value(text)
-            self.write_bytes(int(TOKEN_PREFIX_TINY_ASCII - 1) + len(text), text)
-        else:
-            self.write_bytes(TOKEN_BYTE_LONG_STRING_ASCII, text, BYTE_MARKER_END_OF_STRING)
-
-    def write_string_field(self, name: str, value: str) -> None:
-        """
-        Write String Field
-        :param name: Name
-        :param value: Value
-        """
-        self.write_field_name(name)
-        self.write_string(value)
-
-    def write_true(self) -> None:
-        """
-        Write True Value
-        """
-        self.write_byte(TOKEN_LITERAL_TRUE)
-
     # Helper methods
     def _add_seen_name(self, name: Union[bytes, str]) -> None:
-        # if self.seen_name_count == len(self.shared_keys):
         if self.shared_keys:
-            if len(self.shared_keys) == MAX_SHARED_NAMES:
-                # self.seen_name_count = 0
+            if len(self.shared_keys) == constants.MAX_SHARED_NAMES:
                 self.shared_keys = [None] * len(self.shared_keys)
             else:
                 old = copy.copy(self.shared_keys)
-                self.shared_keys = [None] * MAX_SHARED_NAMES
-                mask = MAX_SHARED_NAMES - 1
+                self.shared_keys = [None] * constants.MAX_SHARED_NAMES
+                mask = constants.MAX_SHARED_NAMES - 1
                 for node in old:
                     while node:
                         ix = util.hash_string(node.value) & mask
@@ -643,22 +662,19 @@ class SmileEncoder:
                             node.next = None
                         self.shared_keys[ix] = node
                         node = next_node
-            # ref = self.seen_name_count
             if _is_valid_back_ref(len(self.shared_keys)):
                 ix = util.hash_string(name) & (len(self.shared_keys) - 1)
-                self.shared_keys[ix] = SharedStringNode(name, ref, self.shared_keys[ix])
-            # self.seen_name_count = ref + 1
+                self.shared_keys[ix] = SharedStringNode(name, self.shared_keys[ix])
 
     def _add_seen_string_value(self, text: str) -> None:
-        # if self.seen_string_count == len(self.shared_values):
         if self.shared_values:
-            if self.seen_string_count == MAX_SHARED_STRING_VALUES:
+            if self.seen_string_count == constants.MAX_SHARED_STRING_VALUES:
                 self.seen_string_count = 0
                 self.shared_values = [None] * len(self.shared_values)
             else:
                 old = copy.copy(self.shared_values)
-                self.shared_values = [None] * MAX_SHARED_STRING_VALUES
-                mask = MAX_SHARED_STRING_VALUES - 1
+                self.shared_values = [None] * constants.MAX_SHARED_STRING_VALUES
+                mask = constants.MAX_SHARED_STRING_VALUES - 1
                 for node in old:
                     while node:
                         ix = util.hash_string(node.value) & mask
@@ -669,11 +685,9 @@ class SmileEncoder:
                             node.next = None
                         self.shared_values[ix] = node
                         node = next_node
-            # ref = self.seen_string_count
             if _is_valid_back_ref(len(self.shared_values)):
                 ix = util.hash_string(text) & (len(self.shared_values) - 1)
-                self.shared_values[ix] = SharedStringNode(text, ref, self.shared_values[ix])
-            # self.seen_string_count = ref + 1
+                self.shared_values[ix] = SharedStringNode(text, self.shared_values[ix])
 
     def _find_seen_name(self, name: Union[bytes, str]) -> int:
         n_hash = util.hash_string(name)
@@ -750,18 +764,15 @@ class SmileEncoder:
         """
         _inf = float("inf")
         if flt != flt:
-            text = "NaN"
-        elif flt == _inf:
-            text = "Infinity"
-        elif flt == -_inf:
-            text = "-Infinity"
-        else:
-            return repr(flt)
-        return text
+            return "NaN"
+        if flt == _inf:
+            return "Infinity"
+        if flt == -_inf:
+            return "-Infinity"
+        return repr(flt)
 
     def _iter_encode(self, obj: Union[dict, list, set, tuple]) -> None:
-        encoder = self._encoders.get(type(obj), None)
-        if encoder:
+        if encoder := self._encoders.get(type(obj), None):
             encoder(obj)
         else:
             self._iter_encode(obj)
@@ -813,8 +824,7 @@ def _is_valid_back_ref(index):
     """
     Helper method used to ensure that we do not use back-reference values
     that would produce illegal byte sequences (ones with byte 0xFE or 0xFF).
-    Note that we do not try to avoid null byte (0x00) by default, although
-    it would be technically possible as well.
+    Note that we do not try to avoid null byte (0x00) by default, although it would be technically possible as well.
     :param int index: Index
     :returns: Valid back ref
     :rtype: bool

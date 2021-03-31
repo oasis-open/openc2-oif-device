@@ -16,7 +16,7 @@ MAX_SHORT_NAME_ASCII_BYTES = 64
 
 # Maximum byte length for short non-ASCII names is slightly
 # less due to having to reserve bytes 0xF8 and above (but
-# we get one more as values 0 and 1 are not valid)
+# we get one more as values 0 and 1 are not good)
 MAX_SHORT_NAME_UNICODE_BYTES = 56
 
 # Longest back reference we use for field names is 10 bits; no point

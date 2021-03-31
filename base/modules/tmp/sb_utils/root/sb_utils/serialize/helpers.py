@@ -10,28 +10,21 @@ import tempfile
 import xmltodict
 
 from subprocess import Popen, PIPE
-from typing import (
-    Union
-)
-
-from ..general import (
-    check_values,
-    default_encode,
-    floatByte
-)
+from typing import Union
+from ..general import check_values, default_encode, floatByte
 
 
 # Message Conversion helpers for Bencode
-def bencode_encode(msg: dict) -> bytes:
+def bencode_encode(msg: dict) -> str:
     """
     Encode the given message to Bencode format
     :param msg: message to convert
     :return: Bencode formatted message
     """
-    return bencode.bencode(default_encode(msg, {float: floatByte}))
+    return bencode.bencode(default_encode(msg, {float: floatByte})).decode('utf-8')
 
 
-def bencode_decode(msg: bytes) -> dict:
+def bencode_decode(msg: str) -> dict:
     """
     Decode the given message to Bencode format
     :param msg: message to convert
@@ -114,7 +107,7 @@ def xml_encode(msg: dict) -> str:
     :param msg: message to convert
     :return: XML formatted message
     """
-    return xmltodict.unparse({_xml_root(msg): msg})
+    return xmltodict.unparse({"message": msg})
 
 
 def xml_decode(msg: str) -> dict:
@@ -123,41 +116,35 @@ def xml_decode(msg: str) -> dict:
     :param msg: message to convert
     :return: JSON formatted message
     """
-    return _xml_root(_xml_to_dict(xmltodict.parse(msg)))
+    return _xml_to_dict(xmltodict.parse(msg))["message"]
 
 
 # Message Conversion helpers for VelocityPack (VPack)
 def vpack_encode(msg: dict) -> bytes:
-    rtn = b""
     with tempfile.NamedTemporaryFile(delete=True) as msg_tmp:
         with open(msg_tmp.name, "w") as f:
             f.write(json.dumps(msg))
         os.chmod(msg_tmp.name, 0o0777)
-        msg_tmp.file.close()
+        msg_tmp.close()
 
         with tempfile.NamedTemporaryFile(delete=True) as enc_tmp:
             process = Popen(["json-to-vpack", msg_tmp.name, enc_tmp.name], stdout=PIPE, stderr=PIPE)
             _, _ = process.communicate()
 
             with open(enc_tmp.name, "rb") as f:
-                rtn = f.read()
-
-    return rtn
+                return f.read()
 
 
 def vpack_decode(msg: bytes) -> dict:
-    rtn = {}
     with tempfile.NamedTemporaryFile(delete=True) as msg_tmp:
         with open(msg_tmp.name, "wb") as f:
             f.write(msg)
         os.chmod(msg_tmp.name, 0o0777)
-        msg_tmp.file.close()
+        msg_tmp.close()
 
         with tempfile.NamedTemporaryFile(delete=True) as dec_tmp:
             process = Popen(["vpack-to-json", msg_tmp.name, dec_tmp.name], stdout=PIPE, stderr=PIPE)
             _, _ = process.communicate()
 
             with open(dec_tmp.name, "rb") as f:
-                rtn = json.load(f)
-
-    return rtn
+                return json.load(f)

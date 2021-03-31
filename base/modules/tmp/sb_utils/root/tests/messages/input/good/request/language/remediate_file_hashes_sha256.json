@@ -1,0 +1,22 @@
+{
+  "headers": {
+    "to": [],
+    "from": "",
+    "created": 1611227337000,
+    "request_id": "15e2de83-61c2-4857-991a-fc50f2d51da8"
+  },
+  "body": {
+    "openc2": {
+      "request": {
+        "action": "remediate",
+        "target": {
+          "file": {
+            "hashes": {
+              "sha256": "5c2d6daaf85a710605678f8e7ef0b725b33303f3234197b9dc4b46196734a4f0"
+            }
+          }
+        }
+      }
+    }
+  }
+}
