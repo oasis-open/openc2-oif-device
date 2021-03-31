@@ -21,7 +21,7 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | base64 --decode | tr -d '\r' > ~/.ssh/id_rsa
   - chmod 600 ~/.ssh/id_rsa
   - chmod +x ./.git_ssh
-  - mv ./ssh_config ~/.ssh/config
+  - cp ./.ssh_config ~/.ssh/config
   - chmod 600 ~/.ssh/config
   - pip config set global.cert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
   - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
