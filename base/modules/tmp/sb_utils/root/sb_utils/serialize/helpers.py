@@ -11,7 +11,7 @@ import xmltodict
 
 from subprocess import Popen, PIPE
 from typing import Union
-from ..general import check_values, default_encode, floatByte
+from ..general import check_values, default_encode, floatString
 
 
 # Message Conversion helpers for Bencode
@@ -21,7 +21,7 @@ def bencode_encode(msg: dict) -> str:
     :param msg: message to convert
     :return: Bencode formatted message
     """
-    return bencode.bencode(default_encode(msg, {float: floatByte})).decode('utf-8')
+    return bencode.bencode(default_encode(msg, {float: floatString})).decode('UTF-8')
 
 
 def bencode_decode(msg: str) -> dict:
@@ -30,7 +30,7 @@ def bencode_decode(msg: str) -> dict:
     :param msg: message to convert
     :return: JSON formatted message
     """
-    return default_encode(bencode.bdecode(msg), {bytes: floatByte})
+    return default_encode(bencode.bdecode(msg), {bytes: floatString})
 
 
 # Message Conversion helpers for S-Expression

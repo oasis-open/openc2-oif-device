@@ -15,7 +15,7 @@ class EnumMetaSB(EnumMeta):
 
 class EnumBase(Enum, metaclass=EnumMetaSB):
     @classmethod
-    def from_name(cls, fmt: str):
+    def from_name(cls, fmt: str) -> 'EnumBase':
         name = fmt.upper()
         for k, v in dict(cls.__members__).items():
             if name == k.upper():
@@ -23,7 +23,7 @@ class EnumBase(Enum, metaclass=EnumMetaSB):
         raise ValueError(f'{name} is not a valid format name')
 
     @classmethod
-    def from_value(cls, fmt: Union[int, str]):
+    def from_value(cls, fmt: Union[int, str]) -> 'EnumBase':
         members = dict(cls.__members__)
         for k, v in members.items():
             if fmt == v:

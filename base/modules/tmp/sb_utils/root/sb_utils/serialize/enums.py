@@ -1,4 +1,5 @@
 from shutil import which
+from typing import Dict
 from ..utils import EnumBase
 
 
@@ -38,7 +39,7 @@ class SerialFormats(str, EnumBase):
 
         return fmt in bins
 
-    def _optional_values(self):
+    def _optional_values(self) -> Dict[str, str]:
         vals = {}
         # VPACK - Binary
         if which("json-to-vpack") and which("vpack-to-json"):

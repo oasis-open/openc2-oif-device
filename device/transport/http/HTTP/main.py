@@ -1,10 +1,13 @@
 import re
 import time
+import uuid
+import kombu
 
 from datetime import datetime
-from flask import Flask, request, make_response
 from multiprocessing import Manager
-from sb_utils import decode_msg, encode_msg, default_encode, safe_json, Consumer, Producer
+from typing import Union
+from flask import Flask, request, make_response
+from sb_utils import Consumer, Message, MessageType, Producer, SerialFormats, decode_msg, safe_json
 
 app = Flask(__name__)
 
@@ -12,13 +15,13 @@ manager = Manager()
 state = manager.dict()
 
 # state cleaning??
-MAX_WAIT = 10
+MAX_WAIT = 30
 
 
 # Error Handling
 @app.errorhandler(500)
 def internal_error(e):
-    print(e)
+    print(f"HTTP Server Error: {e}")
     return make_response(
         # Body
         {
@@ -33,39 +36,51 @@ def internal_error(e):
 @app.route("/", methods=["POST"])
 def result():
     encode = re.search(r"(?<=\+)(.*?)(?=\;)", request.headers["Content-type"]).group(1)  # message encoding
-    corr_id = request.headers["X-Request-ID"]  # correlation ID
-    # data = decode_msg(request.data, encode)  # message being decoded
+    fmt = SerialFormats.from_value(encode)
+    try:
+        cmd = Message.oc2_loads(request.data, fmt)
+    except Exception as e:
+        print(f"Message load Error: {e}")
+        cmd = Message(
+            recipients=request.headers.get("Host", ""),
+            origin=request.headers.get("From", ""),
+            created=datetime.strptime(request.headers.get("Date"), "%a, %d %b %Y %H:%M:%S GMT"),
+            msg_type=MessageType.Request,
+            request_id=uuid.UUID(request.headers.get("X-Request-ID", "")),  # Header correlation ID
+            serialization=fmt,
+            content=decode_msg(request.data, fmt)
+        )
 
-    # profile, device_socket = request.headers["Host"].rsplit("@", 1)
     # profile used, device IP:port
-    orc_id, orc_socket = request.headers["From"].rsplit("@", 1)
+    profile, device_socket = request.headers["Host"].rsplit("@", 2)
     # orchestrator ID, orchestrator IP:port
-    message = request.data
-    msg_json = decode_msg(message, encode)
-
+    orc_id, orc_socket = cmd.origin.rsplit("@", 2)
     data = safe_json({
         "headers": dict(request.headers),
-        "content": safe_json(message.decode('utf-8'))
+        "content": cmd.content
     })
 
-    rsp = {
-        "status": 200,
-        "status_text": "received",
-        # command id??
-    }
-
-    # Basic verify against language schema??
-
+    rsp = Message(
+        recipients=cmd.origin,
+        # origin=request.headers.get("From", ""),  # TODO: how??
+        msg_type=MessageType.Response,
+        request_id=cmd.request_id,
+        serialization=cmd.content_type,
+        content={
+            "status": 200,
+            "status_text": "received",
+            # command id??
+        }
+    )
+    # TODO: Basic verify against language schema??
     # get destination actuator
-    actuators = list(msg_json.get('actuator', {}).keys())
+    actuators = list(cmd.content.get('actuator', {}).keys())
 
-    print(f"Received command from {orc_id}@{orc_socket} - {data}")
-    if msg_json['action'] == "query" and "command" in msg_json['target']:
+    print(f"Received command from {cmd.origin} - {data}")
+    if cmd.content['action'] == "query" and "command" in cmd.content['target']:
         print("QUERY COMMAND")
-        cmd_id = msg_json['target']['command']
-        prev_cmd = state.get(cmd_id)
-        if prev_cmd:
-            rsp = {
+        if prev_cmd := state.get(cmd.content['target']['command'], None):
+            rsp.content = {
                 "status_text": "previous command found",
                 "response": {
                     "command": prev_cmd[0]
@@ -76,11 +91,11 @@ def result():
         print("Writing to buffer")
         producer = Producer()
         queue_msg = {
-            "message": message,
+            "message": cmd.content,
             "headers": {
                 "socket": orc_socket,
                 # "device": device_socket,
-                "correlationID": corr_id,
+                "correlationID": cmd.request_id,
                 # "profile": profile,
                 "encoding": encode,
                 "orchestratorID": orc_id,
@@ -107,33 +122,32 @@ def result():
                     routing_key=act
                 )
 
-        print(f"Corr_id: {corr_id}")
+        print(f"Corr_id: {cmd.request_id}")
         for wait in range(0, MAX_WAIT):
             print(f"Checking for response... {MAX_WAIT} - {wait}")
-            rsp_cmd = state.get(corr_id)
-            if rsp_cmd:
-                rsp = rsp_cmd[0]['body']
+            if rsp_cmd := state.get(cmd.request_id, None):
+                rsp.content = rsp_cmd[0]['body']
                 break
             time.sleep(1)
 
     return make_response(
         # Body
-        encode_msg(rsp, encode),
+        rsp.serialize(),
         # Status Code
         200,
         # Headers
         {
             "Content-type": f"application/openc2-rsp+{encode};version=1.0",
             "Status": 200,  # Numeric status code supplied by Actuator's OpenC2-Response
-            "X-Request-ID": corr_id,
-            "Date": f"{datetime.utcnow():%a, %d %b %Y %H:%M:%S GMT}",  # RFC7231-7.1.1.1 -> Sun, 06 Nov 1994 08:49:37 GMT
+            "X-Request-ID": rsp.request_id,
+            "Date": f"{rsp.created:%a, %d %b %Y %H:%M:%S GMT}",  # RFC7231-7.1.1.1 -> Sun, 06 Nov 1994 08:49:37 GMT
             # "From": f"{profile}@{device_socket}",
             # "Host": f"{orc_id}@{orc_socket}",
         }
     )
 
 
-def process_message(body, message):
+def process_message(body: Union[dict, str], message: kombu.Message) -> None:
     """
     Callback when we receive a message from internal buffer to publish to waiting flask.
     :param body: Contains the message to be sent.

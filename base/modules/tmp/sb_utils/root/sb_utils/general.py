@@ -185,20 +185,22 @@ def isBase64(sb: Union[bytes, str]) -> bool:
 
 
 def floatByte(num: Union[float, bytes]) -> Union[float, bytes]:
+    prefix = b"\x7E\x7F"  # `~ ` - tiddle, delete
     if isinstance(num, float):
-        return struct.pack("!f", num)
+        return prefix + struct.pack("!f", num)
 
-    if isinstance(num, bytes) and len(num) == 4:
-        return struct.unpack("!f", num)[0]
+    if isinstance(num, bytes) and num.startswith(prefix) and len(num) == 6:
+        return struct.unpack("!f", num[1:])[0]
 
     return num
 
 
 def floatString(num: Union[float, str]) -> Union[float, str]:
+    prefix = "§£"
     if isinstance(num, float):
-        return f"f{num}"
+        return f"{prefix}{num}"
 
-    if isinstance(num, str) and num.startswith("f") and num[1:].replace(".", "", 1).isdigit():
+    if isinstance(num, str) and num.startswith(prefix) and num[1:].replace(".", "", 1).isdigit():
         return float(num[1:])
 
     return num

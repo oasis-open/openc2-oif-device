@@ -6,7 +6,7 @@ from io import BytesIO
 from typing import Any, Dict, List, Union
 
 from . import signature
-from .enums import MessageType, SerialTypes
+from .enums import MessageType
 from ..general import toBytes, unixTimeMillis
 from ..serialize import decode_msg, encode_msg, SerialFormats
 
@@ -66,13 +66,8 @@ class Message:
 
     @property
     def mimetype(self) -> str:
-        msg_type: Dict[MessageType, str] = {
-            MessageType.Request: "cmd",
-            MessageType.Response: "rsp",
-            MessageType.Notification: "notif"
-        }.get(self.msg_type, "notif")
         # Media Type that identifies the format of the content, including major version
-        return f"application/openc2-{msg_type}+{self.content_type};version=1.0"
+        return f"application/openc2-{self.msg_type}+{self.content_type};version=1.0"
 
     @property
     def serialization(self) -> str:
@@ -138,39 +133,6 @@ class Message:
             content=body["openc2"][msg_type]
         )
 
-    # Struct like options
-    def pack(self) -> bytes:
-        return bytes([
-            self.msg_type,
-            SerialTypes.from_name(self.content_type)
-        ]) + toBytes(self.oc2_message(serialize=True))
-
-    @classmethod
-    def unpack(cls, m: bytes) -> "Message":
-        serial = SerialFormats.from_value(SerialTypes.from_value(m[1]).name)
-        msg = decode_msg(m[2:], serial, raw=True)
-        headers = msg.get("headers", None)
-        body = msg.get("body", None)
-        if None in [headers, body]:
-            raise KeyError("Message is not properly formatted with keys of `headers` and `body`")
-
-        if created := headers.get("created", None):
-            created = datetime.fromtimestamp(created / 1000.0)
-
-        if request_id := headers.get("request_id", None):
-            request_id = uuid.UUID(request_id)
-
-        msg_type = list(body["openc2"].keys())[0]
-        return cls(
-            recipients=headers.get("to", None),
-            origin=headers.get("from", None),
-            created=created,
-            msg_type=MessageType.from_name(msg_type),
-            request_id=request_id,
-            serialization=serial,
-            content=body["openc2"][msg_type]
-        )
-
     # Dumper/Loader
     def dump(self, file: Union[str, BytesIO]) -> None:
         if isinstance(file, str):
@@ -181,14 +143,13 @@ class Message:
         raise TypeError(f"File is not expected string/BytesIO object, given {type(file)}")
 
     def dumps(self) -> bytes:
-        fmt = SerialTypes.from_name(self.content_type)
         return b"\xF5\xBE".join([  # §¥
             b"\xF5\xBD".join(map(str.encode, self.recipients)),  # §¢
             self.origin.encode(),
             struct.pack("LI", *map(int, str(self.created.timestamp()).split("."))),
-            struct.pack("B", self.msg_type),
+            struct.pack("s", self.msg_type),
             self.request_id.bytes,
-            struct.pack("B", fmt),
+            struct.pack("s", self.content_type),
             encode_msg(self.content, SerialFormats.CBOR, raw=True)
         ])
 
@@ -212,9 +173,9 @@ class Message:
             recipients=list(filter(None, map(bytes.decode, recipients.split(b"\xF5\xBD")))),
             origin=origin.decode(),
             created=datetime.fromtimestamp(float(".".join(map(str, struct.unpack("LI", created))))),
-            msg_type=MessageType(struct.unpack("B", msg_type)[0]),
+            msg_type=MessageType(struct.unpack("s", msg_type)[0]),
             request_id=uuid.UUID(bytes=request_id),
-            serialization=SerialFormats.from_value(SerialTypes.from_value(struct.unpack("B", serialization)[0]).name),
+            serialization=SerialFormats.from_value(struct.unpack("s", serialization)[0]),
             content=decode_msg(content, SerialFormats.CBOR, raw=True)
         )
 
