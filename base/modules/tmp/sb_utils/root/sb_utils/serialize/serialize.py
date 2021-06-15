@@ -68,15 +68,14 @@ def encode_msg(msg: dict, enc: enums.SerialFormats = enums.SerialFormats.JSON, r
     :param raw: message is in raw form (bytes/string) or safe string (base64 bytes as string)
     :return: encoded message
     """
-    enc = (enc if isinstance(enc, str) else enc.value).lower()
-    msg = general.default_encode(msg)
-
     if not isinstance(msg, dict):
         raise TypeError(f"Message is not expected type {dict}, got {type(msg)}")
 
+    msg = general.default_encode(msg)
     if len(msg.keys()) == 0:
         raise KeyError("Message should have at minimum one key")
 
+    enc = (enc if isinstance(enc, str) else enc.value).lower()
     if encoder := serializations.encode.get(enc):
         encoded = encoder(msg)
         if raw:
@@ -93,8 +92,6 @@ def decode_msg(msg: Union[bytes, str], enc: enums.SerialFormats, raw: bool = Fal
     :param raw: message is in raw form (bytes/string) or safe string (base64 bytes as string)
     :return: decoded message
     """
-    enc = enc.lower() if isinstance(enc, str) else enc.value
-
     if isinstance(msg, dict):
         return msg
 
@@ -104,6 +101,7 @@ def decode_msg(msg: Union[bytes, str], enc: enums.SerialFormats, raw: bool = Fal
     if not raw and general.isBase64(msg):
         msg = base64.b64decode(msg if isinstance(msg, bytes) else msg.encode())
 
+    enc = enc.lower() if isinstance(enc, str) else enc.value
     if decoder := serializations.decode.get(enc):
         msg = decoder(msg)
         return general.default_encode(msg, {bytes: bytes.decode})

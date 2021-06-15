@@ -4,7 +4,7 @@ Root Namespace
 """
 from .amqp_tools import Consumer, Producer
 from .auth import Auth
-from .general import camelCase, toBytes, toStr, prefixUUID, default_decode, default_encode, safe_cast, safe_json
+from .general import camelCase, destructure, toBytes, toStr, prefixUUID, default_decode, default_encode, safe_cast, safe_json
 from .etcd_cache import EtcdCache, ReusableThread
 from .ext_dicts import FrozenDict, ObjectDict, QueryDict
 from .message import Message, MessageType
@@ -18,6 +18,7 @@ __all__ = [
     'Producer',
     # General Utils
     'camelCase',
+    'destructure',
     'toBytes',
     'toStr',
     'default_decode',

@@ -1,23 +1,17 @@
-// JSX-a11y Rules
-
+// jsx-a11y Rules
 module.exports = {
   'jsx-a11y/accessible-emoji': 2,
   'jsx-a11y/alt-text': [2, {
     area: [],
-    elements: [
-      'img',
-      'object',
-      'area',
-      'input[type=\'image\']'
-    ],
+    elements: ['img', 'object', 'area', 'input[type=\"image\"]'],
     img: [],
-    'input[type=\'image\']': [],
+    'input[type=\"image\"]': [],
     object: []
   }],
   'jsx-a11y/anchor-has-content': [2, {
     components: []
   }],
-  'jsx-a11y/anchor-is-valid': [0, {
+  'jsx-a11y/anchor-is-valid': [2, {
     aspects: ['noHref', 'invalidHref', 'preferButton'],
     components: ['Link'],
     specialLink: ['to']
@@ -26,10 +20,13 @@ module.exports = {
   'jsx-a11y/aria-props': 2,
   'jsx-a11y/aria-proptypes': 2,
   'jsx-a11y/aria-role': [2, {
-    ignoreNonDom: false,
-    ignoreNonDOM: false
+    ignoreNonDOM: false,
+    ignoreNonDom: false
   }],
   'jsx-a11y/aria-unsupported-elements': 2,
+  'jsx-a11y/autocomplete-valid': [0, {
+    inputComponents: []
+  }],
   'jsx-a11y/click-events-have-key-events': 2,
   'jsx-a11y/control-has-associated-label': [2, {
     controlComponents: [],
@@ -64,7 +61,7 @@ module.exports = {
   'jsx-a11y/iframe-has-title': 2,
   'jsx-a11y/img-redundant-alt': 2,
   'jsx-a11y/interactive-supports-focus': 2,
-  'jsx-a11y/label-has-associated-control': [0, {
+  'jsx-a11y/label-has-associated-control': [2, {
     assert: 'both',
     controlComponents: [],
     depth: 25,
@@ -106,13 +103,7 @@ module.exports = {
     ]
   }],
   'jsx-a11y/no-noninteractive-element-to-interactive-role': [2, {
-    li: [
-      'menuitem',
-      'option',
-      'row',
-      'tab',
-      'treeitem'
-    ],
+    li: ['menuitem', 'option', 'row', 'tab', 'treeitem'],
     ol: [
       'listbox',
       'menu',
@@ -154,4 +145,4 @@ module.exports = {
   'jsx-a11y/role-supports-aria-props': 2,
   'jsx-a11y/scope': 2,
   'jsx-a11y/tabindex-no-positive': 2
-}
+};

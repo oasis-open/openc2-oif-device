@@ -4,8 +4,8 @@ import { HelmetProvider } from 'react-helmet-async';
 
 // Styles
 import 'bootstrap';
-import { ThemeSwitcher } from './components/utils';
-import './components/dependencies/css/searchkit.less';
+import { ThemeSwitcher } from 'react-bootswatch-theme-switcher';
+import './components/dependencies/css/searchkit.css';
 
 import App from './app';
 import registerServiceWorker from './registerServiceWorker';

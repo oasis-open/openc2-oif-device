@@ -7,7 +7,7 @@ import uuid
 import etcd
 
 from sb_utils import FrozenDict, safe_cast
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 from . import dispatch, exceptions, general
 
 # Constants
@@ -22,14 +22,14 @@ class ActuatorBase:
     # Dynamically set vars
     _config: FrozenDict
     _dispatch: dispatch.Dispatch
-    _etcd: etcd.Client
+    _etcd: etcd.Client = None
     _pairs: FrozenDict
     _profile: str
     _valid_actions: Tuple[str, ...]
     _valid_targets: Tuple[str, ...]
     _validator: general.ValidatorJSON
 
-    def __init__(self, root=ROOT_DIR, act_id=ACT_ID) -> None:
+    def __init__(self, root=ROOT_DIR, act_id=ACT_ID, enable_etcd=True) -> None:
         """
         Initialize and start the Actuator Process
         :param root: rood directory of actuator - default CWD
@@ -43,31 +43,31 @@ class ActuatorBase:
         if "actuator_id" not in config.keys():
             config.setdefault("actuator_id", act_id)
             json.dump(config, open(config_file, "w"), indent=4)
-        schema = general.safe_load(schema_file)
         self._config = FrozenDict(
             **config,
-            schema=schema
+            schema=general.safe_load(schema_file)
         )
-
-        # Initialize etcd client and set profiles
-        self._etcd = etcd.Client(
-            host=os.environ.get('ETCD_HOST', 'etcd'),
-            port=safe_cast(os.environ.get('ETCD_PORT', 4001), int, 4001)
-        )
-        profiles = self.nsid if len(self.nsid) > 0 else [self._profile]
-        for profile in profiles:
-            self._etcd.write(f"{self._prefix}/{profile}", self._config.actuator_id)
 
         # Configure Action/Target functions
-        self._dispatch = dispatch.Dispatch(act=self, dispatch_transform=self._dispatch_transform)
+        self._dispatch = dispatch.Dispatch(namespace="root",  dispatch_transform=self._dispatch_transform, act=self)
         self._dispatch.register(exceptions.action_not_implemented, "default")
 
         # Get valid Actions & Targets from the schema
         self._profile = self._config.schema.get("title", "N/A").replace(" ", "_").lower()
-        self._validator = general.ValidatorJSON(schema)
+        self._validator = general.ValidatorJSON(self._config.schema)
         schema_defs = self._config.schema.get("definitions", {})
         self._valid_actions = tuple(a["const"] for a in schema_defs.get("Action", {}).get("oneOf", []))
         self._valid_targets = tuple(schema_defs.get("Target", {}).get("properties", {}).keys())
+
+        # Initialize etcd client and set profiles
+        if enable_etcd:
+            self._etcd = etcd.Client(
+                host=os.environ.get('ETCD_HOST', 'etcd'),
+                port=safe_cast(os.environ.get('ETCD_PORT', 4001), int, 4001)
+            )
+            profiles = self.nsid if len(self.nsid) > 0 else [self._profile]
+            for profile in profiles:
+                self._etcd.write(f"{self._prefix}/{profile}", self._config.actuator_id)
 
     def __repr__(self) -> str:
         return f"Actuator({self._profile})"
@@ -111,7 +111,7 @@ class ActuatorBase:
         """
         return self._config.schema
 
-    def action(self, msg_id: Union[str, int] = None, msg: dict = None) -> Union[dict, None]:
+    def action(self, msg_id: Union[str, int] = None, msg: dict = None) -> Optional[dict]:
         """
         Process command message
         :param msg_id: ID of message
@@ -119,10 +119,9 @@ class ActuatorBase:
         :return: message results
         """
         msg = msg or {}
-        errors = list(self._validator.iter_errors_as(msg, "OpenC2_Command"))
-        val_cmd = len(errors) == 0
+        errors = list(self._validator.iter_errors_as(msg, "OpenC2-Command"))
 
-        if val_cmd:
+        if len(errors) == 0:
             action = msg.get("action", "action_not_implemented")
             targets = list(msg.get("target", {}).keys())
             response_requested = msg.get("args", {}).get("response_requested", "complete")
@@ -142,15 +141,15 @@ class ActuatorBase:
         :param kwargs: key/value arguments - expanded command/message
         :return: args and transformed kwargs
         """
-        action = kwargs.get("action", "ACTION")
         target = kwargs.get("target", {})
-
         if len(target) == 1:
             kwargs["target"] = target[list(target.keys())[0]]
         else:
+            action = kwargs.get("action", "ACTION")
             return None, exceptions.action_exception(action, except_msg="Invalid target format")
         return args, kwargs
 
     def shutdown(self) -> None:
-        for profile in self.nsid if len(self.nsid) > 0 else [self._profile]:
-            self._etcd.delete(f"{self._prefix}/{profile}")
+        if self._etcd:
+            for profile in self.nsid if len(self.nsid) > 0 else [self._profile]:
+                self._etcd.delete(f"{self._prefix}/{profile}")

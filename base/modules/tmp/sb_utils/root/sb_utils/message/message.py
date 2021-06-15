@@ -3,11 +3,11 @@ import uuid
 
 from datetime import datetime
 from io import BytesIO
-from typing import Any, Dict, List, Union
+from typing import Any, List, Union
 
 from . import signature
 from .enums import MessageType
-from ..general import toBytes, unixTimeMillis
+from ..general import unixTimeMillis
 from ..serialize import decode_msg, encode_msg, SerialFormats
 
 
@@ -36,14 +36,13 @@ class Message:
 
     __slots__ = ("recipients", "origin", "created", "msg_type", "request_id", "content_type", "content")
 
-    def __init__(self, recipients: Union[str, List[str]] = "", origin: str = "", created: datetime = None, msg_type: MessageType = None, request_id: uuid.UUID = None, serialization: SerialFormats = None, content: dict = None):
-        self.recipients = (recipients if isinstance(recipients, list) else [
-                           recipients]) if recipients else []
+    def __init__(self, recipients: Union[str, List[str]] = "", origin: str = "", created: datetime = None, msg_type: MessageType = None, request_id: uuid.UUID = None, content_type: SerialFormats = None, content: dict = None):
+        self.recipients = (recipients if isinstance(recipients, list) else [recipients]) if recipients else []
         self.origin = origin
         self.created = created or datetime.utcnow()
         self.msg_type = msg_type or MessageType.Request
         self.request_id = request_id or uuid.uuid4()
-        self.content_type = serialization or SerialFormats.JSON
+        self.content_type = content_type or SerialFormats.JSON
         self.content = content or {}
 
     def __setattr__(self, key: str, val):
@@ -129,7 +128,7 @@ class Message:
             created=created,
             msg_type=MessageType.from_name(msg_type),
             request_id=request_id,
-            serialization=serial,
+            content_type=serial,
             content=body["openc2"][msg_type]
         )
 
@@ -175,7 +174,7 @@ class Message:
             created=datetime.fromtimestamp(float(".".join(map(str, struct.unpack("LI", created))))),
             msg_type=MessageType(struct.unpack("s", msg_type)[0]),
             request_id=uuid.UUID(bytes=request_id),
-            serialization=SerialFormats.from_value(struct.unpack("s", serialization)[0]),
+            content_type=SerialFormats.from_value(struct.unpack("s", serialization)[0]),
             content=decode_msg(content, SerialFormats.CBOR, raw=True)
         )
 

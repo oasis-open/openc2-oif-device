@@ -1,4 +1,4 @@
-FROM g2inc/oif-python_actuator
+FROM oif/python3_actuator
 
 MAINTAINER Screaming_Bunny
 

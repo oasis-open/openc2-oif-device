@@ -1,4 +1,4 @@
-from ..utils import EnumBase
+from ..enums import EnumBase
 
 
 class MessageType(str, EnumBase):

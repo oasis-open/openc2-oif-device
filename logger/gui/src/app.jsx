@@ -1,30 +1,14 @@
 import React, { Component } from 'react';
 import {
-  ActionBar,
-  ActionBarRow,
-  Hits,
-  HitsStats,
-  InitialLoader,
-  NoHits,
-  PageSizeSelector,
-  Pagination,
-  RefinementListFilter,
-  ResetFilters,
-  SearchBox,
-  SearchkitManager,
-  SearchkitProvider,
-  Select,
-  SelectedFilters,
-  SortingSelector
+  ActionBar, ActionBarRow, Hits, HitsStats, InitialLoader, NoHits, PageSizeSelector, Pagination, RefinementListFilter,
+  ResetFilters, SearchBox, SearchkitManager, SearchkitProvider, SelectedFilters, SortingSelector
 } from 'searchkit';
-
+import { ThemeChooser } from 'react-bootswatch-theme-switcher';
 import { LogItem } from './components/lib';
-import { ThemeChooser } from './components/utils';
 
 class App extends Component {
-  constructor(props, context) {
-    super(props, context);
-
+  constructor(props) {
+    super(props);
     this.searchkit = new SearchkitManager('/api/');
     this.searchkit.addDefaultQuery(query => query);
     this.refreshInterval = null;
@@ -74,7 +58,7 @@ class App extends Component {
                 translations={{'searchbox.placeholder': 'search logs'}}
                 queryOptions={{'minimum_should_match': '50%'}}
                 searchOnChange
-                queryFields={['appname^1', 'severity^2', 'msg^3']}
+                queryFields={ ['appname^1', 'severity^2', 'msg^3'] }
               />
             </div>
           </div>
@@ -125,14 +109,16 @@ class App extends Component {
                   <HitsStats translations={{'hitstats.results_found': '{hitCount} results found'}} />
                   <PageSizeSelector
                     showNumbers
-                    options={[10, 20, 30, 40, 50]}
+                    options={ [10, 20, 30, 40, 50] }
                   />
                   <SortingSelector
-                    options={[
-                      {label: 'Most Recent', field: 'timestamp', order: 'desc', defaultOption: true},
-                      {label: 'App', field: 'appname.keyword', order: 'asc'},
-                      {label: 'Severity', field: 'severity.keyword', order: 'asc'}
-                    ]}
+                    options={
+                      [
+                        {label: 'Most Recent', field: 'timestamp', order: 'desc', defaultOption: true},
+                        {label: 'App', field: 'appname.keyword', order: 'asc'},
+                        {label: 'Severity', field: 'severity.keyword', order: 'asc'}
+                      ]
+                    }
                   />
                 </ActionBarRow>
               </ActionBar>
@@ -150,7 +136,7 @@ class App extends Component {
 
               <InitialLoader />
 
-              <Pagination showNumbers={ true } />
+              <Pagination showNumbers />
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ import tempfile
 import xmltodict
 
 from subprocess import Popen, PIPE
-from typing import Union
+from typing import Any, Union
 from ..general import check_values, default_encode, floatString
 
 
@@ -34,7 +34,7 @@ def bencode_decode(msg: str) -> dict:
 
 
 # Message Conversion helpers for S-Expression
-def _sp_decode(val):
+def _sp_decode(val: Any) -> Any:
     if isinstance(val, list) and isinstance(val[0], sexpdata.Symbol):
         rtn = {}
         for idx in range(0, len(val), 2):

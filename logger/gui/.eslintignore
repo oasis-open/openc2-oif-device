@@ -52,4 +52,6 @@ httpd
 internals
 
 # Assorted
+.eslintrc.js
+babel.config.js
 src/registerServiceWorker.js

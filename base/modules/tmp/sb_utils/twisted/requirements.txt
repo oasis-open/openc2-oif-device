@@ -1,4 +1,0 @@
-SB-Utils@git+https://github.com/ScreamBun/SB_utils.git#subdirectory=root
-twisted==21.2.0
-pika==1.2.0
-requests==2.25.1

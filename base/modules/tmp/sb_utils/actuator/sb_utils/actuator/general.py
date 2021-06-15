@@ -2,14 +2,7 @@ import copy
 import json
 
 from io import BufferedIOBase, TextIOBase
-from ipaddress import (
-    ip_network,
-    ip_address,
-    IPv4Address,
-    IPv4Network,
-    IPv6Address,
-    IPv6Network
-)
+from ipaddress import ip_network, ip_address, IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from jsonschema import Draft7Validator, ValidationError
 from typing import List, Union
 
@@ -29,7 +22,7 @@ def safe_load(file_obj: Union[str, BufferedIOBase, TextIOBase], *args, **kwargs)
                 return json.load(f, *args, **kwargs)
 
     except (json.JSONDecodeError, FileNotFoundError) as e:
-        print(e)
+        print(f"JSON Load Error: {e}")
     return {}
 
 
@@ -43,7 +36,7 @@ def valid_ip(ip: Union[bytes, str]) -> Union[None, IPv4Address, IPv6Address, IPv
         try:
             return ip_network(ip, strict=False) if "/" in ip else ip_address(ip)
         except ValueError as e:
-            print(e)
+            print(f"IP Error: {e}")
     return None
 
 
@@ -115,14 +108,15 @@ class ValidatorJSON(Draft7Validator):
         :param _type: name of type to check if exported
         :return: bool - type is exported type
         """
-        exported: List[str] = []
+        exported: List[str]
         if "oneOf" in self.schema:
             exported = [e.get("$ref", "") for e in self.schema.get("oneOf", [])]
         elif "properties" in self.schema:
             _type = _type.lower()
-            exp = {*self.schema.get("properties", {}).keys()}
-            exp.update({exp.get("$ref", "") for exp in self.schema.get("properties", {}).values()})
-            exported = list(exported)
+            exp = set()
+            for k, v in self.schema.get("properties", {}).items():
+                exp.update({k, v.get("$ref", "")})
+            exported = list(exp)
         else:
             raise TypeError("Schema format invalid")
         return any(list(e.endswith(f"{_type}") for e in exported))

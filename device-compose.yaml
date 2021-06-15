@@ -14,7 +14,7 @@ volumes:
 services:
   transport-coap:
     hostname: transport-coap
-    image: g2inc/oif-device-transport-coap
+    image: oif/device-transport-coap
     build:
       context: ./device/transport/coap
       dockerfile: Dockerfile
@@ -29,7 +29,7 @@ services:
 
   transport-http:
     hostname: transport-http
-    image:  g2inc/oif-device-transport-http
+    image:  oif/device-transport-http
     build:
       context: ./device/transport/http
     env_file:
@@ -43,7 +43,7 @@ services:
 
   transport-https:
     hostname: transport-https
-    image:  g2inc/oif-device-transport-https
+    image:  oif/device-transport-https
     build:
       context: ./device/transport/https
     env_file:
@@ -57,7 +57,7 @@ services:
 
   transport-mqtt:
     hostname: transport-mqtt
-    image: g2inc/oif-device-transport-mqtt
+    image: oif/device-transport-mqtt
     build:
       context: ./device/transport/mqtt
     env_file:
@@ -73,7 +73,9 @@ services:
 
 #  transport-zmq:
 #    hostname: transport-zmq
-#    image: gitlab.ad.tsdcloudprojects.com:5005/screamingbunny/orchestrator/transport/zmq
+#    image: oif/device-transport-zmq
+#    build:
+#      context: ./device/transport/zmq
 #    env_file:
 #      - ./environment/queue.connect.env
 #      - ./environment/etcd.connect.env
@@ -87,7 +89,7 @@ services:
 
   actuator-base:
     hostname: actuator-base
-    image:  g2inc/oif-device-actutator-base
+    image:  oif/device-actutator-base
     build:
       context: ./device/actuator/base
     env_file:
@@ -103,7 +105,7 @@ services:
 
   actuator-slpf:
     hostname: actuator-slpf
-    image:  g2inc/oif-device-actutator-slpf
+    image:  oif/device-actutator-slpf
     build:
       context: ./device/actuator/slpf
     env_file:

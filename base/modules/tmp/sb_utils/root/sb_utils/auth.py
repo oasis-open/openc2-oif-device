@@ -5,11 +5,7 @@ import os
 from tempfile import TemporaryDirectory
 from typing import Dict, Union
 from cryptography.fernet import Fernet
-from .general import (
-    camelCase,
-    toBytes,
-    toStr
-)
+from .general import camelCase, toBytes, toStr
 
 
 class Auth:

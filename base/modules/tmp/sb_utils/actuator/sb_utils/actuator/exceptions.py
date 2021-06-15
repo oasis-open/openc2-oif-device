@@ -48,8 +48,7 @@ def bad_argument(*args, **kwargs) -> dict:
 
 
 # Temporary error/exceptions
-# pylint: disable=keyword-arg-before-vararg
-def action_exception(action: str = "ACTION", status: int = 400, except_msg: str = "", *args, **kwargs) -> dict:
+def action_exception(*args, action: str = "ACTION", status: int = 400, except_msg: str = None, **kwargs) -> dict:
     """
     Action exception message creation for errors
     :param action: action of command
@@ -61,12 +60,11 @@ def action_exception(action: str = "ACTION", status: int = 400, except_msg: str 
     """
     return dict(
         status=status,
-        status_text=f"Action '{action}' received an invalid command" if except_msg == "" else except_msg
+        status_text=f"Action '{action}' received an invalid command" if except_msg else except_msg
     )
 
 
-# pylint: disable=keyword-arg-before-vararg
-def server_exception(except_msg: str = "", *args, **kwargs) -> dict:
+def server_exception(*args, except_msg: str = None, **kwargs) -> dict:
     """
     Server exception response
     :param except_msg: message stating the error
@@ -74,15 +72,14 @@ def server_exception(except_msg: str = "", *args, **kwargs) -> dict:
     :param kwargs: keyword arguments passed to the function - dict
     :return: OpenC2 response message - dict
     """
-    msg = "The Consumer encountered an unexpected condition that prevented it from performing the Command." if except_msg == "" else except_msg
+    msg = "The Consumer encountered an unexpected condition that prevented it from performing the Command." if except_msg else except_msg
     return dict(
         status=500,
         status_text=f"Internal Error - {msg}"
     )
 
 
-# pylint: disable=keyword-arg-before-vararg
-def bad_request(except_msg: str = "", *args, **kwargs) -> dict:
+def bad_request(*args, except_msg: str = None, **kwargs) -> dict:
     """
     Bad Request exception response
     :param except_msg: message stating the error
@@ -90,7 +87,7 @@ def bad_request(except_msg: str = "", *args, **kwargs) -> dict:
     :param kwargs: keyword arguments passed to the function - dict
     :return: OpenC2 response message - dict
     """
-    msg = "The Consumer cannot process the Command due to something that is perceived to be a Producer error (e.g., malformed Command syntax)" if except_msg == "" else except_msg
+    msg = "The Consumer cannot process the Command due to something that is perceived to be a Producer error (e.g., malformed Command syntax)" if except_msg else except_msg
     return dict(
         status=400,
         status_text=f"Bad Request - {msg}"

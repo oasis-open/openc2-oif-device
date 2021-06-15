@@ -1,5 +1,4 @@
-// React Rules
-
+// react Rules
 module.exports = {
   'react/boolean-prop-naming': [0, {
     message: '',
@@ -14,7 +13,7 @@ module.exports = {
   'react/default-props-match-prop-types': [2, {
     allowRequiredDefaults: false
   }],
-  'react/destructuring-assignment': [0, 'always'],
+  'react/destructuring-assignment': [2, 'always'],
   'react/display-name': [0, {
     ignoreTranspilerName: false
   }],
@@ -35,42 +34,49 @@ module.exports = {
     checkContextTypes: true,
     forbid: ['any']
   }],
+  'react/function-component-definition': [0, {
+    namedComponents: 'function-expression',
+    unnamedComponents: 'function-expression'
+  }],
   'react/jsx-boolean-value': [2, 'never', {
     always: []
   }],
   'react/jsx-child-element-spacing': 0,
-  'react/jsx-closing-bracket-location': [0, 'line-aligned'],
-  'react/jsx-closing-tag-location': 0,
+  'react/jsx-closing-bracket-location': [2, 'line-aligned'],
+  'react/jsx-closing-tag-location': 2,
   'react/jsx-curly-brace-presence': [2, {
     children: 'never',
     props: 'never'
   }],
-  'react/jsx-curly-newline': [0, {
+  'react/jsx-curly-newline': [2, {
     multiline: 'consistent',
     singleline: 'consistent'
   }],
-  'react/jsx-curly-spacing': [0, 'never', {
-    allowMultiline: true
+  'react/jsx-curly-spacing': [2, 'always', {
+    allowMultiline: true,
+    spacing: {
+      objectLiterals: 'never'
+    }
   }],
-  'react/jsx-equals-spacing': [0, 'never'],
+  'react/jsx-equals-spacing': [2, 'never'],
   'react/jsx-filename-extension': [2, {
-    extensions: ['.js', '.jsx']
+    extensions: ['.jsx', '.tsx']
   }],
-  'react/jsx-first-prop-new-line': [0, 'multiline-multiprop'],
+  'react/jsx-first-prop-new-line': [2, 'multiline-multiprop'],
   'react/jsx-fragments': [2, 'syntax'],
   'react/jsx-handler-names': [0, {
     eventHandlerPrefix: 'handle',
     eventHandlerPropPrefix: 'on'
   }],
-  'react/jsx-indent': [0, 2],
-  'react/jsx-indent-props': [0, 2],
-  'react/jsx-key': 0,
+  'react/jsx-indent': [2, 2],
+  'react/jsx-indent-props': [2, 2],
+  'react/jsx-key': 2,
   'react/jsx-max-depth': 0,
-  'react/jsx-max-props-per-line': [0, {
+  'react/jsx-max-props-per-line': [2, {
     maximum: 1,
     when: 'multiline'
   }],
-  'react/jsx-no-bind': [0, {
+  'react/jsx-no-bind': [2, {
     allowArrowFunctions: true,
     allowBind: false,
     allowFunctions: false,
@@ -84,19 +90,30 @@ module.exports = {
   'react/jsx-no-literals': [0, {
     noStrings: true
   }],
+  'react/jsx-no-script-url': [0, [
+    {
+      name: 'Link',
+      props: ['to']
+    }
+  ]],
   'react/jsx-no-target-blank': [2, {
     enforceDynamicLinks: 'always'
   }],
   'react/jsx-no-undef': 2,
-  'react/jsx-one-expression-per-line': [0, {
+  'react/jsx-no-useless-fragment': 0,
+  'react/jsx-one-expression-per-line': [2, {
     allow: 'single-child'
   }],
   'react/jsx-pascal-case': [2, {
     allowAllCaps: true,
     ignore: []
   }],
-  'react/jsx-props-no-multi-spaces': 0,
-  'react/jsx-props-no-spreading': 0,
+  'react/jsx-props-no-multi-spaces': 2,
+  'react/jsx-props-no-spreading': [2, {
+    custom: 'ignore',
+    exceptions: [],
+    html: 'enforce'
+  }],
   'react/jsx-sort-default-props': [0, {
     ignoreCase: true
   }],
@@ -110,15 +127,15 @@ module.exports = {
     shorthandLast: false
   }],
   'react/jsx-space-before-closing': [0, 'always'],
-  'react/jsx-tag-spacing': [0, {
+  'react/jsx-tag-spacing': [2, {
     afterOpening: 'never',
-    beforeClosing: 'never',
+    beforeClosing: 'allow',
     beforeSelfClosing: 'always',
     closingSlash: 'never'
   }],
   'react/jsx-uses-react': 2,
   'react/jsx-uses-vars': 2,
-  'react/jsx-wrap-multilines': [0, {
+  'react/jsx-wrap-multilines': [2, {
     arrow: 'parens-new-line',
     assignment: 'parens-new-line',
     condition: 'parens-new-line',
@@ -128,14 +145,15 @@ module.exports = {
     return: 'parens-new-line'
   }],
   'react/no-access-state-in-setstate': 2,
-  'react/no-array-index-key': 1,
+  'react/no-adjacent-inline-elements': 0,
+  'react/no-array-index-key': 2,
   'react/no-children-prop': 2,
   'react/no-danger': 1,
   'react/no-danger-with-children': 2,
   'react/no-deprecated': 2,
   'react/no-did-mount-set-state': 0,
   'react/no-did-update-set-state': 2,
-  'react/no-direct-mutation-state': 0,
+  'react/no-direct-mutation-state': 2,
   'react/no-find-dom-node': 2,
   'react/no-is-mounted': 2,
   'react/no-multi-comp': 0,
@@ -156,7 +174,7 @@ module.exports = {
   'react/no-will-update-set-state': 2,
   'react/prefer-es6-class': [2, 'always'],
   'react/prefer-read-only-props': 0,
-  'react/prefer-stateless-function': [0, {
+  'react/prefer-stateless-function': [2, {
     ignorePureComponents: true
   }],
   'react/prop-types': [2, {
@@ -174,12 +192,48 @@ module.exports = {
   'react/require-render-return': 2,
   'react/self-closing-comp': 2,
   'react/sort-comp': [2, {
+    groups: {
+      lifecycle: [
+        'displayName',
+        'propTypes',
+        'contextTypes',
+        'childContextTypes',
+        'mixins',
+        'statics',
+        'defaultProps',
+        'constructor',
+        'getDefaultProps',
+        'getInitialState',
+        'state',
+        'getChildContext',
+        'getDerivedStateFromProps',
+        'componentWillMount',
+        'UNSAFE_componentWillMount',
+        'componentDidMount',
+        'componentWillReceiveProps',
+        'UNSAFE_componentWillReceiveProps',
+        'shouldComponentUpdate',
+        'componentWillUpdate',
+        'UNSAFE_componentWillUpdate',
+        'getSnapshotBeforeUpdate',
+        'componentDidUpdate',
+        'componentDidCatch',
+        'componentWillUnmount'
+      ],
+      rendering: ['/^render.+$/', 'render']
+    },
     order: [
-      'type-annotations',
+      'static-variables',
       'static-methods',
+      'instance-variables',
       'lifecycle',
+      '/^on.+$/',
+      'getters',
+      'setters',
+      '/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/',
+      'instance-methods',
       'everything-else',
-      'render'
+      'rendering'
     ]
   }],
   'react/sort-prop-types': [0, {
@@ -189,7 +243,7 @@ module.exports = {
     sortShapeProp: true
   }],
   'react/state-in-constructor': [2, 'always'],
-  'react/static-property-placement': [0, 'property assignment'],
+  'react/static-property-placement': [2, 'property assignment'],
   'react/style-prop-object': 2,
   'react/void-dom-elements-no-children': 2
-}
+};

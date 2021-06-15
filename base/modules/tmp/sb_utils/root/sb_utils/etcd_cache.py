@@ -1,13 +1,11 @@
+"""
+Local Cache for ETCd values
+"""
 import etcd
 
 from threading import Event, Thread
 from time import sleep
-from typing import (
-    Callable,
-    List,
-    Tuple,
-    Union
-)
+from typing import Callable, List, Tuple, Union
 from .general import isFunction
 from .ext_dicts import FrozenDict, QueryDict
 
@@ -29,7 +27,7 @@ class ReusableThread(Thread):
     finish() will finish the whole thread (after that, it's not restartable anymore)
     """
 
-    def __init__(self, target, args: tuple = None, kwargs: dict = None):
+    def __init__(self, target: Callable, args: tuple = None, kwargs: dict = None):
         self._startSignal = Event()
         self._oneRunFinished = Event()
         self._finishIndicator = False
@@ -38,13 +36,13 @@ class ReusableThread(Thread):
         self._callableKwargs = kwargs or {}
         Thread.__init__(self)
 
-    def restart(self):
+    def restart(self) -> None:
         """
         make sure to always call join() before restarting
         """
         self._startSignal.set()
 
-    def run(self):
+    def run(self) -> None:
         """
         This class will reprocess the object "processObject" forever.
         Through the change of data inside processObject and start signals
@@ -64,7 +62,7 @@ class ReusableThread(Thread):
             # notify about the run's end
             self._oneRunFinished.set()
 
-    def join(self, timeout=None):
+    def join(self, timeout: float = None) -> None:
         """
         This join will only wait for one single run (target functioncall) to be finished
         """
@@ -72,7 +70,7 @@ class ReusableThread(Thread):
         self._oneRunFinished.clear()
         self.restart()
 
-    def finish(self):
+    def finish(self) -> None:
         self._finishIndicator = True
         self.restart()
         self.join(5)
@@ -108,7 +106,7 @@ class EtcdCache:
     def cache(self) -> FrozenDict:
         return FrozenDict(self._data)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self._etcd_updater.join(5)
         self._etcd_updater.finish()
 

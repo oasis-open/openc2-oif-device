@@ -1,4 +1,4 @@
-FROM ccoe-g2inc/oif-python
+FROM oif/python3
 
 
 MAINTAINER Screaming_Bunny

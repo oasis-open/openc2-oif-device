@@ -42,6 +42,14 @@ class ObjectDict(dict):
     __setattr__ = __setitem__
     __delattr__ = dict.__delitem__
 
+    def __copy__(self):
+        cls = self.__class__
+        return cls(copy.copy(dict(self)))
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        return cls(copy.deepcopy(dict(self)))
+
 
 class FrozenDict(ObjectDict):
     """
