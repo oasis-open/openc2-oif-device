@@ -47,7 +47,7 @@ def result():
             created=datetime.strptime(request.headers.get("Date"), "%a, %d %b %Y %H:%M:%S GMT"),
             msg_type=MessageType.Request,
             request_id=uuid.UUID(request.headers.get("X-Request-ID", "")),  # Header correlation ID
-            serialization=fmt,
+            content_type=fmt,
             content=decode_msg(request.data, fmt)
         )
 
@@ -65,7 +65,7 @@ def result():
         # origin=request.headers.get("From", ""),  # TODO: how??
         msg_type=MessageType.Response,
         request_id=cmd.request_id,
-        serialization=cmd.content_type,
+        content_type=cmd.content_type,
         content={
             "status": 200,
             "status_text": "received",

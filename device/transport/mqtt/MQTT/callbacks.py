@@ -135,7 +135,7 @@ def send_mqtt(config: FrozenDict, body, message):
         # created: datetime = None,
         msg_type=MessageType.Response,
         request_id=uuid.UUID(headers.get("correlationID", "")),
-        serialization=SerialFormats(encoding) if encoding in SerialFormats else SerialFormats.JSON,
+        content_type=SerialFormats(encoding) if encoding in SerialFormats else SerialFormats.JSON,
         content=body if isinstance(body, dict) else json.loads(body)
     )
     # Transport is running on device side, send response to orchestrator

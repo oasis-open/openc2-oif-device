@@ -5,7 +5,7 @@ import sys
 from functools import partial
 from sb_utils import decode_msg, encode_msg, Consumer, Producer
 
-from .actuator import Actuator
+from actuator import Actuator
 
 # Signals
 signals = {
@@ -54,6 +54,7 @@ if __name__ == '__main__':
 
     # Actuator Instance
     actuator = Actuator(root=root)
+    print(f'Starting Actuator: {actuator}')
 
     # Actuator nsid/profile
     queue = actuator.nsid if len(actuator.nsid) > 0 else [actuator.profile]
@@ -72,10 +73,9 @@ if __name__ == '__main__':
 
     try:
         consumer = Consumer(
-            exchange='actuator',
-            # TODO: Get NSID??
             binding=bindings,
-            callbacks=[partial(on_message, actuator, producer)]
+            callbacks=[partial(on_message, actuator, producer)],
+            debug=True
         )
     except Exception as e:
         print(f'Error {e}')
