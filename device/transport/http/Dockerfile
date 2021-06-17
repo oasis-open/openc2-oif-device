@@ -11,7 +11,7 @@ version="2.0" \
 description="This is the HTTP Transport Module container"
 
 ADD requirements.txt /tmp/requirements.txt
-ADD HTTP/ /opt/transport
+ADD HTTP/ /opt/transport/HTTP
 ADD docker_dev_start.sh /opt/transport/dev_start.sh
 
 # Set working directory
