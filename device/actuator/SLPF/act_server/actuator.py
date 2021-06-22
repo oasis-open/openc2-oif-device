@@ -1,4 +1,4 @@
-from .actions import (
+from actions import (
     Allow,
     Delete,
     Deny,

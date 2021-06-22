@@ -1,3 +1,4 @@
+# General
 import base64
 import binascii
 import json
@@ -8,23 +9,16 @@ import uuid
 
 from datetime import datetime
 from functools import partial
-from types import (
-    BuiltinFunctionType,
-    BuiltinMethodType,
-    FunctionType,
-    MethodType,
-    LambdaType
-)
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Type,
-    Union
-)
+from types import BuiltinFunctionType, BuiltinMethodType, FunctionType, MethodType, LambdaType
+from typing import Any, AnyStr, Callable, Dict, Tuple, Type, Union
 
 
 # Util Functions
+def camelCase(s: str, delim: str = '_') -> str:
+    s = s.split(delim)
+    return s[0] + ''.join(map(str.capitalize, s[1:]))
+
+
 def toBytes(b: Any) -> bytes:
     """
     Convert a given type to a default byte string
@@ -135,7 +129,6 @@ def default_decode(itm: Any, decoders: Dict[Type, Callable[[Any], Any]] = None) 
     :param decoders: custom type decoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
     :return: default system encoded object
     """
-    print(itm)
     if decoders and isinstance(itm, tuple(decoders.keys())):
         return decoders[type(itm)](itm)
 
@@ -164,6 +157,11 @@ def isFunction(obj: Any) -> bool:
 
 
 def isBase64(sb: Union[bytes, str]) -> bool:
+    """
+    Determine if the given value is a base64
+    :param sb: value to check
+    :return: bool if base64
+    """
     try:
         if isinstance(sb, str):
             # If there's any unicode here, an exception will be thrown and the function will return false
@@ -178,27 +176,58 @@ def isBase64(sb: Union[bytes, str]) -> bool:
 
 
 def floatByte(num: Union[float, bytes]) -> Union[float, bytes]:
+    """
+    Convert the value between a float and prefixed packed bytes; float -> bytes, bytes -> float
+    :param num: value to concert
+    :return: converted value if available
+    """
+    prefix = b"\x7E\x7F"  # `~ ` - tiddle, delete
     if isinstance(num, float):
-        return struct.pack("!f", num)
+        return prefix + struct.pack("!f", num)
 
-    if isinstance(num, bytes) and len(num) == 4:
-        return struct.unpack("!f", num)[0]
+    if isinstance(num, bytes) and num.startswith(prefix) and len(num) == 6:
+        return struct.unpack("!f", num[1:])[0]
 
     return num
 
 
 def floatString(num: Union[float, str]) -> Union[float, str]:
+    """
+    Convert the value between a float and prefixed string; float -> string, string -> float
+    :param num: value to concert
+    :return: converted value if available
+    """
+    prefix = "§£"
     if isinstance(num, float):
-        return f"f{num}"
+        return f"{prefix}{num}"
 
-    if isinstance(num, str) and num.startswith("f") and num[1:].replace(".", "", 1).isdigit():
+    if isinstance(num, str) and num.startswith(prefix) and num[1:].replace(".", "", 1).isdigit():
         return float(num[1:])
 
     return num
 
 
 def unixTimeMillis(dt: datetime):
+    """
+    Convert the datetime to a unix timestamp
+    :param dt: datetime to concert
+    :return: unix timestamp
+    """
     epoch = datetime.utcfromtimestamp(0)
     return (dt - epoch).total_seconds() * 1000.0
 
-# Utility Classes
+
+def destructure(d: dict, *keys: Union[AnyStr, Tuple[AnyStr, Any]]) -> Tuple[Any, ...]:
+    """
+    Destructure the dict using the given keys
+    :param d: dict to destructure
+    :param keys: keys and optional default to use to destructure the dict
+    :return: destructured values
+    """
+    rslt = []
+    for k in keys:
+        if isinstance(k, (bytes, str)):
+            rslt.append(d.get(k, None))
+        elif isinstance(k, tuple):
+            rslt.append(d.get(*k))
+    return tuple(rslt)

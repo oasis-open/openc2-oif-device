@@ -1,5 +1,6 @@
 # mqtt_transport.py
 import re
+import ssl
 import uuid
 import etcd
 
@@ -7,7 +8,7 @@ from functools import partial
 from paho.mqtt import client as mqtt
 from sb_utils import Consumer, safe_cast
 from time import sleep
-from callbacks import Callbacks
+from callbacks import mqtt_on_connect, mqtt_on_log, mqtt_on_message, mqtt_on_publish, send_mqtt
 from config import Config
 
 # Connect to Etcd
@@ -24,41 +25,11 @@ except etcd.EtcdKeyNotFound:
     etcd_client.write('/device/id', str(dev_uuid))
 dev_id = f'device_{str(dev_uuid).replace("-", "")[:15]}'
 
-
 # begin listening to a single MQTT socket
 print(f"Initializing Device: {dev_uuid}...")
-client = mqtt.Client(
-    client_id=dev_id,
-    # clean_session=None
-)
-
-# check that certs exist
-if Config.TLS_ENABLED:
-    client.tls_insecure_set(safe_cast(Config.TLS_SELF_SIGNED, bool, False))
-    client.tls_set(
-        ca_certs=Config.CAFILE,
-        certfile=Config.CLIENT_CERT,
-        keyfile=Config.CLIENT_KEY
-    )
-
-if Config.USERNAME:
-    client.username_pw_set(
-        username=Config.USERNAME,
-        password=Config.PASSWORD
-    )
-
-client.connect(
-    host=Config.MQTT_HOST,
-    port=Config.MQTT_PORT,
-    # keepalive=60,
-    # clean_start=MQTT_CLEAN_START_FIRST_ONLY
-)
 
 # Gather topics to subscribe
-topics = [
-    'oc2/cmd/all',
-    f'oc2/cmd/device/{dev_uuid}'
-]
+topics = ['oc2/cmd/all', f'oc2/cmd/device/{dev_uuid}']
 
 sleep(5)
 etcd_act_prefix = '/actuator'
@@ -70,14 +41,43 @@ try:
 except etcd.EtcdKeyNotFound:
     print('No actuators found')
 
-# Add prefix if specified
-topics = ['/'.join(filter(None, [*Config.MQTT_PREFIX.split('/'), *t.split('/')])) for t in topics]
+client = mqtt.Client(
+    client_id=dev_id,
+    # Add prefix if specified
+    userdata=['/'.join(filter(None, [*Config.MQTT_PREFIX.split('/'), *t.split('/')])) for t in topics],
+    protocol=mqtt.MQTTv5
+)
+
+# set auth
+if Config.USERNAME:
+    client.username_pw_set(
+        username=Config.USERNAME,
+        password=Config.PASSWORD
+    )
+
+# check that certs exist
+if Config.TLS_ENABLED:
+    client.tls_insecure_set(safe_cast(Config.TLS_SELF_SIGNED, bool, False))
+    client.tls_set(
+        ca_certs=Config.CAFILE,
+        certfile=Config.CLIENT_CERT,
+        keyfile=Config.CLIENT_KEY,
+        tls_version=ssl.PROTOCOL_TLSv1_2
+    )
 
 # TODO: add optional etcd watcher via ENV vars
+client.on_log = mqtt_on_log
+client.on_connect = mqtt_on_connect
+client.on_publish = mqtt_on_publish
+client.on_message = mqtt_on_message
 
-client.user_data_set(topics)
-client.on_connect = Callbacks.on_connect
-client.on_message = Callbacks.on_message
+client.connect(
+    host=Config.MQTT_HOST,
+    port=Config.MQTT_PORT,
+    keepalive=300,
+    clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY
+)
+
 client.loop_start()
 
 # Begin consuming messages from internal message queue
@@ -86,9 +86,7 @@ try:
     consumer = Consumer(
         exchange='transport',
         routing_key="mqtt",
-        callbacks=[
-            partial(Callbacks.send_mqtt, client=client)
-        ]
+        callbacks=[partial(send_mqtt, Config)]
     )
 except Exception as err:
     print(f"Consumer Error: {err}")

@@ -1,7 +1,5 @@
-FROM g2inc/oif-python
+FROM oif/python3
 
-
-MAINTAINER Screaming_Bunny
 
 LABEL name="Logger Server" \
 vendor="OpenC2" \

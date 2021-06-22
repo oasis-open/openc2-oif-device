@@ -5,14 +5,6 @@ version: '3'
 
 
 services:
-  transport-coap:
-    logging:
-      driver: syslog
-      options:
-        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
-        syslog-format: rfc5424
-        tag: "transport-coap"
-
   transport-http:
     logging:
       driver: syslog
@@ -71,7 +63,7 @@ services:
 
   logger_server:
     hostname: logger_server
-    image: g2inc/oif-logger:server
+    image: oif/logger:server
     build:
       context: ./logger/server
       dockerfile: Dockerfile

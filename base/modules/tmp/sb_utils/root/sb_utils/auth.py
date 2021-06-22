@@ -2,16 +2,10 @@
 import base64
 import os
 
-from cryptography.fernet import Fernet
 from tempfile import TemporaryDirectory
-from typing import (
-    Dict,
-    Union
-)
-from .general import (
-    toBytes,
-    toStr
-)
+from typing import Dict, Union
+from cryptography.fernet import Fernet
+from .general import camelCase, toBytes, toStr
 
 
 class Auth:
@@ -24,24 +18,24 @@ class Auth:
 
     def __init__(self, auth: Dict[str, Union[bytes, str]]):
         auth = {k: toBytes(v) for k, v in (auth or {}).items()}
-        crypto = Fernet(os.environ['TRANSPORT_SECRET']) if 'TRANSPORT_SECRET' in os.environ else None
-        if crypto is None:
+        if 'TRANSPORT_SECRET' not in os.environ:
             raise ValueError('ENV variable of `TRANSPORT_SECRET` is not set')
+
+        crypto = Fernet(toBytes(os.environ['TRANSPORT_SECRET']))
         self.username = toStr(auth.get('username', ''))
         self.password = toStr(crypto.decrypt(auth['password'])) if 'password' in auth else None
         self._certsDir = TemporaryDirectory()
         for cert in ['ca_cert', 'client_cert', 'client_key']:
-            val = crypto.decrypt(auth[cert]) if cert in auth else None
-            if val:
+            if val := crypto.decrypt(auth[cert]) if cert in auth else None:
                 path = os.path.join(self._certsDir.name, cert)
                 with open(path, 'w+b') as f:
                     f.write(base64.b64decode(val.split(b'base64,')[1]))
-                setattr(self, cert, path)
+                setattr(self, camelCase(cert), path)
 
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.cleanup()
 
     def cleanup(self):

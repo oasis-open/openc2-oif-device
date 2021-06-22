@@ -3,24 +3,19 @@ Multiple dispatch on namespace
 """
 from functools import partial
 from inspect import isfunction
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Tuple,
-    Union
-)
-
+from typing import Any, Callable, Dict, List, Tuple, Union
 from sb_utils import QueryDict
+
+DispatchTransform = Callable[[tuple, dict], Tuple[Union[tuple, None], dict]]
 
 
 class Dispatch:
+    _dispatch_transform: DispatchTransform
+    _func_kwargs: Dict[str, Any]
     _namespace: str
-    _func_kwargs: Dict[str, Any] = dict
     _registered: QueryDict
 
-    def __init__(self, namespace: str = "Dispatch", dispatch_transform: Callable[[tuple, dict], Tuple[Union[tuple, None], dict]] = None, **kwargs) -> None:
+    def __init__(self, namespace: str, dispatch_transform: DispatchTransform = None, **kwargs) -> None:
         """
         Initialize a Dispatch object
         :param namespace: Namespace of the dispatch - default 'Dispatch'
@@ -31,7 +26,7 @@ class Dispatch:
         self._dispatch_transform = dispatch_transform
         self._func_kwargs = kwargs
         self._registered = QueryDict(
-            default=lambda *args, **kwargs: AttributeError("Default function not set")
+            default=lambda *a, **k: AttributeError("Default function not set")
         )
 
     @property
@@ -51,7 +46,8 @@ class Dispatch:
         """
         return self._registered.compositeKeys()
 
-    def dispatch(self, key: str = None, *args, **kwargs) -> dict:
+    # pylint: disable=keyword-arg-before-vararg
+    def dispatch(self, key: str, *args, **kwargs) -> dict:
         """
         Dispatch function based on the given key with the args and kwargs
         :param key: key/namespace of the function to call
@@ -59,16 +55,17 @@ class Dispatch:
         :param kwargs: key word args to pass to the function
         :return: function results - dict
         """
-        fun = self._dispatch(key, init=True)
         fun_kwargs = self._func_kwargs.copy()
         fun_kwargs.update(kwargs)
 
-        if self._dispatch_transform:
-            args, fun_kwargs = self._dispatch_transform(*args, **fun_kwargs)
+        if fun_trans := self._dispatch_transform:
+            args, fun_kwargs = fun_trans(*args, **fun_kwargs)
 
+        fun = self._dispatch(key)
         return fun(*args, **fun_kwargs) if isinstance(args, tuple) else kwargs
 
-    def register(self, fun: Callable = None, key: str = None) -> Union[None, Callable]:
+    # pylint: disable=keyword-arg-before-vararg
+    def register(self, fun: Callable = None, key: str = None) -> Callable:
         """
         Register a function
         usable as a wrapper or standard function call
@@ -78,40 +75,38 @@ class Dispatch:
         if fun is None and key:
             return partial(self.register, key=key)
 
-        key = key if key else fun.__name__
+        key = key or fun.__name__
         self._registered[key] = fun
+        return fun
 
-    def register_dispatch(self, dispatch: 'Dispatch' = None) -> None:
+    def register_dispatch(self, dispatch: 'Dispatch') -> None:
         """
         Register another Dispatch as a key
         :param dispatch: Dispatch instance to register
         """
         if dispatch.namespace:
             if dispatch.namespace in self._registered:
-                raise NameError(f"Cannot register a namespace twice, { dispatch.namespace } already exists")
+                raise NameError(f"Cannot register a namespace twice, {dispatch.namespace} already exists")
             self._registered[dispatch.namespace] = dispatch._registered
         else:
             raise AttributeError("Cannot register a dispatch without a namespace")
 
     # Helper Functions
-    def _dispatch(self, key: str = "", rem_key: tuple = (), init: bool = False) -> Callable[[tuple, dict], dict]:
+    def _dispatch(self, key: str) -> Callable[[tuple, dict], dict]:
         """
         dispatch function helper, get nested function if available
         :param key: key/namespace of the function to call
-        :param rem_key: remaining portion of the key
-        :param init: initial call of function
         :return: registered function
         """
-        if len(rem_key) == 0 and init:
-            keys = key.split(".")
-            key = keys[0]
-            rem_key = tuple(keys[1:])
-
-        val = self._registered.get(key, None)
-        if val:
-            if isfunction(val) and not init:
-                return val
-            else:
-                return self._dispatch(".".join([key, rem_key[0]]), rem_key=() if len(rem_key) == 0 else rem_key[1:])
-        else:
-            return self._registered.get(".".join([*key.split(".")[:-1], "default"]), self._registered["default"])
+        keys = key.split('.')
+        if base := self._registered.get(keys[0], None):
+            for k in keys[1:]:
+                if k in base:
+                    base = base[k]
+                    if isfunction(base):
+                        return base
+                else:
+                    if default := base.get('default', None):
+                        if isfunction(default):
+                            return default
+        return self._registered["default"]

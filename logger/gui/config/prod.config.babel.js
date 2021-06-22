@@ -19,7 +19,7 @@ const BUILD_DIR = path.join(ROOT_DIR, 'build');
 const COMPONENTS_DIR = path.join(ROOT_DIR, 'src', 'components');
 const DEPEND_DIR = path.join(COMPONENTS_DIR, 'dependencies');
 
-export default merge.smart(baseConfig, {
+export default merge(baseConfig, {
   mode: env,
   devtool: 'source-map',
   resolve: {
@@ -40,8 +40,7 @@ export default merge.smart(baseConfig, {
     }),
     new MiniCssExtractPlugin({
       filename: 'css/[name].bundle.min.css',
-      chunkFilename: 'css/[name].bundle.min.css',
-      allChunks: true
+      chunkFilename: 'css/[name].bundle.min.css'
     }),
     new CopyWebpackPlugin([
       { // Custom Assets
@@ -50,7 +49,7 @@ export default merge.smart(baseConfig, {
         toType: 'dir'
       },
       { // Theme Assets
-        from: path.join(COMPONENTS_DIR, 'utils', 'theme-switcher', 'assets'),
+        from: path.resolve('node_modules', 'react-bootswatch-theme-switcher', 'assets'),
         to: path.join(BUILD_DIR, 'assets'),
         toType: 'dir'
       }
@@ -90,14 +89,8 @@ export default merge.smart(baseConfig, {
   optimization: {
     minimizer: [
       new TerserPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: false,
-        terserOptions: {
-          output: {
-            comments: false
-          }
-        }
+        extractComments: false,
+        parallel: true
       }),
       new OptimizeCSSAssetsPlugin({
         cssProcessorPluginOptions: {
@@ -117,7 +110,19 @@ export default merge.smart(baseConfig, {
   module: {
     rules: [
       {
-        test: /\.(c|le)ss$/,
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              url: false
+            }
+          }
+        ]
+      },
+      {
+        test: /\.s[ac]ss$/,
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -126,14 +131,9 @@ export default merge.smart(baseConfig, {
               url: false
             }
           },
-          {
-            loader: 'less-loader',
-            options: {
-              strictMath: true
-            }
-          }
+          'sass-loader'
         ]
-      }
+      },
     ]
   }
 });

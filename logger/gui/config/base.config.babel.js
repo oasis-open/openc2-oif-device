@@ -14,7 +14,7 @@ export default {
   mode: env,
   devtool: 'inline-source-map',
   entry: {
-    main: path.join(ROOT_DIR, 'src', 'index.js')
+    main: path.join(ROOT_DIR, 'src', 'index.jsx')
   },
   output: {
     path: BUILD_DIR,
@@ -30,7 +30,6 @@ export default {
     new webpack.DefinePlugin({
       NODE_ENV: env
     }),
-    new webpack.NamedModulesPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.join(DEPEND_DIR, 'index.html')
@@ -59,8 +58,8 @@ export default {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        test: /\.[jt]sx?$/,
+        exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -69,7 +68,19 @@ export default {
         }
       },
       {
-        test: /\.(c|le)ss$/,
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              url: false
+            }
+          }
+        ]
+      },
+      {
+        test: /\.s[ac]ss$/,
         use: [
           'style-loader',
           {
@@ -78,12 +89,7 @@ export default {
               url: false
             }
           },
-          {
-            loader: 'less-loader',
-            options: {
-              strictMath: true
-            }
-          }
+          'sass-loader'
         ]
       },
       {

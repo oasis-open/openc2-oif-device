@@ -1,0 +1,37 @@
+{
+  "headers": {
+    "to": [],
+    "from": "",
+    "created": 1611227337000,
+    "request_id": "15e2de83-61c2-4857-991a-fc50f2d51da8"
+  },
+  "body": {
+    "openc2": {
+      "request": {
+        "action": "deny",
+        "target": {
+          "ipv4_connection": {
+            "protocol": "tcp",
+            "src_addr": "1.2.3.4",
+            "src_port": 10996,
+            "dst_addr": "198.2.3.4",
+            "dst_port": 80
+          }
+        },
+        "args": {
+          "start_time": 1534775460000,
+          "duration": 500,
+          "response_requested": "ack",
+          "slpf": {
+            "drop_process": "none"
+          }
+        },
+        "actuator": {
+          "slpf": {
+            "asset_id": "30"
+          }
+        }
+      }
+    }
+  }
+}

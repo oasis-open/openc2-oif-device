@@ -15,41 +15,7 @@ from typing import (
     Union
 )
 
-from . import util
-from .constants import (
-    BYTE_MARKER_END_OF_CONTENT,
-    BYTE_MARKER_END_OF_STRING,
-    HEADER_BIT_HAS_RAW_BINARY,
-    HEADER_BIT_HAS_SHARED_NAMES,
-    HEADER_BIT_HAS_SHARED_STRING_VALUES,
-    HEADER_BIT_VERSION,
-    HEADER_BYTE_1,
-    HEADER_BYTE_2,
-    HEADER_BYTE_3,
-    INT_MISC_BINARY_7BIT,
-    INT_MISC_BINARY_RAW,
-    NULL_BIT,
-    TOKEN_BYTE_FLOAT_32,
-    TOKEN_BYTE_FLOAT_64,
-    TOKEN_LITERAL_EMPTY_STRING,
-    TOKEN_LITERAL_END_ARRAY,
-    TOKEN_LITERAL_END_OBJECT,
-    TOKEN_LITERAL_FALSE,
-    TOKEN_LITERAL_NULL,
-    TOKEN_LITERAL_START_ARRAY,
-    TOKEN_LITERAL_START_OBJECT,
-    TOKEN_LITERAL_TRUE,
-    TOKEN_MISC_LONG_TEXT_ASCII,
-    TOKEN_MISC_LONG_TEXT_UNICODE,
-    TOKEN_PREFIX_FP,
-    TOKEN_PREFIX_INTEGER,
-    TOKEN_PREFIX_KEY_ASCII,
-    TOKEN_PREFIX_KEY_SHARED_LONG,
-    TOKEN_PREFIX_KEY_SHARED_SHORT,
-    TOKEN_PREFIX_KEY_UNICODE,
-    TOKEN_PREFIX_SHARED_STRING_LONG,
-    TOKEN_RESERVED
-)
+from . import constants, util
 
 log = logging.getLogger()
 if not log.handlers:
@@ -60,7 +26,7 @@ class SMILEDecodeError(Exception):
     pass
 
 
-class DecodeMode(Enum):
+class DecodeMode(int, Enum):
     HEAD = 0       # Waiting for magic header :)
     ROOT = 1       # Waiting for Root object
     ARRAY = 2      # In array context
@@ -80,7 +46,7 @@ class SmileHeader:
 
 class SmileDecoder:
     input: bytearray
-    output: list  # List[...]
+    output: List  # List[...]
     mode: DecodeMode
     error: str
     index: int
@@ -94,7 +60,7 @@ class SmileDecoder:
     _decoders: Dict[DecodeMode, Callable]
 
     def __init__(self, smile: Union[bytes, str] = None):
-        self._init(smile)
+        self.init(smile)
         self._decoders = {
             DecodeMode.HEAD: self._decode_header,
             DecodeMode.ROOT: self._decode_RAV,
@@ -103,7 +69,7 @@ class SmileDecoder:
             DecodeMode.KEY: self._decode_key
         }
 
-    def _init(self, smile: Union[bytes, str] = None) -> None:
+    def init(self, smile: Union[bytes, str] = None) -> None:
         # Input
         if smile:
             smile = smile if isinstance(smile, bytes) else bytes(smile, "UTF-8")
@@ -118,7 +84,7 @@ class SmileDecoder:
         self.mode = DecodeMode.HEAD
 
         # Error message
-        self.error = None
+        del self.error
 
         # Current read index
         self.index = 0
@@ -136,7 +102,7 @@ class SmileDecoder:
         self.first_key = [False] * 30
 
         # smile header
-        self.header = None
+        del self.header
 
         # Cached Keys for back references
         self.shared_key_strings = []
@@ -242,150 +208,150 @@ class SmileDecoder:
     # Actual decoding
     def _decode_header(self) -> None:
         head = self.pull_bits(3)
-        if not (head and head.startswith(HEADER_BYTE_1 + HEADER_BYTE_2 + HEADER_BYTE_3)):
+        if not (head and head.startswith(constants.HEADER_BYTE_1 + constants.HEADER_BYTE_2 + constants.HEADER_BYTE_3)):
             self.mode = DecodeMode.BAD
             self.error = "Invalid Header!"
             return
         self.mode = DecodeMode.ROOT
         features = self.pull_byte()
         self.header = SmileHeader(
-            version=features & HEADER_BIT_VERSION,
-            raw_binary=bool((features & HEADER_BIT_HAS_RAW_BINARY) >> 2),
-            shared_keys=bool(features & HEADER_BIT_HAS_SHARED_NAMES),
-            shared_values=bool((features & HEADER_BIT_HAS_SHARED_STRING_VALUES) >> 1)
+            version=features & constants.HEADER_BIT_VERSION,
+            raw_binary=bool((features & constants.HEADER_BIT_HAS_RAW_BINARY) >> 2),
+            shared_keys=bool(features & constants.HEADER_BIT_HAS_SHARED_NAMES),
+            shared_values=bool((features & constants.HEADER_BIT_HAS_SHARED_STRING_VALUES) >> 1)
         )
 
     def _decode_RAV(self) -> None:
-        byt = self.pull_byte()
-        if byt is None:
-            log.debug("No bytes left to read!")
-            self.mode = DecodeMode.DONE
-            return
-        log.debug("Pulled Byte: 0x{:x}".format(byt))
+        if byt := self.pull_byte():
+            log.debug("Pulled Byte: 0x{:x}".format(byt))
 
-        if self.in_array[self.nested_depth]:
-            if self.first_array_element[self.nested_depth]:
-                self.first_array_element[self.nested_depth] = False
-            elif byt != TOKEN_LITERAL_END_ARRAY:
-                self.write(",")
+            if self.in_array[self.nested_depth]:
+                if self.first_array_element[self.nested_depth]:
+                    self.first_array_element[self.nested_depth] = False
+                elif byt != constants.TOKEN_LITERAL_END_ARRAY:
+                    self.write(",")
 
-        if byt == NULL_BIT:
-            log.debug("Token: Null Bit (skip)")
-        elif 0x01 <= byt <= 0x1F:
-            log.debug("Token: Shared Value String")
-            self.copy_shared_value_string()
-        elif TOKEN_LITERAL_EMPTY_STRING <= byt <= TOKEN_LITERAL_TRUE:
-            # Simple literals, numbers
-            msg, b = {
-                TOKEN_LITERAL_EMPTY_STRING: ("Token: Empty String", "\"\""),
-                TOKEN_LITERAL_NULL: ("Token: Literal Null", "null"),
-                TOKEN_LITERAL_FALSE: ("Token: Literal False", "false"),
-                TOKEN_LITERAL_TRUE: ("Token: Literal True", "true"),
-            }.get(byt)
-            log.debug(msg)
-            self.write(b)
-        elif TOKEN_PREFIX_INTEGER <= byt < TOKEN_PREFIX_FP:
-            # Integral numbers
-            log.debug("Token: Integral Numbers")
-            smile_value_length = byt & 0x03
-            if smile_value_length < 2:
-                self.zzvarint_decode()
-            elif smile_value_length == 2:
-                # BigInteger
-                log.warning("Not Yet Implemented: Value BigInteger")
-            else:
-                # Reserved for future use
-                log.warning("Reserved: integral numbers with length >= 3")
-        elif TOKEN_PREFIX_FP <= byt <= 0x2B:
-            # Floating point numbers
-            if byt == TOKEN_BYTE_FLOAT_32:
-                b1, b2, b3, b4, b5 = self.pull_bits(5)
-                byt = (b1 | (b2 << 7) | (b3 << 14) | (b4 << 21) | (b5 << 28))
-                try:
-                    flt = util.bits_to_float(byt)
-                except struct.error:
+            if byt == constants.NULL_BIT:
+                log.debug("Token: Null Bit (skip)")
+            elif 0x01 <= byt <= 0x1F:
+                log.debug("Token: Shared Value String")
+                self.copy_shared_value_string()
+            elif constants.TOKEN_LITERAL_EMPTY_STRING <= byt <= constants.TOKEN_LITERAL_TRUE:
+                # Simple literals, numbers
+                msg, b = {
+                    constants.TOKEN_LITERAL_EMPTY_STRING: ("Token: Empty String", "\"\""),
+                    constants.TOKEN_LITERAL_NULL: ("Token: Literal Null", "null"),
+                    constants.TOKEN_LITERAL_FALSE: ("Token: Literal False", "false"),
+                    constants.TOKEN_LITERAL_TRUE: ("Token: Literal True", "true"),
+                }.get(byt)
+                log.debug(msg)
+                self.write(b)
+            elif constants.TOKEN_PREFIX_INTEGER <= byt < constants.TOKEN_PREFIX_FP:
+                # Integral numbers
+                log.debug("Token: Integral Numbers")
+                smile_value_length = byt & 0x03
+                if smile_value_length < 2:
+                    self.zzvarint_decode()
+                elif smile_value_length == 2:
+                    # BigInteger
+                    log.warning("Not Yet Implemented: Value BigInteger")
+                else:
+                    # Reserved for future use
+                    log.warning("Reserved: integral numbers with length >= 3")
+            elif constants.TOKEN_PREFIX_FP <= byt <= 0x2B:
+                # Floating point numbers
+                if byt == constants.TOKEN_BYTE_FLOAT_32:
+                    b1, b2, b3, b4, b5 = self.pull_bits(5)
+                    byt = (b1 | (b2 << 7) | (b3 << 14) | (b4 << 21) | (b5 << 28))
+                    try:
+                        flt = util.bits_to_float(byt)
+                    except struct.error:
+                        flt = util.long_bits_to_float(byt)
+                    self.write(flt)
+                elif byt == constants.TOKEN_BYTE_FLOAT_64:
+                    b1, b2, b3, b4, b5, b6, b7, b8, b9 = self.pull_bits(9)
+                    byt = (b1 | (b2 << 7) | (b3 << 14) | (b4 << 21) | (b5 << 28) | (b6 << 35) | (b7 << 42) | (b8 << 49) | (b9 << 56))
                     flt = util.long_bits_to_float(byt)
-                self.write(flt)
-            elif byt == TOKEN_BYTE_FLOAT_64:
-                b1, b2, b3, b4, b5, b6, b7, b8, b9 = self.pull_bits(9)
-                byt = (b1 | (b2 << 7) | (b3 << 14) | (b4 << 21) | (b5 << 28) | (b6 << 35) | (b7 << 42) | (b8 << 49) | (b9 << 56))
-                flt = util.long_bits_to_float(byt)
-                self.write(flt)
+                    self.write(flt)
+                else:
+                    log.warning("Not Yet Implemented")
+            elif 0x2C <= byt <= 0x3F:
+                # Reserved for future use
+                log.warning("Reserved: 0x2C <= value <= 0x3F")
+            elif 0x40 <= byt <= 0x5F or 0x80 <= byt <= 0x9F:
+                # Tiny ASCII/Unicode
+                log.debug("Token: Tiny ASCII/Unicode")
+                smile_value_length = (byt & 0x1F) + 1
+                self.copy_value_string(smile_value_length)
+            elif 0x60 <= byt <= 0x7F or 0xA0 <= byt <= 0xBF:
+                # Small ASCII/Unicode
+                log.debug("Token: Small ASCII/Unicode")
+                smile_value_length = (byt & 0x1F) + 33
+                self.copy_value_string(smile_value_length)
+            elif 0xC0 <= byt <= 0xDF:
+                # Small Integers
+                log.debug("Token: Small Integer")
+                self.write(util.zigzag_decode(byt & 0x1F))
             else:
-                log.warning("Not Yet Implemented")
-        elif 0x2C <= byt <= 0x3F:
-            # Reserved for future use
-            log.warning("Reserved: 0x2C <= value <= 0x3F")
-        elif 0x40 <= byt <= 0x5F or 0x80 <= byt <= 0x9F:
-            # Tiny ASCII/Unicode
-            log.debug("Token: Tiny ASCII/Unicode")
-            smile_value_length = (byt & 0x1F) + 1
-            self.copy_value_string(smile_value_length)
-        elif 0x60 <= byt <= 0x7F or 0xA0 <= byt <= 0xBF:
-            # Small ASCII/Unicode
-            log.debug("Token: Small ASCII/Unicode")
-            smile_value_length = (byt & 0x1F) + 33
-            self.copy_value_string(smile_value_length)
-        elif 0xC0 <= byt <= 0xDF:
-            # Small Integers
-            log.debug("Token: Small Integer")
-            self.write(util.zigzag_decode(byt & 0x1F))
-        else:
-            # Misc binary / text / structure markers
-            if TOKEN_MISC_LONG_TEXT_ASCII <= byt < TOKEN_MISC_LONG_TEXT_UNICODE:
-                # Long (variable length) ASCII text
-                log.debug("Token: Long (var length) ASCII Test")
-                self.copy_variable_length_string()
-            elif TOKEN_MISC_LONG_TEXT_UNICODE <= byt < INT_MISC_BINARY_7BIT:
-                log.warning("Not Yet Implemented: Value Long Unicode")
-            elif INT_MISC_BINARY_7BIT <= byt < TOKEN_PREFIX_SHARED_STRING_LONG:
-                log.warning("Not Yet Implemented: Value Long Shared String Reference")
-            elif TOKEN_PREFIX_SHARED_STRING_LONG <= byt < HEADER_BIT_VERSION:
-                # Binary, 7-bit encoded
-                log.warning("Not Yet Implemented: Value Binary")
-            elif HEADER_BIT_VERSION <= byt < TOKEN_LITERAL_START_ARRAY:
-                log.warning("Reserved: 0xF0 <= value <= 0xF8")
-            elif byt == TOKEN_LITERAL_START_ARRAY:
-                # START_ARRAY
-                log.debug("Token: Start Array")
-                self.write("[")
-                self.nested_depth += 1
-                self.in_array[self.nested_depth] = True
-                self.first_array_element[self.nested_depth] = True
-                self.first_key[self.nested_depth] = False
-            elif byt == TOKEN_LITERAL_END_ARRAY:
-                # END_ARRAY
-                log.debug("Token: End Array")
-                self.write("]")
-                self.nested_depth -= 1
-            elif byt == TOKEN_LITERAL_START_OBJECT:
-                # START_OBJECT
-                log.debug("Token: Start Object")
-                self.write("{")
-                self.nested_depth += 1
-                self.in_array[self.nested_depth] = False
-                self.first_array_element[self.nested_depth] = False
-                self.first_key[self.nested_depth] = True
-                self.mode = DecodeMode.KEY
-                return
-            elif byt == TOKEN_LITERAL_END_OBJECT:
-                log.debug("Token: End Object")
-                log.warning("Reserved: value == 0xFB")
-            elif byt == BYTE_MARKER_END_OF_STRING:
-                log.error("Found end-of-String marker (0xFC) in value mode")
-            elif byt == INT_MISC_BINARY_RAW:
-                log.warning("Not Yet Implemented: Raw Binary Data")
-            elif byt == BYTE_MARKER_END_OF_CONTENT:
-                log.debug("Token: End Marker")
-                self.mode = DecodeMode.DONE
-                return
+                # Misc binary / text / structure markers
+                if constants.TOKEN_MISC_LONG_TEXT_ASCII <= byt < constants.TOKEN_MISC_LONG_TEXT_UNICODE:
+                    # Long (variable length) ASCII text
+                    log.debug("Token: Long (var length) ASCII Test")
+                    self.copy_variable_length_string()
+                elif constants.TOKEN_MISC_LONG_TEXT_UNICODE <= byt < constants.INT_MISC_BINARY_7BIT:
+                    log.warning("Not Yet Implemented: Value Long Unicode")
+                elif constants.INT_MISC_BINARY_7BIT <= byt < constants.TOKEN_PREFIX_SHARED_STRING_LONG:
+                    log.warning("Not Yet Implemented: Value Long Shared String Reference")
+                elif constants.TOKEN_PREFIX_SHARED_STRING_LONG <= byt < constants.HEADER_BIT_VERSION:
+                    # Binary, 7-bit encoded
+                    log.warning("Not Yet Implemented: Value Binary")
+                elif constants.HEADER_BIT_VERSION <= byt < constants.TOKEN_LITERAL_START_ARRAY:
+                    log.warning("Reserved: 0xF0 <= value <= 0xF8")
+                elif byt == constants.TOKEN_LITERAL_START_ARRAY:
+                    # START_ARRAY
+                    log.debug("Token: Start Array")
+                    self.write("[")
+                    self.nested_depth += 1
+                    self.in_array[self.nested_depth] = True
+                    self.first_array_element[self.nested_depth] = True
+                    self.first_key[self.nested_depth] = False
+                elif byt == constants.TOKEN_LITERAL_END_ARRAY:
+                    # END_ARRAY
+                    log.debug("Token: End Array")
+                    self.write("]")
+                    self.nested_depth -= 1
+                elif byt == constants.TOKEN_LITERAL_START_OBJECT:
+                    # START_OBJECT
+                    log.debug("Token: Start Object")
+                    self.write("{")
+                    self.nested_depth += 1
+                    self.in_array[self.nested_depth] = False
+                    self.first_array_element[self.nested_depth] = False
+                    self.first_key[self.nested_depth] = True
+                    self.mode = DecodeMode.KEY
+                    return
+                elif byt == constants.TOKEN_LITERAL_END_OBJECT:
+                    log.debug("Token: End Object")
+                    log.warning("Reserved: value == 0xFB")
+                elif byt == constants.BYTE_MARKER_END_OF_STRING:
+                    log.error("Found end-of-String marker (0xFC) in value mode")
+                elif byt == constants.INT_MISC_BINARY_RAW:
+                    log.warning("Not Yet Implemented: Raw Binary Data")
+                elif byt == constants.BYTE_MARKER_END_OF_CONTENT:
+                    log.debug("Token: End Marker")
+                    self.mode = DecodeMode.DONE
+                    return
 
-        if not self.in_array[self.nested_depth]:
-            self.mode = DecodeMode.KEY
+            if not self.in_array[self.nested_depth]:
+                self.mode = DecodeMode.KEY
+            return
+
+        log.debug("No bytes left to read!")
+        self.mode = DecodeMode.DONE
 
     def _decode_key(self) -> None:
         byt = self.pull_byte()
-        if byt is None or byt == BYTE_MARKER_END_OF_CONTENT:
+        if byt in [None, constants.BYTE_MARKER_END_OF_CONTENT]:
             log.debug("No bytes left to read!")
             self.mode = DecodeMode.DONE
             return
@@ -394,7 +360,7 @@ class SmileDecoder:
         try:
             if self.first_key[self.nested_depth]:
                 self.first_key[self.nested_depth] = False
-            elif byt != TOKEN_LITERAL_END_OBJECT:
+            elif byt != constants.TOKEN_LITERAL_END_OBJECT:
                 self.write(",")
         except IndexError:
             self.first_key.append(False)
@@ -402,13 +368,13 @@ class SmileDecoder:
         # Byte ranges are divided in 4 main sections (64 byte values each)
         if 0x00 <= byt <= 0x1F:
             log.warning("Reserved: 0x01 <= key <= 0x1F")
-        elif byt == TOKEN_LITERAL_EMPTY_STRING:
+        elif byt == constants.TOKEN_LITERAL_EMPTY_STRING:
             # Empty String
             log.debug("Token: Literal Empty String")
             self.write("\"\"")
-        elif TOKEN_LITERAL_NULL <= byt <= 0x2F:
+        elif constants.TOKEN_LITERAL_NULL <= byt <= 0x2F:
             log.warning("Reserved: 0x21 <= key <= 0x2F")
-        elif TOKEN_PREFIX_KEY_SHARED_LONG <= byt <= 0x33:
+        elif constants.TOKEN_PREFIX_KEY_SHARED_LONG <= byt <= 0x33:
             # "Long" shared key name reference
             log.warning("Not Yet Implemented: Long Shared Key Name Reference")
         elif byt == 0x32:
@@ -420,25 +386,25 @@ class SmileDecoder:
             log.error("0x3A NOT allowed in Key mode")
         elif 0x3B <= byt <= 0x3F:
             log.warning("Reserved: 0x3B <= key <= 0x3F")
-        elif TOKEN_PREFIX_KEY_SHARED_SHORT <= byt <= 0x7F:
+        elif constants.TOKEN_PREFIX_KEY_SHARED_SHORT <= byt <= 0x7F:
             # "Short" shared key name reference (1 byte lookup)
             log.debug("Token: Short Shared Key Name Reference")
             self.copy_shared_key_string()
-        elif TOKEN_PREFIX_KEY_ASCII <= byt <= 0xBF:
+        elif constants.TOKEN_PREFIX_KEY_ASCII <= byt <= 0xBF:
             # Short Ascii names
             # 5 LSB used to indicate lengths from 2 to 32 (bytes == chars)
             log.debug("Token: Short ASCII Name")
             smile_key_length = (byt & 0x1F) + 1
             self.copy_key_string(smile_key_length)
-        elif TOKEN_PREFIX_KEY_UNICODE <= byt <= TOKEN_RESERVED:
+        elif constants.TOKEN_PREFIX_KEY_UNICODE <= byt <= constants.TOKEN_RESERVED:
             # Short Unicode names
             # 5 LSB used to indicate lengths from 2 to 57
             log.debug("Token: Short Unicode Name")
             smile_key_length = (byt - 0xC0) + 2
             self.copy_key_string(smile_key_length)
-        elif TOKEN_LITERAL_START_ARRAY <= byt <= TOKEN_LITERAL_START_OBJECT:
+        elif constants.TOKEN_LITERAL_START_ARRAY <= byt <= constants.TOKEN_LITERAL_START_OBJECT:
             log.warning("Reserved: 0xF8 <= key <= 0xFA")
-        elif byt == TOKEN_LITERAL_END_OBJECT:
+        elif byt == constants.TOKEN_LITERAL_END_OBJECT:
             log.debug("Token: Literal End Object")
             self.write("}")
             self.nested_depth -= 1
@@ -448,7 +414,7 @@ class SmileDecoder:
                 in_arry = False
             self.mode = DecodeMode.VALUE if in_arry else DecodeMode.KEY
             return
-        elif byt >= BYTE_MARKER_END_OF_STRING:
+        elif byt >= constants.BYTE_MARKER_END_OF_STRING:
             log.warning("Reserved: key >= 0xFC")
         self.mode = DecodeMode.VALUE
 
@@ -459,7 +425,7 @@ class SmileDecoder:
         :returns: Decoded python object
         """
         if smile:
-            self._init(smile)
+            self.init(smile)
         elif len(self.input) > 0:
             pass
         else:

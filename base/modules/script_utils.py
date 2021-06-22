@@ -222,6 +222,7 @@ def update_repo(repo_url, repo_path, branch="master"):
         branch = branch if f"refs/heads/{branch}" in git_lsremote(repo_url) else CONFIG.DefaultBranch
         repo = git.Repo.clone_from(repo_url, repo_path, branch=branch)
     except git.cmd.GitCommandError as e:
+        print(e)
         return e
 
     os.chdir(repo_path)

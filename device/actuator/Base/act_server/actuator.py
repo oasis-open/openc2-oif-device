@@ -1,4 +1,4 @@
-from .actions import (
+from actions import (
     Query
 )
 from sb_utils.actuator import ActuatorBase

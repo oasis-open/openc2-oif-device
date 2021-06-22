@@ -1,15 +1,11 @@
+"""
+Local Cache for ETCd values
+"""
 import etcd
 
 from threading import Event, Thread
 from time import sleep
-from typing import (
-    Callable,
-    List,
-    Tuple,
-    Union
-)
-
-# Local imports
+from typing import Callable, List, Tuple, Union
 from .general import isFunction
 from .ext_dicts import FrozenDict, QueryDict
 
@@ -31,7 +27,7 @@ class ReusableThread(Thread):
     finish() will finish the whole thread (after that, it's not restartable anymore)
     """
 
-    def __init__(self, target, args: tuple = None, kwargs: dict = None):
+    def __init__(self, target: Callable, args: tuple = None, kwargs: dict = None):
         self._startSignal = Event()
         self._oneRunFinished = Event()
         self._finishIndicator = False
@@ -40,13 +36,13 @@ class ReusableThread(Thread):
         self._callableKwargs = kwargs or {}
         Thread.__init__(self)
 
-    def restart(self):
+    def restart(self) -> None:
         """
         make sure to always call join() before restarting
         """
         self._startSignal.set()
 
-    def run(self):
+    def run(self) -> None:
         """
         This class will reprocess the object "processObject" forever.
         Through the change of data inside processObject and start signals
@@ -56,20 +52,17 @@ class ReusableThread(Thread):
         while True:
             # wait until we should process
             self._startSignal.wait()
-
             self._startSignal.clear()
-
             if self._finishIndicator:  # check, if we want to stop
                 self._oneRunFinished.set()
                 return
 
             # call the threaded function
             self._callable(*self._callableArgs, **self._callableKwargs)
-
             # notify about the run's end
             self._oneRunFinished.set()
 
-    def join(self, timeout=None):
+    def join(self, timeout: float = None) -> None:
         """
         This join will only wait for one single run (target functioncall) to be finished
         """
@@ -77,7 +70,7 @@ class ReusableThread(Thread):
         self._oneRunFinished.clear()
         self.restart()
 
-    def finish(self):
+    def finish(self) -> None:
         self._finishIndicator = True
         self.restart()
         self.join(5)
@@ -104,7 +97,6 @@ class EtcdCache:
         )
         self._root = base if base.endswith('/') else f'{base}/'
         self._timeout = timeout
-
         self._initial()
         self._etcd_updater = ReusableThread(target=self._update, kwargs={'wait': True})
         self._etcd_updater.setDaemon(True)
@@ -114,7 +106,7 @@ class EtcdCache:
     def cache(self) -> FrozenDict:
         return FrozenDict(self._data)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self._etcd_updater.join(5)
         self._etcd_updater.finish()
 

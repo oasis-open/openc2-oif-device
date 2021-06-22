@@ -1,16 +1,7 @@
 import copy
 
-from typing import (
-    Any,
-    List,
-    Sequence
-)
-
+from typing import Any, List
 from .general import safe_cast
-
-
-# Dictionary Methods
-# ...
 
 
 # Dictionary Classes
@@ -23,36 +14,42 @@ class ObjectDict(dict):
         SAME AS
     d.key = 'value'
     """
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Initialize an QueryDict
+        :param args: positional parameters
+        :param kwargs: key/value parameters
+        """
+        dict.__init__(self, *args, **kwargs)
+        Cls = self.__class__
 
-    def __getattr__(self, key: Any) -> Any:
-        """
-        Get an key as if an attribute - ObjectDict.key - SAME AS - ObjectDict['key']
-        :param key: key to get value of
-        :return: value of given key
-        """
-        if key in self:
-            return self[key]
-        raise AttributeError(f"No such attribute {key}")
+        for k, v in self.items():
+            if isinstance(v, dict) and not isinstance(v, Cls):
+                dict.__setitem__(self, k, Cls(v))
+            elif isinstance(v, (list, tuple)):
+                dict.__setitem__(self, k, tuple(Cls(i) if isinstance(i, dict) else i for i in v))
 
-    def __setattr__(self, key: Any, val: Any) -> None:
+    def __setitem__(self, key: str, value: Any) -> None:
         """
-        Set an key as if an attribute - d.key = 'value' - SAME AS - d['key'] = 'value'
-        :param key: key to create/override
-        :param val: value to set
+        Override setitem of dict to change the value to an ObjectDict if a standard dictionary
+        :param key: property name
+        :param value: property value
         :return: None
         """
-        self[key] = self.__class__(val) if isinstance(val, dict) else val
+        value = ObjectDict(value) if isinstance(value, dict) else value
+        dict.__setitem__(self, key, value)
 
-    def __delattr__(self, key: Any) -> None:
-        """
-        Remove a key as if an attribute - del d.key - SAME AS - del d['key']
-        :param key: key to remove/delete
-        :return: None
-        """
-        if key in self:
-            del self[key]
-        else:
-            raise AttributeError(f"No such attribute: {key}")
+    __getattr__ = dict.__getitem__
+    __setattr__ = __setitem__
+    __delattr__ = dict.__delitem__
+
+    def __copy__(self):
+        cls = self.__class__
+        return cls(copy.copy(dict(self)))
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        return cls(copy.deepcopy(dict(self)))
 
 
 class FrozenDict(ObjectDict):
@@ -60,23 +57,6 @@ class FrozenDict(ObjectDict):
     Immutable/Frozen dictionary
     """
     _hash: hash
-
-    def __init__(self, seq: Sequence = None, **kwargs) -> None:
-        """
-        Initialize an QueryDict
-        :param seq: initial Sequence data
-        :param kwargs: key/value parameters
-        """
-        if seq:
-            ObjectDict.__init__(self, seq, **kwargs)
-        else:
-            ObjectDict.__init__(self, **kwargs)
-
-        for k, v in self.items():
-            if isinstance(v, dict) and not isinstance(v, self.__class__):
-                ObjectDict.__setitem__(self, k, FrozenDict(v))
-            elif isinstance(v, (list, tuple)):
-                ObjectDict.__setitem__(self, k, tuple(FrozenDict(i) if isinstance(i, dict) else i for i in v))
 
     def __hash__(self) -> hash:
         """
@@ -97,7 +77,9 @@ class FrozenDict(ObjectDict):
         """
         raise TypeError('cannot change object - object is immutable')
 
+    __setattr__ = _immutable
     __setitem__ = _immutable
+    __delattr__ = _immutable
     __delitem__ = _immutable
     pop = _immutable
     popitem = _immutable
@@ -117,64 +99,45 @@ class QueryDict(ObjectDict):
     """
     separator: str = "."
 
-    def __init__(self, seq: Sequence = None, **kwargs) -> None:
-        """
-        Initialize an QueryDict
-        :param seq: initial Sequence data
-        :param kwargs: key/value parameters
-        """
-        if seq:
-            ObjectDict.__init__(self, seq, **kwargs)
-        else:
-            ObjectDict.__init__(self, **kwargs)
-
-        for k, v in self.items():
-            if isinstance(v, dict) and not isinstance(v, self.__class__):
-                ObjectDict.__setitem__(self, k, QueryDict(v))
-            elif isinstance(v, (list, tuple)):
-                ObjectDict.__setitem__(self, k, type(v)(QueryDict(i) if isinstance(i, dict) else i for i in v))
-
     # Override Functions
-    def get(self, path: str, default: Any = None, sep: str = None) -> Any:
+    def get(self, path: str, default: Any = None) -> Any:
         """
         Get a key/path from the QueryDict
         :param path: key(s) to get the value of separated by the separator character
         :param default: default value if the pey/path is not found
-        :param sep: separator character to use, default - '.'
         :return: value of key/path or default
         """
-        sep = sep if sep else self.separator
-        path = self._pathSplit(str(path), sep)
+        if self.separator in path:
+            keys = self._pathSplit(str(path))
+            if any(k.startswith(path) for k in self.compositeKeys()):
+                rtn = self
+                for key in keys:
+                    if isinstance(rtn, ObjectDict):
+                        rtn = ObjectDict.__getitem__(rtn, key)
+                    elif isinstance(rtn, (list, tuple)) and len(rtn) > safe_cast(key, int, key):
+                        rtn = rtn[safe_cast(key, int, key)]
+                    else:
+                        raise AttributeError(f"Unknown type {type(rtn)}, cannot get value")
+                return rtn
+        elif path in self:
+            return ObjectDict.__getitem__(self, path)
 
-        if any(k.startswith(sep.join(path)) for k in self.compositeKeys()):
-            rtn = self
-            for key in path:
-                if isinstance(rtn, ObjectDict):
-                    rtn = ObjectDict.__getitem__(rtn, key)
-                elif isinstance(rtn, (list, tuple)) and len(rtn) > safe_cast(key, int, key):
-                    rtn = rtn[safe_cast(key, int, key)]
-                else:
-                    raise AttributeError(f"Unknown type {type(rtn)}, cannot get value")
-            return rtn
         return default
 
-    def set(self, path: str, val: Any, sep: str = None) -> None:
+    def set(self, path: str, val: Any) -> None:
         """
         Set a key/path in the QueryDict object
         :param path: key/path to set
         :param val: value to set
-        :param sep: separator character to use, default - '.'
         :return: None
         """
-        sep = sep if sep else self.separator
-        keys = self._pathSplit(str(path), sep)
-
         if isinstance(val, dict):
             val = QueryDict(val)
         elif isinstance(val, (list, tuple)):
             val = type(val)(QueryDict(i) if isinstance(i, dict) else i for i in val)
 
         obj = self
+        keys = self._pathSplit(str(path))
         for idx, key in enumerate(keys):
             key = safe_cast(key, int, key)
             next_key = safe_cast(keys[idx + 1], int, keys[idx + 1]) if len(keys) > idx + 1 else ""
@@ -190,7 +153,6 @@ class QueryDict(ObjectDict):
                     ObjectDict.__setitem__(obj, key, val)
                 else:
                     print(f"Other - {type(obj)}")
-
             elif key in obj:
                 obj = obj[key]
             elif isinstance(obj, list) and isinstance(key, int):
@@ -204,21 +166,18 @@ class QueryDict(ObjectDict):
             else:
                 obj = obj.setdefault(key, [] if isinstance(next_key, int) else ObjectDict())
 
-    def delete(self, path: str, sep: str = None) -> None:
+    def delete(self, path: str) -> None:
         """
         Delete a key/path in the QueryDict object
         :param path: key/path to delete
-        :param sep: separator character to use, default - '.'
         :return: None
         """
-        sep = sep if sep else self.separator
-        path = self._pathSplit(path, sep)
-
-        if any(k.startswith(sep.join(path)) for k in self.compositeKeys()):
+        if any(k.startswith(path) for k in self.compositeKeys()):
             ref = self
-            for idx, key in enumerate(path):
+            keys = self._pathSplit(path)
+            for idx, key in enumerate(keys):
                 key = safe_cast(key, int, key)
-                end = len(path) == idx + 1
+                end = len(keys) == idx + 1
 
                 if end:
                     if isinstance(ref, list) and isinstance(key, int):
@@ -228,15 +187,13 @@ class QueryDict(ObjectDict):
                         ObjectDict.__delitem__(ref, key)
                     else:
                         print(f"Other - {type(ref)}")
-
                 elif key in ref:
                     ref = ref[key]
                 elif isinstance(ref, list) and isinstance(key, int):
                     if len(ref) > key:
                         ref = ref[key]
                     else:
-                        raise KeyError(f"{sep.join(path[:idx])} does not exist")
-
+                        raise KeyError(f"{self.separator.join(keys[:idx])} does not exist")
                 else:
                     print(f"Other - {type(ref)}")
 
@@ -255,7 +212,7 @@ class QueryDict(ObjectDict):
         :param memo: ...
         :return: copy of QueryDict
         """
-        return QueryDict(copy.deepcopy(dict(self), memo))
+        return QueryDict(copy.deepcopy(dict(self)))
 
     __getattr__ = get
     __getitem__ = get
@@ -275,6 +232,9 @@ class QueryDict(ObjectDict):
         """
         sep = sep if sep else self.separator
         return self._compositeKeys(self, sep)
+
+    def setSeperator(self, value: str) -> None:
+        self.separator = value
 
     # Helper Functions
     def _compositeKeys(self, obj: Any, sep: str = None) -> List[str]:
@@ -298,12 +258,11 @@ class QueryDict(ObjectDict):
 
         return rtn
 
-    def _pathSplit(self, path: str, sep: str = None) -> List[str]:
+    def _pathSplit(self, path: str) -> List[str]:
         """
         Split the path based on the separator character
         :param path: path to split
         :param sep: separator character
         :return: list of separated keys
         """
-        sep = sep if sep else self.separator
-        return list(filter(None, path.split(sep)))
+        return list(filter(None, path.split(self.separator)))

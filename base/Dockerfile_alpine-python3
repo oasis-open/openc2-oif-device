@@ -37,11 +37,14 @@ COPY --from=builder /opt/velocitypack /
 # Packages - https://pkgs.alpinelinux.org/packages
 RUN apk add --no-cache libressl libstdc++ python3 && \
 apk add --no-cache --virtual .build-deps \
+  cargo \
   gcc \
+  git \
   libffi-dev \
   libressl-dev \
   linux-headers \
   musl-dev \
+  openssl-dev \
   python3-dev \
   yaml-dev && \
 #
@@ -50,7 +53,9 @@ python3 /tmp/get-pip.py && \
 pip3 install --no-cache-dir --upgrade pip && \
 #
 # SB_Utils install
-pip3 install /tmp/sb_utils/root && \
+cd /tmp/sb_utils/root && \
+pip3 install --no-cache-dir . && \
+cd && \
 #
 # Cleanup
 apk del --no-cache .build-deps && \

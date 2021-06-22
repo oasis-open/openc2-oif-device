@@ -11,12 +11,12 @@ COPY modules/tmp/ /tmp/
 # Packages - https://pkgs.alpinelinux.org/packages
 RUN apk add --no-cache --virtual .build-deps \
   gcc \
-  linux-headers \
-  musl-dev \
-  python3-dev && \
+  git && \
 #
 # SB_Utils install
-pip3 install /tmp/sb_utils/actuator && \
+cd /tmp/sb_utils/actuator && \
+pip3 install --no-cache-dir . && \
+cd && \
 #
 # Cleanup
 apk del --no-cache .build-deps && \
@@ -24,5 +24,4 @@ rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \
-pip3 --version && \
-python3 -c 'from sb_utils import actuator; print(actuator)'
+pip3 --version

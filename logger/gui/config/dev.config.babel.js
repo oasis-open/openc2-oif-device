@@ -14,7 +14,7 @@ const BUILD_DIR = path.join(ROOT_DIR, 'build');
 const COMPONENTS_DIR = path.join(ROOT_DIR, 'src', 'components');
 const DEPEND_DIR = path.join(COMPONENTS_DIR, 'dependencies');
 
-export default merge.smart(baseConfig, {
+export default merge(baseConfig, {
   mode: env,
   devtool: 'eval',
   plugins: [
@@ -38,7 +38,6 @@ export default merge.smart(baseConfig, {
       allowAsyncCycles: false,
       cwd: ROOT_DIR
     }),*/
-    new webpack.NoEmitOnErrorsPlugin()
   ],
   devServer: {
     contentBase: BUILD_DIR,
