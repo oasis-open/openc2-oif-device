@@ -12,21 +12,6 @@ volumes:
       com.screaming_bunny.description: 'Persistent RabbitMQ Volume'
 
 services:
-  transport-coap:
-    hostname: transport-coap
-    image: oif/device-transport-coap
-    build:
-      context: ./device/transport/coap
-      dockerfile: Dockerfile
-    env_file:
-      - ./environment/queue.connect.env
-    external_links:
-      - queue
-    ports:
-      - 5682:5682/udp
-    depends_on:
-      - queue
-
   transport-http:
     hostname: transport-http
     image:  oif/device-transport-http
@@ -34,6 +19,7 @@ services:
       context: ./device/transport/http
     env_file:
       - ./environment/queue.connect.env
+      - ./environment/security.env
     external_links:
       - queue
     ports:
@@ -48,6 +34,7 @@ services:
       context: ./device/transport/https
     env_file:
       - ./environment/queue.connect.env
+      - ./environment/security.env
     external_links:
       - queue
     ports:
@@ -64,6 +51,9 @@ services:
       - ./environment/queue.connect.env
       - ./environment/etcd.connect.env
       - ./environment/mqtt_transport.env
+      - ./environment/security.env
+    environment:
+      MQTT_HOST: '172.16.0.57'
     external_links:
       - etcd
       - queue
@@ -71,25 +61,9 @@ services:
       - etcd
       - queue
 
-#  transport-zmq:
-#    hostname: transport-zmq
-#    image: oif/device-transport-zmq
-#    build:
-#      context: ./device/transport/zmq
-#    env_file:
-#      - ./environment/queue.connect.env
-#      - ./environment/etcd.connect.env
-#      - ./environment/zmq_transport.env
-#    external_links:
-#      - etcd
-#      - queue
-#    depends_on:
-#      - etcd
-#      - queue
-
   actuator-base:
     hostname: actuator-base
-    image:  oif/device-actutator-base
+    image:  oif/device-actuator-base
     build:
       context: ./device/actuator/base
     env_file:
@@ -105,7 +79,7 @@ services:
 
   actuator-slpf:
     hostname: actuator-slpf
-    image:  oif/device-actutator-slpf
+    image:  oif/device-actuator-slpf
     build:
       context: ./device/actuator/slpf
     env_file:
@@ -122,8 +96,6 @@ services:
   queue:
     hostname: rabbit
     image: rabbitmq:management-alpine
-    ports:
-      - 15672:15672
     command: sh -c "rabbitmq-plugins enable rabbitmq_mqtt; docker-entrypoint.sh rabbitmq-server"
     volumes:
       - queue:/var/lib/rabbitmq
@@ -140,9 +112,6 @@ services:
     environment:
       ALLOW_NONE_AUTHENTICATION: 'yes'
       ETCD_DATA_DIR: '/data/etcd'
-    ports:
-      - 2380:2380
-      - 2379:2379
     volumes:
       - etcd:/data/etcd
     command: sh -c 'etcd -listen-client-urls http://0.0.0.0:2379 -advertise-client-urls http://etcd:2379'

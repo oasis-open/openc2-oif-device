@@ -21,12 +21,13 @@ class ObjectDict(dict):
         :param kwargs: key/value parameters
         """
         dict.__init__(self, *args, **kwargs)
+        Cls = self.__class__
 
         for k, v in self.items():
-            if isinstance(v, dict) and not isinstance(v, self.__class__):
-                dict.__setitem__(self, k, ObjectDict(v))
+            if isinstance(v, dict) and not isinstance(v, Cls):
+                dict.__setitem__(self, k, Cls(v))
             elif isinstance(v, (list, tuple)):
-                dict.__setitem__(self, k, tuple(ObjectDict(i) if isinstance(i, dict) else i for i in v))
+                dict.__setitem__(self, k, tuple(Cls(i) if isinstance(i, dict) else i for i in v))
 
     def __setitem__(self, key: str, value: Any) -> None:
         """
@@ -56,20 +57,6 @@ class FrozenDict(ObjectDict):
     Immutable/Frozen dictionary
     """
     _hash: hash
-
-    def __init__(self, *args, **kwargs) -> None:
-        """
-        Initialize an QueryDict
-        :param args: positional parameters
-        :param kwargs: key/value parameters
-        """
-        ObjectDict.__init__(self, *args, **kwargs)
-
-        for k, v in self.items():
-            if isinstance(v, dict) and not isinstance(v, self.__class__):
-                ObjectDict.__setitem__(self, k, FrozenDict(v))
-            elif isinstance(v, (list, tuple)):
-                ObjectDict.__setitem__(self, k, tuple(FrozenDict(i) if isinstance(i, dict) else i for i in v))
 
     def __hash__(self) -> hash:
         """
@@ -111,20 +98,6 @@ class QueryDict(ObjectDict):
     d['192.168.1.100'] = 'test.domain.local'
     """
     separator: str = "."
-
-    def __init__(self, *args, **kwargs) -> None:
-        """
-        Initialize an QueryDict
-        :param args: positional parameters
-        :param kwargs: key/value parameters
-        """
-        ObjectDict.__init__(self, *args, **kwargs)
-
-        for k, v in self.items():
-            if isinstance(v, dict) and not isinstance(v, self.__class__):
-                ObjectDict.__setitem__(self, k, QueryDict(v))
-            elif isinstance(v, (list, tuple)):
-                ObjectDict.__setitem__(self, k, type(v)(QueryDict(i) if isinstance(i, dict) else i for i in v))
 
     # Override Functions
     def get(self, path: str, default: Any = None) -> Any:

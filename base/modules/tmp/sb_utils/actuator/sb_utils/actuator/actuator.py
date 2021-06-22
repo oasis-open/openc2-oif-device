@@ -43,9 +43,10 @@ class ActuatorBase:
         if "actuator_id" not in config.keys():
             config.setdefault("actuator_id", act_id)
             json.dump(config, open(config_file, "w"), indent=4)
+        schema = general.safe_load(schema_file)
         self._config = FrozenDict(
             **config,
-            schema=general.safe_load(schema_file)
+            schema=schema
         )
 
         # Configure Action/Target functions
@@ -53,8 +54,8 @@ class ActuatorBase:
         self._dispatch.register(exceptions.action_not_implemented, "default")
 
         # Get valid Actions & Targets from the schema
+        self._validator = general.ValidatorJSON(schema)
         self._profile = self._config.schema.get("title", "N/A").replace(" ", "_").lower()
-        self._validator = general.ValidatorJSON(self._config.schema)
         schema_defs = self._config.schema.get("definitions", {})
         self._valid_actions = tuple(a["const"] for a in schema_defs.get("Action", {}).get("oneOf", []))
         self._valid_targets = tuple(schema_defs.get("Target", {}).get("properties", {}).keys())

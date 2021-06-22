@@ -73,7 +73,7 @@ CONFIG = FrozenDict(
         ("python3", r"ccoe-gitlab.*plus:alpine-python3( as.*)?", fr"oif/python3\g<1>\n"),
     ),
     Repos=FrozenDict(
-        Transport=('HTTP', 'HTTPS', 'MQTT', 'CoAP'),
+        Transport=('HTTP', 'HTTPS', 'MQTT'),
     )
 )
 

@@ -6,7 +6,7 @@
 - [SLPF](../device/actuator/SLPF/ReadMe.md)
 
 ### Transport
-- [CoAP](../device/transport/coap/ReadMe.md)
+- [HTTP](../device/transport/http/ReadMe.md)
 - [HTTPS](../device/transport/https/ReadMe.md)
 - [MQTT](../device/transport/mqtt/ReadMe.md)
 
@@ -19,7 +19,7 @@
 - No credentials for device
 
 ##### Ports
-- CoAP - Device: HOST:5682(default)
+- HTTP - Device: HOST:5000(default)
 - HTTPS - Device: HOST:5001(default)
 - MQTT - No ports
 

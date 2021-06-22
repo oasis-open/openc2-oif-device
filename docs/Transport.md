@@ -25,7 +25,7 @@ This is a tutorial on adding additional, custom transport mechanisms to the O.I.
 
 - Once added to the compose, your transport will be brought up as a part of the docker-compose stack and be added to the stack's docker network
 - For specific info about a transport, see the read me for each:
-	- [CoAP](../device/transport/coap/ReadMe.md)
+	- [HTTP](../device/transport/http/ReadMe.md)
 	- [HTTPS](../device/transport/https/ReadMe.md)
 	- [MQTT](../device/transport/mqtt/ReadMe.md)
 

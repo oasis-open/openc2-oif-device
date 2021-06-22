@@ -9,13 +9,17 @@ COPY modules/tmp/ /tmp/
 
 # Package Installation
 # Packages - https://pkgs.alpinelinux.org/packages
+RUN apk add --no-cache --virtual .build-deps \
+  gcc \
+  git && \
 #
 # SB_Utils install
-RUN cd /tmp/sb_utils/actuator && \
-python3 setup.py install && \
+cd /tmp/sb_utils/actuator && \
+pip3 install --no-cache-dir . && \
 cd && \
 #
 # Cleanup
+apk del --no-cache .build-deps && \
 rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
 #
 # Check versions
