@@ -1,4 +1,4 @@
-FROM g2inc/oif-python:latest
+FROM oif/python3_actuator
 
 MAINTAINER Screaming_Bunny
 
@@ -8,11 +8,9 @@ license="BSD" \
 version="v0.0.1" \
 description="This is the Base Actuator container"
 
-ENV PYTHONUNBUFFERED=1
-
 ADD requirements.txt /tmp/requirements.txt
-ADD act_server /opt/actuator/act_server
 ADD docker_start.sh /opt/actuator/start.sh
+ADD act_server /opt/actuator/act_server
 
 # Package installation
 # Packages - https://pkgs.alpinelinux.org/packages

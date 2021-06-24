@@ -1,51 +1,68 @@
-FROM alpine:latest
+# BASE_IMAGE - arg is the tag of the container built from Dockerfile_alpine
+ARG BASE_IMAGE
 
-MAINTAINER Screaming_Bunny
+# Builder
+FROM $BASE_IMAGE as builder
+
+ENV VPACK_VERSION=0.1.33
+
+ADD modules/tmp/* /tmp/
+
+RUN apk add --no-cache \
+  cmake \
+  g++ \
+  gcc \
+  make \
+  unzip && \
+#
+# VelocityPack Install
+unzip -d /tmp/ /tmp/velocypack-${VPACK_VERSION}.zip && \
+cd /tmp/velocypack-${VPACK_VERSION} && \
+mkdir -p ./build && \
+(cd build && cmake .. && make install DESTDIR=/opt/velocitypack)
+
+
+# Base Image
+FROM $BASE_IMAGE
 
 LABEL name="Base Alpine Python3" \
-vendor="Screaming Bunny" \
-license="BSD" \
-version="2.0" \
-description="This is the Base Alpine Python3 container for Screaming Bunny."
+description="This is the Base Alpine Python3 with SB_Utils container for Screaming Bunny."
 
-ENV DOCKERIZE_VERSION=v0.6.1 \
-    PYTHONUNBUFFERED=0
+ENV PYTHONUNBUFFERED=0
 
-ADD modules/ /tmp/modules
-ADD https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz /tmp/dockerize.tar.gz
-ADD https://bootstrap.pypa.io/get-pip.py /tmp/get-pip.py
+COPY modules/tmp/ /tmp/
+COPY --from=builder /opt/velocitypack /
 
 # Package Installation
 # Packages - https://pkgs.alpinelinux.org/packages
-RUN apk upgrade --update && \
-apk add --no-cache python3 \
-  bash \
-  shadow \
-  tar \
-  dos2unix && \
+RUN apk add --no-cache libressl libstdc++ python3 && \
 apk add --no-cache --virtual .build-deps \
-  g++ \
+  cargo \
   gcc \
+  git \
+  libffi-dev \
+  libressl-dev \
+  linux-headers \
   musl-dev \
-  yaml-dev \
-  python3-dev && \
-#
-# Dockerize Config
-tar -C /usr/local/bin -xzvf /tmp/dockerize.tar.gz && \
+  openssl-dev \
+  python3-dev \
+  yaml-dev && \
 #
 # Python PIP Install
 python3 /tmp/get-pip.py && \
-pip3 install --upgrade pip && \
+pip3 install --no-cache-dir --upgrade pip && \
 #
 # SB_Utils install
-cd /tmp/modules/utils && \
-python3 setup.py install && \
+cd /tmp/sb_utils/root && \
+pip3 install --no-cache-dir . && \
 cd && \
 #
 # Cleanup
-apk del .build-deps tar && \
-rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+apk del --no-cache .build-deps && \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.cache /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \
-pip3 --version
+pip3 --version && \
+json-to-vpack --help && \
+vpack-to-json --help

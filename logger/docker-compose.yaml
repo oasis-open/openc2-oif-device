@@ -7,9 +7,9 @@ volumes:
       com.screaming_bunny.description: 'Persistent Log Data Volume'
 
 services:
-  gui:
+  logger_gui:
     hostname: gui
-    image: gitlab.labs.g2-inc.net:4567/screamingbunny/logger/gui
+    image: ccoe-gitlab-registry.hii-tsd.com/screamingbunny/logger/gui
     environment:
       ES_HOST: elasticsearch
       ES_PORT: 9200
@@ -25,9 +25,9 @@ services:
         syslog-format: rfc5424
         tag: "gui"
 
-  server:
+  logger_server:
     hostname: server
-    image: gitlab.labs.g2-inc.net:4567/screamingbunny/logger/server
+    image: ccoe-gitlab-registry.hii-tsd.com/screamingbunny/logger/server
     environment:
       ES_HOST: elasticsearch
       ES_PORT: 9200

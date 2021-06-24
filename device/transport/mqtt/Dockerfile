@@ -1,5 +1,5 @@
-FROM g2inc/oif-python
-RUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*
+FROM oif/python3
+
 
 MAINTAINER Screaming_Bunny
 
@@ -12,14 +12,14 @@ description="This is the Transport Module container"
 ADD requirements.txt /tmp/requirements.txt
 ADD MQTT/ /opt/transport/MQTT
 #ADD certs /opt/transport/MQTT/certs
-ADD docker_dev_start.sh /opt/transport/MQTT/dev_start.sh
+ADD docker_dev_start.sh /opt/transport/dev_start.sh
 
 RUN pip3 install -r /tmp/requirements.txt && \
-    chmod +x /opt/transport/MQTT/dev_start.sh && \
-    dos2unix /opt/transport/MQTT/dev_start.sh
+  chmod +x /opt/transport/dev_start.sh && \
+  dos2unix /opt/transport/dev_start.sh
 
 # Set working directory
-WORKDIR /opt/transport/MQTT
+WORKDIR /opt/transport
 
 # Run command when container launches
 CMD ["./dev_start.sh"]

@@ -22,16 +22,7 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet.task import LoopingCall
 
 # Based on - https://gist.github.com/marcelom/4218010
-
-
-# Object Dict
-class ObjectDict(dict):
-    def __init__(self, *args, **kwargs):
-        self._hash = None
-        super(ObjectDict, self).__init__(*args, **kwargs)
-
-    def __getattr__(self, item):
-        return self.get(item, None)
+from sb_utils import ObjectDict
 
 
 """
@@ -83,7 +74,8 @@ def openLog(app):
     tmp_log.setLevel(logging.DEBUG)
     LOG_NAME = f'{app}.log' if app.startswith(f'{reactor.singleton.LOG_PREFIX}_') else f'{reactor.singleton.LOG_PREFIX}_{app}.log'
 
-    handler = RotatingFileHandler(os.path.join(reactor.singleton.LOG_DIR, LOG_NAME), maxBytes=1024*20, backupCount=5)
+    # Rotatin after 10 MB
+    handler = RotatingFileHandler(os.path.join(reactor.singleton.LOG_DIR, LOG_NAME), maxBytes=10485760, backupCount=5)
     tmp_log.addHandler(handler)
     reactor.singleton.APP_LOGS[app] = tmp_log
 
@@ -96,13 +88,13 @@ def connectElasticsearch():
             try:
                 http = urllib3.PoolManager()
                 rsp = http.request('GET', f'{ES.HOST}:{ES.PORT}', retries=False, timeout=1.0)
-                print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Connected to ElasticSearch at {ES.HOST}:{ES.PORT}')
+                print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Connected to ElasticSearch at {ES.HOST}:{ES.PORT}', flush=True)
                 break
 
-            except Exception:
-                print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - ElasticSearch at {ES.HOST}:{ES.PORT} not up')
+            except Exception as e:
+                print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - ElasticSearch at {ES.HOST}:{ES.PORT} not up', flush=True)
                 ES.RETRIES -= 1
-                time.sleep(1)
+                time.sleep(2)
 
         if ES.RETRIES > 0:
             ES_CONN = Elasticsearch(f'{ES.HOST}:{ES.PORT}')
@@ -114,13 +106,13 @@ def connectElasticsearch():
                         reactor.singleton.COUNT.FORWARDED += 1
 
                     except (TransportError, Exception) as e:
-                        print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Log Error: {e}')
+                        print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Log Error: {e}', flush=True)
                         ES.QUEUE.put(msg)
 
                 else:
                     time.sleep(1)
         else:
-            print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - ElasticSearch at {ES.HOST}:{ES.PORT} not up, max retries reached')
+            print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - ElasticSearch at {ES.HOST}:{ES.PORT} not up, max retries reached', flush=True)
             reactor.singleton.ES.HOST = None
             while not ES.QUEUE.empty():
                 msg = ES.QUEUE.get()
@@ -156,15 +148,16 @@ class SyslogUDPHandler(DatagramProtocol):
                     ))
 
         except ParseError as e:
-            print(f"Error {e.__class__.__name__} - {getattr(e, 'message', e)}")
+            print(f"Error {e.__class__.__name__} - {getattr(e, 'message', e)}", flush=True)
 
 
 def stats():
     COUNT = reactor.singleton.COUNT
-    print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Received {COUNT.RECEIVED:,}, Processed {COUNT.PROCESSED:,}, Forwarded {COUNT.FORWARDED:,}')
+    print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Received {COUNT.RECEIVED:,}, Processed {COUNT.PROCESSED:,}, Forwarded {COUNT.FORWARDED:,}', flush=True)
 
 
 if __name__ == "__main__":
+    print("Starting Syslog forwarding to ElasticSearch", flush=True)
     for log in os.listdir(reactor.singleton.LOG_DIR):
         name, ext = os.path.splitext(log)
         if ext == '.log':
@@ -173,7 +166,7 @@ if __name__ == "__main__":
     if 'default' not in reactor.singleton.APP_LOGS:
         openLog('default')
 
-    print(f'Syslog UDP Listening {reactor.singleton.HOST}:{reactor.singleton.HOST_PORT}')
+    print(f'Syslog UDP Listening {reactor.singleton.HOST}:{reactor.singleton.HOST_PORT}', flush=True)
 
     udpServer = SyslogUDPHandler()
     reactor.listenUDP(reactor.singleton.UDP_PORT, udpServer)
@@ -188,4 +181,4 @@ if __name__ == "__main__":
     except (IOError, SystemExit):
         raise
     except KeyboardInterrupt:
-        print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Crtl+C Pressed. Shutting down.')
+        print(f'{datetime.now(timezone.utc):%Y.%m.%d %H:%M:%S%z} - Crtl+C Pressed. Shutting down.', flush=True)

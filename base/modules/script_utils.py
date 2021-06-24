@@ -9,13 +9,10 @@ import stat
 import subprocess
 import sys
 
-from getpass import getpass
-
-
 try:
-    input = raw_input
-except NameError:
-    pass
+    from pip import main as pipmain
+except ImportError:
+    from pip._internal import main as pipmain
 
 
 # Classes
@@ -107,7 +104,10 @@ class ConsoleStyle:
         print(tmp)
 
     def h2(self, txt):
-        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_WHITE"))
+        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_MAGENTA"))
+
+    def h3(self, txt):
+        print(self.colorize(f"\n{txt}", "UNDERLINE", "BOLD", "FG_YELLOW"))
 
     def debug(self, txt):
         print(self.colorize(txt, "FG_WHITE"))
@@ -135,7 +135,7 @@ class ConsoleStyle:
         print(self.colorize(txt))
 
     def verbose(self, style, txt):
-        if style is not "verbose" and hasattr(self, style) and callable(getattr(self, style)):
+        if style != "verbose" and hasattr(self, style) and callable(getattr(self, style)):
             if self._verbose:
                 getattr(self, style)(txt)
             else:
@@ -148,7 +148,7 @@ CONFIG = FrozenDict(
     EmptyString=("", b"", None),
     Remove=FrozenDict(
         Dirs=(".git", ".idea"),
-        Files=(".git", ".gitlab-ci.yml", "dev-compose.yaml", ".gitmodules", ".pipeline_trigger*")
+        Files=(".git", "*.gitlab-ci.yml", "dev-compose.yaml", ".gitmodules", ".gitignore", ".pipeline_trigger*")
     ),
     MinVersions=FrozenDict(
         Docker=(18, 0, 0),
@@ -177,12 +177,13 @@ def install_pkg(package):
         importlib.import_module(package[0])
     except ImportError:
         print(f'{package[1]} not installed')
-        try:
-            pkg_install = subprocess.Popen([sys.executable, "-m", "pip", "install", package[1]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = pkg_install.communicate()
-        except Exception as e:
-            print(e)
+        failed = bool(pipmain(["install", package[1]]))
+
+        print(f"Install of {package[1]} {'failed' if failed else 'success'}'")
+        if failed:
+            exit(1)
     finally:
+        print(f'{package[1]} installed')
         setattr(sys.modules[__name__], package[0], importlib.import_module(package[0]))
 
 
@@ -221,6 +222,7 @@ def update_repo(repo_url, repo_path, branch="master"):
         branch = branch if f"refs/heads/{branch}" in git_lsremote(repo_url) else CONFIG.DefaultBranch
         repo = git.Repo.clone_from(repo_url, repo_path, branch=branch)
     except git.cmd.GitCommandError as e:
+        print(e)
         return e
 
     os.chdir(repo_path)
@@ -299,6 +301,8 @@ def build_image(docker_sys=None, console=None, **kwargs):
         exit(1)
 
     img = None
+    name = kwargs.pop("name") or kwargs["tag"]
+    console.info(f"Building {name} image")
     try:
         img = docker_sys.images.build(**kwargs)
     except docker.errors.ImageNotFound as e:
@@ -330,19 +334,3 @@ def human_size(size, units=(" bytes", "KB", "MB", "GB", "TB", "PB", "EB")):
 
 def version_str(ver):
     return ".".join(str(x) for x in ver)
-
-
-def prompt(msg, err_msg, isvalid, password=False):
-    res = None
-    password = password if type(password) == bool else False
-
-    while res is None:
-        if password:
-            res = getpass()
-        else:
-            res = input(str(msg)+': ')
-
-        if not isvalid(res):
-            print(str(err_msg))
-            res = None
-    return res

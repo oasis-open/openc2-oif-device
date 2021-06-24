@@ -1,7 +1,5 @@
 FROM alpine:latest
 
-MAINTAINER Screaming_Bunny
-
 LABEL name="Base Alpine" \
 vendor="Screaming Bunny" \
 license="BSD" \
@@ -10,19 +8,20 @@ description="This is the Base Alpine container for Screaming Bunny."
 
 ENV DOCKERIZE_VERSION v0.6.1
 
-ADD https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz /tmp/dockerize.tar.gz
+COPY modules/tmp/ /tmp/
 
 # Package installation
 # Packages - https://pkgs.alpinelinux.org/packages
 RUN apk upgrade --update && \
 apk add --no-cache bash \
-    shadow \
-    tar \
-    dos2unix && \
+  curl \
+  shadow \
+  tar \
+  dos2unix && \
 #
 # Dockerize Config
-tar -C /usr/local/bin -xzvf /tmp/dockerize.tar.gz && \
+tar -C /usr/local/bin -xzvf /tmp/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz && \
 #
 # Cleanup
-apk del tar && \
-rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/*
+apk del --no-cache tar && \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.cache /root/.gnupg /tmp/*

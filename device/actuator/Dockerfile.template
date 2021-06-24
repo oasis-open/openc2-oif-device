@@ -8,11 +8,9 @@ license="BSD" \
 version="$VERSION" \
 description="This is the ${ACT_NAME} Actuator container"
 
-ENV PYTHONUNBUFFERED=1${EXTRA_ENV}
-
 ADD requirements.txt /tmp/requirements.txt
-ADD act_server /opt/actuator/act_server
-ADD docker_start.sh /opt/actuator/start.sh${EXTRA_ADD}
+ADD docker_start.sh /opt/actuator/start.sh
+ADD act_server /opt/actuator/act_server${EXTRA_ADD}
 
 # Package installation
 # Packages - https://pkgs.alpinelinux.org/packages

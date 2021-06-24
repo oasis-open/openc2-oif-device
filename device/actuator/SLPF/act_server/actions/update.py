@@ -1,7 +1,7 @@
 """
 Update Target functions
 """
-from ..utils import Dispatch, exceptions
+from sb_utils.actuator import Dispatch, exceptions
 
 Update = Dispatch("update")
 

@@ -42,7 +42,7 @@ init_now = datetime.now()
 
 if options.log_file:
     name, ext = os.path.splitext(options.log_file)
-    ext = '.log' if ext is '' else ext
+    ext = '.log' if ext == '' else ext
     fn = f'{name}-{init_now:%Y.%m.%d_%H.%M.%S}{ext}'
     log_file = open(options.log_file, 'w+')
     log_file.write(f'Configure run at {init_now:%Y.%m.%d_%H:%M:%S}\n\n')
@@ -61,17 +61,19 @@ else:
 CONFIG = FrozenDict(
     RootDir=os.path.dirname(os.path.realpath(__file__)),
     Requirements=(
-        ('git', 'gitpython==2.1.11'),
+        ('git', 'gitpython'),
         ('colorama', 'colorama')
     ),
-    BaseRepo=f"{Base_URL}ScreamingBunny",
+    ImagePrefix="oif",
+    BaseRepo=f"{Base_URL}screamingbunny",
     ImageReplace=(
-        ("base", r"gitlab.*?docker:alpine( as.*)?", r"alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
-        ("python3", r"gitlab.*plus:alpine-python3( as.*)?", fr"g2inc/oif-python\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
+        ("base", r"ccoe-gitlab.*?docker:alpine( as.*)?", r"oif/alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
+        ("python3_actuator", r"ccoe-gitlab.*plus:alpine-python3_actuator( as.*)?", fr"oif/python3_actuator\g<1>\n"),
+        ("python3_twisted", r"ccoe-gitlab.*plus:alpine-python3_twisted( as.*)?", fr"oif/python3_twisted\g<1>\n"),
+        ("python3", r"ccoe-gitlab.*plus:alpine-python3( as.*)?", fr"oif/python3\g<1>\n"),
     ),
     Repos=FrozenDict(
-        Actuators=('ISR', ),
-        Transport=('HTTPS', 'MQTT', 'CoAP'),
+        Transport=('HTTP', 'HTTPS', 'MQTT'),
     )
 )
 
@@ -124,29 +126,35 @@ if __name__ == '__main__':
     Stylize.underline('Starting Update')
 
     # -------------------- Modules -------------------- #
-    with Stage('Modules', 'base/modules'):
+    with Stage('Modules', 'base/modules/tmp'):
         Stylize.h2("Updating Utilities")
-        update_repo(f"{CONFIG.BaseRepo}/Utils.git", 'utils', options.repo_branch)
+        update_repo(f"{CONFIG.BaseRepo}/utils.git", 'sb_utils', options.repo_branch)
 
     # -------------------- Device Transport -------------------- #
     with Stage('Device Transport', os.path.join('device', 'transport')):
         for transport in CONFIG.Repos.Transport:
             Stylize.h2(f"Updating Device {transport}")
-            update_repo(f"{CONFIG.BaseRepo}/Device/Transport/{transport}.git", transport.lower(), options.repo_branch)
+            t = transport.lower()
+            update_repo(f"{CONFIG.BaseRepo}/device/transport/{t}.git", t, options.repo_branch)
 
     # -------------------- Device Actuators -------------------- #
     with Stage('Device', 'device') as d:
         Stylize.h2(f"Updating Actuators")
-        update_repo(f"{CONFIG.BaseRepo}/Device/Actuator.git", 'actuator', options.repo_branch)
+        update_repo(f"{CONFIG.BaseRepo}/device/actuator.git", 'actuator', options.repo_branch)
 
-        rslt = subprocess.call([sys.executable, os.path.join("actuator", "configure.py")])
+        rslt = subprocess.call(
+            [sys.executable, os.path.join("actuator", "configure.py")],
+            env={
+                'BASE_IMAGE_NAME': f"{CONFIG.ImagePrefix}/python3_actuator"
+            }
+        )
         if rslt != 0:
             exit(rslt)
 
     # -------------------- Logger -------------------- #
     with Stage('Logger'):
         Stylize.h2("Updating Logger")
-        update_repo(f"{CONFIG.BaseRepo}/Logger.git", 'logger', options.repo_branch)
+        update_repo(f"{CONFIG.BaseRepo}/logger.git", 'logger', options.repo_branch)
 
     # -------------------- Dockerfile -------------------- #
     with Stage('Dockerfiles'):

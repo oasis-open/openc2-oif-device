@@ -1,24 +1,20 @@
 # GUI Builder
-FROM alpine as builder
-RUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*
+FROM node:12-alpine as builder
 
 ADD . /tmp/gui
 
-RUN apk add --update nodejs nodejs-npm && \
+RUN apk add --no-cache git yarn && \
 cd /tmp/gui && \
-npm install  && \
-find ./node_modules/babel-runtime -type f -exec sed -i -e 's/core-js\/library\/fn\//core-js\/features\//g' {} \; && \
-npm run init  && \
-npm run build  && \
+yarn cache clean && \
+yarn --network-timeout 100000 || yarn --network-timeout 100000  && \
+yarn build && \
 mkdir -p /opt/syslog/gui && \
 cp -r build/* /opt/syslog/gui
 
 
 # GUI Image
-FROM alpine
+FROM oif/alpine
 RUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*
-
-MAINTAINER Screaming_Bunny
 
 LABEL name="Logger GUI" \
 vendor="OpenC2" \

@@ -1,0 +1,25 @@
+{
+  "headers": {
+    "to": "",
+    "from": "",
+    "created": 1611227337000,
+    "request_id": "15e2de83-61c2-4857-991a-fc50f2d51da8"
+  },
+  "body": {
+    "openc2": {
+      "response": {
+        "status": 200,
+        "results": {
+          "versions": [
+            "1.0"
+          ],
+          "profiles": [
+            "http://oasis-open.org/openc2/oc2slpf/v1.0",
+            "http://oasis-open.org/openc2/cap/iot_doorlock/v1.0"
+          ],
+          "rate_limit": 30
+        }
+      }
+    }
+  }
+}

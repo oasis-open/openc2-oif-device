@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
-dockerize -wait tcp://$QUEUE_HOST:$QUEUE_PORT -timeout 30s
+echo "Running SLPF Actuator"
 
-python3 -m act_server
+dockerize -wait tcp://$QUEUE_HOST:$QUEUE_PORT -wait tcp://$ETCD_HOST:$ETCD_PORT -timeout 30s
+
+exec python3 -u act_server/start_actuator.py

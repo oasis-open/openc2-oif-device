@@ -1,0 +1,27 @@
+# BASE_IMAGE - arg is the tag of the container built from Dockerfile_alpine-python3
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+
+LABEL name="Actuator Alpine Python3" \
+description="This is the Actuator Alpine Python3 with SB_Utils container for Screaming Bunny."
+
+COPY modules/tmp/ /tmp/
+
+# Package Installation
+# Packages - https://pkgs.alpinelinux.org/packages
+RUN apk add --no-cache --virtual .build-deps \
+  gcc \
+  git && \
+#
+# SB_Utils install
+cd /tmp/sb_utils/actuator && \
+pip3 install --no-cache-dir . && \
+cd && \
+#
+# Cleanup
+apk del --no-cache .build-deps && \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+#
+# Check versions
+python3 --version && \
+pip3 --version

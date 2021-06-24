@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "to": [],
+    "from": "",
+    "created": 1611227337000,
+    "request_id": "15e2de83-61c2-4857-991a-fc50f2d51da8"
+  },
+  "body": {
+    "openc2": {
+      "request": {
+        "action": "allow",
+        "target": {
+          "ipv6_net": "::ffff:192.0.2.128"
+        }
+      }
+    }
+  }
+}

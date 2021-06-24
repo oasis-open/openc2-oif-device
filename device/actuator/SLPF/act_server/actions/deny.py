@@ -1,7 +1,7 @@
 """
 Deny Target functions
 """
-from ..utils import Dispatch, exceptions, valid_ip
+from sb_utils.actuator import Dispatch, exceptions, valid_ip
 
 Deny = Dispatch("deny")
 
@@ -23,7 +23,7 @@ def default(act, *extra_args, **extra_kwargs):
 
 
 @Deny.register
-def ip_addr(act, target="", args={}, *extra_args, **extra_kwargs):
+def ipv4_addr(act, target="", args={}, *extra_args, **extra_kwargs):
     if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
         print("Invalid Deny Args")
         return exceptions.bad_argument()
@@ -31,15 +31,40 @@ def ip_addr(act, target="", args={}, *extra_args, **extra_kwargs):
     ip = valid_ip(target)
     if ip:
         direction = args.get("direction", None)  # Apply to both INPUT and OUTPUT if None
-        print(f"Deny ip: {ip} - {direction}")
+        print(f"Deny ipv4_addr: {ip} - {direction}")
         return exceptions.action_exception('deny', except_msg='target implementation TBD')
 
-    print("Invalid Deny/IP_Addr target")
-    return exceptions.bad_request(except_msg="Validation Error: Target: ip_addr")
+    print("Invalid Deny/IPv4_Addr target")
+    return exceptions.bad_request(except_msg="Validation Error: Target: ipv4_addr")
 
 
 @Deny.register
-def ip_connection(act, target={}, args={}, *extra_args, **extra_kwargs):
+def ipv6_addr(act, target="", args={}, *extra_args, **extra_kwargs):
+    if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
+        print("Invalid Deny Args")
+        return exceptions.bad_argument()
+
+    ip = valid_ip(target)
+    if ip:
+        direction = args.get("direction", None)  # Apply to both INPUT and OUTPUT if None
+        print(f"Deny ipv6_addr: {ip} - {direction}")
+        return exceptions.action_exception('deny', except_msg='target implementation TBD')
+
+    print("Invalid Deny/IPv6_Addr target")
+    return exceptions.bad_request(except_msg="Validation Error: Target: ipv6_addr")
+
+
+@Deny.register
+def ipvv4_connection(act, target={}, args={}, *extra_args, **extra_kwargs):
+    if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
+        print("Invalid Deny Args")
+        return exceptions.bad_argument()
+
+    return exceptions.action_exception('deny', except_msg='target implementation TBD')
+
+
+@Deny.register
+def ipvv6_connection(act, target={}, args={}, *extra_args, **extra_kwargs):
     if not isinstance(args, dict) and len(set(args) - ValidArgs) > 0:
         print("Invalid Deny Args")
         return exceptions.bad_argument()

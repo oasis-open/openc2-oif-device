@@ -1,12 +1,11 @@
-from .utils import ActuatorBase
-
-from .actions import (
+from actions import (
     Allow,
     Delete,
     Deny,
     Query,
     Update
 )
+from sb_utils.actuator import ActuatorBase
 
 
 class Actuator(ActuatorBase):

@@ -2,8 +2,7 @@
 Implements MQTT utilizing [Paho MQTT](https://www.eclipse.org/paho/clients/python/docs/).
 
 ## Running Transport
-
-The MQTT Transport Module is configured to run from a docker container as a part of the OIF-Device docker stack. Use the [configure.py](../../../configure.py) script to build the images needed to run the entirety of this Transport as a part of the Device.
+- The MQTT Transport Module is configured to run from a docker container as a part of the OIF-Device docker stack. Use the [configure.py](../../../configure.py) script to build the images needed to run the entirety of this Transport as a part of the Device.
 
 ## MQTT and OpenC2 Headers
 
@@ -55,27 +54,18 @@ The environment variable `TRANSPORT_TOPICS` is a string of comma-separated topic
 - The `TRANSPORT_TOPICS` variable is optional and should contain the transports the device supports.
 - Preferred when developing actuators as the actuator profiles are dynamically loaded.
 
-
 ## Broker Location
-
-If running the OIF as the Orchestrator and Device on a single machine, the RabbitMQ MQTT Broker will build as a part of the device stack. Otherwise, the RabbitMQ MQTT Broker host should be specified as the environment variable `MQTT_HOST` which should contain the ip or hostname of the desired MQTT Broker.
+- The MQTT Broker host should be specified as the environment variable `MQTT_HOST` which should contain the ip or hostname of the desired MQTT Broker
+- The MQTT Broker port should be specified as the environment variable `MQTT_PORT` if a port other than 1883 (default)
 
 ## Ports
-
-Default port for [RabbitMQ MQTT](https://www.rabbitmq.com/mqtt.html) Broker is `1883` or `8883` if TLS is activated for RabbitMQ MQTT. This can be modified through the `MQTT_PORT` environment variable (default 1883)
-
-Read/Writes to an internal RabbitMQ AMQP Broker at default port `5672`. Note that the internal buffer can not be accessed outside of the docker network created during docker-compose. 
-
-All ports can be edited under the Docker Compose file under the queue port options.
+- Default port for [RabbitMQ MQTT](https://www.rabbitmq.com/mqtt.html) Broker is `1883` or `8883` if TLS is activated for RabbitMQ MQTT. This can be modified through the `MQTT_PORT` environment variable (default 1883)
+- Read/Writes to an internal RabbitMQ AMQP Broker at default port `5672`. Note that the internal buffer can not be accessed outside of the docker network created during docker-compose. 
+- All ports can be edited under the Docker Compose file under the queue port options.
 
 ## Adding certificates for TLS
-
-To enable TLS set the environment variable `MQTT_TLS_ENABLE` to `1`
-
-To indicate the use of self-signed certificates (not for production use) set the environment variable `MQTT_TLS_SELF_SIGNED` to `1`. For self-signed certificates, RabbitMQ recommends [tls-gen](https://github.com/michaelklishin/tls-gen).
-
-The cert files needed to activate TLS are specified as environment variables: `MQTT_CAFILE`, `MQTT_CLIENT_CERT`, `MQTT_CLIENT_KEY`
-
-If your broker is configured to require a username and password, use environment variables: `MQTT_DEFAULT_USERNAME`, `MQTT_DEFAULT_PASS`
-
-To add the certificates uncomment the line in the Dockerfile `ADD certs /opt/transport/MQTT/certs` where `ADD <source> <dest>`
+- To enable TLS set the environment variable `MQTT_TLS_ENABLE` to `1`
+- To indicate the use of self-signed certificates (not for production use) set the environment variable `MQTT_TLS_SELF_SIGNED` to `1`. For self-signed certificates, RabbitMQ recommends [tls-gen](https://github.com/michaelklishin/tls-gen).
+- The cert files needed to activate TLS are specified as environment variables: `MQTT_CAFILE`, `MQTT_CLIENT_CERT`, `MQTT_CLIENT_KEY`
+- If your broker is configured to require a username and password, use environment variables: `MQTT_DEFAULT_USERNAME`, `MQTT_DEFAULT_PASS`
+- To add the certificates uncomment the line in the Dockerfile `ADD certs /opt/transport/MQTT/certs` where `ADD <source> <dest>`

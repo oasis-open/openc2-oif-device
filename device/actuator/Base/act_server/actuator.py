@@ -1,8 +1,7 @@
-from .utils import ActuatorBase
-
-from .actions import (
+from actions import (
     Query
 )
+from sb_utils.actuator import ActuatorBase
 
 
 class Actuator(ActuatorBase):
