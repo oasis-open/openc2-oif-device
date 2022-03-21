@@ -31,7 +31,7 @@ This is a tutorial on adding additional, custom transport mechanisms to the O.I.
 
 ## Listening to the Internal Buffer
 
-The Orchestrator and Device routes messages to the correct transport by using an internal AMQP broker. This buffer is a structure that is a part of the O.I.F. for routing messages to the correct locations, but NOT a part of OpenC2 itself. Note that the port does not appear in the docker-compose file, because although the image utilizes default port 5672 for AMQP, the port is not exposed. The [sb_utils](../base/modules/utils/root/sb_utils/amqp_tools.py) module has a Consumer wrapper available for use to easily implement for your transport. You can view an example [here](../orchestrator/transport/https/https/https_transport.py) which looks like this:
+The Orchestrator and Device routes messages to the correct transport by using an internal AMQP broker. This buffer is a structure that is a part of the O.I.F. for routing messages to the correct locations, but NOT a part of OpenC2 itself. Note that the port does not appear in the docker-compose file, because although the image utilizes default port 5672 for AMQP, the port is not exposed. The [sb_utils](../base/modules/utils/root/sb_utils/) module has a Consumer wrapper available for use to easily implement for your transport. You can view an example [here](../orchestrator/transport/https/https/https_transport.py) which looks like this:
 
 ```python
 from sb_utils import Consumer
@@ -60,7 +60,7 @@ They listen on `exchange="actuator"` and `routing_key=actuatorProfileName` (eg. 
 
 ## Responding to the Orchestrator
 
-To send a response/error message back to the Orchestrator, you will instantiate a Producer which can also be found in [sb_utils](../base/modules/utils/root/sb_utils/amqp_tools.py). You can find a response example [here](../transport/https/https/main.py) which looks like this:
+To send a response/error message back to the Orchestrator, you will instantiate a Producer which can also be found in [sb_utils](../base/modules/utils/root/sb_utils/). You can find a response example [here](../transport/https/https/main.py) which looks like this:
 
 ```python
 from sb_utils import Producer
