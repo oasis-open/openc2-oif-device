@@ -8,15 +8,7 @@ import logging
 import struct
 
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Type,
-    Union
-)
-
+from typing import Any, Callable, Dict, List, Type, Union
 from . import constants, util
 
 log = logging.getLogger()
@@ -50,7 +42,6 @@ class SmileEncoder:
     64-character Strings.
     """
     encode_as_7bit: bool
-    seen_name_count: int
     seen_string_count: int
     output: bytearray
     share_keys: bool

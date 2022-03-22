@@ -1,10 +1,10 @@
 """
 Local Cache for ETCd values
 """
+import json
 import etcd
 
-from threading import Event, Thread
-from time import sleep
+from threading import Event, Lock, Thread
 from typing import Callable, List, Tuple, Union
 from .general import isFunction
 from .ext_dicts import FrozenDict, QueryDict
@@ -81,6 +81,7 @@ class EtcdCache:
     _data: QueryDict
     _etcd_client: etcd.Client
     _etcd_updater: ReusableThread
+    _lock: Lock
     _root: str
     _timeout: int
 
@@ -90,14 +91,15 @@ class EtcdCache:
         if isinstance(callbacks, (list, tuple)):
             self._callbacks.extend([f for f in callbacks if isFunction(f)])
 
-        self._data = QueryDict()
         self._etcd_client = etcd.Client(
             host=host,
             port=port
         )
-        self._root = base if base.endswith('/') else f'{base}/'
+        self._root = base if base.startswith('/') else f'/{base}'
+        self._root = self._root if self._root.endswith('/') else f'{self._root}/'
+        self._lock = Lock()
+        self._data = self._init_data()
         self._timeout = timeout
-        self._initial()
         self._etcd_updater = ReusableThread(target=self._update, kwargs={'wait': True})
         self._etcd_updater.setDaemon(True)
         self._etcd_updater.start()
@@ -111,17 +113,19 @@ class EtcdCache:
         self._etcd_updater.finish()
 
     # Helper Methods
-    def _initial(self, base: str = None) -> None:
+    def _init_data(self, base: str = None) -> QueryDict:
         """
         Get ETCD initial values
         """
         root = base or self._root
+        data = QueryDict()
         try:
             for k in self._etcd_client.read(root, recursive=True, sorted=True).children:
-                key = k.key.replace(self._root, '').replace('/', '.')
-                self._data[key] = k.value
+                key = k.key.replace(root, '').replace('/', '.')
+                data[key] = json.loads(k.value)
         except (etcd.EtcdKeyNotFound, etcd.EtcdWatchTimedOut):
             pass
+        return data
 
     def _update(self, wait: bool = False, base: str = None) -> None:
         """
@@ -137,13 +141,12 @@ class EtcdCache:
                 key = k.key.replace(self._root, '').replace('/', '.')
                 t_id = key.split('.')[0]
                 if t_id not in self._data:
-                    sleep(0.5)
-                    self._initial(base=f'{root}{t_id}')
+                    self._data[t_id] = self._init_data(base=f'{root}{t_id}')
                 else:
                     if k.value is None:
                         del self._data[key]
                     else:
-                        self._data[key] = k.value
+                        self._data[key] = json.loads(k.value)
             update = True
         except (etcd.EtcdKeyNotFound, etcd.EtcdWatchTimedOut):
             pass

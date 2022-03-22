@@ -15,6 +15,8 @@ ADD HTTPS/ /opt/transport/HTTPS
 ADD entrypoint.sh /entrypoint.sh
 ADD docker_dev_start.sh /opt/transport/dev_start.sh
 
+ENV HTTPS=True
+
 # Set working directory
 WORKDIR /opt/transport
 
@@ -23,13 +25,15 @@ RUN apk update && \
   apk add --no-cache \
   bash \
   openssl && \
-  pip3 install -r /tmp/requirements.txt && \
-  rm -r /root/.cache && \
-  chmod +x /entrypoint.sh && \
-  chmod +x /opt/transport/dev_start.sh && \
-  chmod +w /opt/transport/HTTPS/certs && \
-  dos2unix /entrypoint.sh && \
-  dos2unix /opt/transport/dev_start.sh && \
+# Python config
+pip3 install -r /tmp/requirements.txt && \
+# General config
+rm -r /root/.cache && \
+chmod +x /entrypoint.sh && \
+chmod +x /opt/transport/dev_start.sh && \
+chmod +w /opt/transport/HTTPS/certs && \
+dos2unix /entrypoint.sh && \
+dos2unix /opt/transport/dev_start.sh && \
 #
 # Cleanup
 apk del tar && \

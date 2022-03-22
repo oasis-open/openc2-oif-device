@@ -8,13 +8,7 @@ import struct
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import (
-    Callable,
-    Dict,
-    List,
-    Union
-)
-
+from typing import Callable, Dict, List, Union
 from . import constants, util
 
 log = logging.getLogger()
@@ -223,7 +217,7 @@ class SmileDecoder:
 
     def _decode_RAV(self) -> None:
         if byt := self.pull_byte():
-            log.debug("Pulled Byte: 0x{:x}".format(byt))
+            log.debug("Pulled Byte: %s" % f"{byt:#02x}")
 
             if self.in_array[self.nested_depth]:
                 if self.first_array_element[self.nested_depth]:
@@ -355,7 +349,7 @@ class SmileDecoder:
             log.debug("No bytes left to read!")
             self.mode = DecodeMode.DONE
             return
-        log.debug("Pulled Byte: 0x{:x}".format(byt))
+        log.debug("Pulled Byte: %s" % f"{byt:#02x}")
 
         try:
             if self.first_key[self.nested_depth]:
@@ -432,8 +426,7 @@ class SmileDecoder:
             raise ValueError("Input not defined, cannot decode value")
 
         while self.mode not in (DecodeMode.BAD, DecodeMode.DONE):
-            decoder = self._decoders.get(self.mode, None)
-            if decoder:
+            if decoder := self._decoders.get(self.mode, None):
                 decoder()
                 if self.mode == DecodeMode.BAD:
                     continue
@@ -452,10 +445,10 @@ class SmileDecoder:
         ret_val = self.get_value()
         try:
             jsonified = json.loads(ret_val)
-        except (ValueError, UnicodeDecodeError):
+        except (ValueError, UnicodeDecodeError) as err:
             msg = f"Unable to jsonify string: {ret_val}"
             log.exception(msg)
-            raise SMILEDecodeError(msg, ret_val)
+            raise SMILEDecodeError(msg, ret_val) from err
         return jsonified
 
     @classmethod
