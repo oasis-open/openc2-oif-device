@@ -12,7 +12,7 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "jquery": "^3.6.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "react": "^16.14.0",
     "react-bootswatch-theme-switcher": "https://github.com/czack425/react-bootswatch-theme-switcher",
     "react-dom": "^16.14.0",
