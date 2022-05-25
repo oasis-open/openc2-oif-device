@@ -1,4 +1,5 @@
 from pathlib import Path
+from peewee import fn
 from osquery_orm import OsQueryDatabase
 
 
@@ -13,7 +14,7 @@ if __name__ == '__main__':
     c_qry = db.tables.macos.OS_Version.select()
     print(f'\nCode Qry: {c_qry}')
     for itm in c_qry:
-        print(f'-- {type(itm)}\n')
+        print(f'-- {type(itm)} - {itm.dict()}\n')
 
     tables = db.get_tables()
     print(f"\nTables: {len(tables):,}\n{tables}\n")
@@ -21,7 +22,9 @@ if __name__ == '__main__':
     rslt = db.tables.macos.OS_Version.select()
     print(f"\nOS Version: {list(rslt)}\n")
 
-    rslt = db.tables.macos.Routes.select()
+    proc = db.tables.macos.Processes
+    rslt = proc.select().where(fn.Lower(fn.Substr(proc.name, 1, 6)) == 'python')
+    print(rslt)
     rslt_rows = '\n--> '.join([str(r.dict()) for r in rslt])
     print(f"\nResults:\n--> {rslt_rows}\n")
 

@@ -16,6 +16,7 @@ class ProcessOpenSockets(BaseModel):
     pid = IntegerField(help_text="Process (or thread) ID")  # {'index': True}
     fd = BigIntegerField(help_text="Socket file descriptor number")
     socket = BigIntegerField(help_text="Socket handle or inode number")
+    # family = IntegerField(help_text="Network protocol (IPv4, IPv6)")
     family = IntegerField(choices=SocketFamily, help_text="Network protocol (IPv4, IPv6)")
     # protocol = IntegerField(help_text="Transport protocol (TCP/UDP)")
     protocol = ForeignKeyField(EtcProtocols, EtcProtocols.number, column_name="protocol", help_text="Transport protocol (TCP/UDP)")

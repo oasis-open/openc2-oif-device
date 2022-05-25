@@ -15,6 +15,7 @@ class ListeningPorts(BaseModel):
     port = IntegerField(help_text="Transport layer port")
     # protocol = IntegerField(help_text="Transport protocol (TCP/UDP)")
     protocol = ForeignKeyField(EtcProtocols, EtcProtocols.number, column_name="protocol", help_text="Transport protocol (TCP/UDP)")
+    # family = IntegerField(help_text="Network protocol (IPv4, IPv6)")
     family = IntegerField(choices=SocketFamily, help_text="Network protocol (IPv4, IPv6)")
     address = TextField(help_text="Specific address for bind")
     fd = BigIntegerField(help_text="Socket file descriptor number")

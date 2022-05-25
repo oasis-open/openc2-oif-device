@@ -56,7 +56,7 @@ def _do_publish(client: mqtt.Client, userdata: List[dict]):
         elif isinstance(message, (tuple, list)):
             client.publish(*message)
         else:
-            raise TypeError('message must be a dict, tuple, or list')
+            raise TypeError("message must be a dict, tuple, or list")
 
 
 def _on_connect(client: mqtt.Client, userdata: List[dict], flags: dict, rc: int, props: Properties = None):
@@ -80,7 +80,7 @@ def publish_single(config: FrozenDict, topic, payload, client_id="", properties:
     client = mqtt.Client(
         client_id=client_id,
         userdata=[
-            {'topic': topic, 'payload': payload, 'qos': 1, 'retain': False, 'properties': properties}
+            {"topic": topic, "payload": payload, "qos": 1, "retain": False, "properties": properties}
         ],
         protocol=mqtt.MQTTv5,
         transport="tcp"
@@ -126,11 +126,15 @@ def send_mqtt(config: FrozenDict, body, message):
     headers = message.headers
     broker_socket = headers.get("socket", "localhost:1883")
     encoding = headers.get("encoding", "json")
-    topic = '/'.join(filter(None, [Config.MQTT_PREFIX, 'oc2', 'rsp']))
+    orc_id = headers.get("orchestratorID", "")
+    topic = "/".join(filter(None, [Config.MQTT_PREFIX, "oc2", "rsp"]))
+    if Config.RSP_SPECIFIC:
+        topic += f"/{orc_id}"
 
+    print(f"Preparing {topic} for data: {body}")
     # build message for MQTT
     payload = Message(
-        recipients=f"{headers.get('orchestratorID', '')}@{broker_socket}",
+        recipients=f"{orc_id}@{broker_socket}",
         origin=f"{headers.get('profile', '')}@{broker_socket}",
         # created: datetime = None,
         msg_type=MessageType.Response,
@@ -154,7 +158,7 @@ def send_mqtt(config: FrozenDict, body, message):
                 payload=payload.serialize(),
                 properties=publish_props
             )
-            # print(f"Placed payload onto topic {topic} Payload Sent: {payload}")
+            print(f"Placed payload onto topic {topic} Payload Sent: {payload}")
         except Exception as e:
             print(f"An error occurred - {e}")
     else:
@@ -190,7 +194,7 @@ def mqtt_on_publish(client: mqtt.Client, userdata: List[str], mid: int) -> None:
     :param userdata: User-defined data passed to callbacks
     :param mid:
     """
-    print(f'{client} - {userdata} - {mid}')
+    print(f"{client} - {userdata} - {mid}")
 
 
 def mqtt_on_message(client: mqtt.Client, userdata: List[str], msg: mqtt.MQTTMessage):
@@ -201,14 +205,14 @@ def mqtt_on_message(client: mqtt.Client, userdata: List[str], msg: mqtt.MQTTMess
     :param msg: Contains payload, topic, qos, retain
     """
     props = {}
-    if msg_props := getattr(msg, 'properties', None):
+    if msg_props := getattr(msg, "properties", None):
         props = msg_props.json()
-        props['UserProperty'] = dict(props.get('UserProperty', {}))
+        props["UserProperty"] = dict(props.get("UserProperty", {}))
 
-    fmt = SerialFormats.from_value(props['UserProperty'].get('encoding', 'json'))
+    fmt = SerialFormats.from_value(props["UserProperty"].get("encoding", "json"))
     try:
         payload = Message.oc2_loads(msg.payload, fmt)
-        print(f'Received: {payload}')
+        print(f"Received: {payload}")
 
         # copy necessary headers
         headers = {
@@ -263,4 +267,4 @@ def mqtt_on_log(client: mqtt.Client, userdata: List[str], level: int, buf: str) 
     :param buf: the message itself
     """
     lvl = logging.getLevelName(mqtt.LOGGING_LEVEL.get(level, level))
-    print(f'{lvl} - {buf}')
+    print(f"{lvl} - {buf}")
