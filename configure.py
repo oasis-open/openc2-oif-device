@@ -28,6 +28,7 @@ if sys.version_info < (3, 6):
 parser = OptionParser()
 parser.add_option("-f", "--log-file", dest="log_file", help="Write logs to LOG_FILE")
 parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Verbose output of container/GUI build")
+parser.add_option("--logger", action="store_true", dest="logger", default=False, help="Build central log containers")
 
 (options, args) = parser.parse_args()
 checkRequiredArguments(options, parser)
@@ -48,8 +49,10 @@ if options.log_file:
 
 # Script Vars
 ItemCount = 1
-
 RootDir = os.path.dirname(os.path.realpath(__file__))
+Compose = tuple(file for file in os.listdir(RootDir) if re.match(r"^\w*?-compose(\.\w*?)?\.yaml$", file))
+if not options.logger:
+    Compose = tuple(c for c in Compose if not re.match(r"^\w*?-compose\.log\.yaml$", c))
 
 CONFIG = FrozenDict(
     WorkDir=RootDir,
@@ -70,7 +73,7 @@ CONFIG = FrozenDict(
             ("device", "-p device -f device-compose.yaml -f device-compose.log_local.yaml"),
         )
     ),
-    Composes=tuple(file for file in os.listdir(RootDir) if re.match(r"^\w*?-compose(\.\w*?)?\.yaml$", file))
+    Composes=Compose
 )
 
 
