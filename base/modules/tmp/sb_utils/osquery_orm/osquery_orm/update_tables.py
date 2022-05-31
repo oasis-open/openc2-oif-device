@@ -293,7 +293,12 @@ if __name__ == "__main__":
             "anyOf": schema_const_tables
         }
     }
+    table_fields = {}
+
     for table, data in schema_validation_tables["select"].items():
+        if table.startswith("osquery:Select-"):
+            n = table[15:].lower().replace("-", "_")
+            table_fields[n] = list(data["fields"].keys())
         schema_tables[table] = {
             "title": f"OSQuery Table Validation: {data['name']}",
             "type": "object",
@@ -321,3 +326,7 @@ if __name__ == "__main__":
 
     with open("schema_tables.json", "w", encoding="UTF-8") as f:
         json.dump(schema_tables, f, indent=2)
+
+    with open("table_fields.json", "w", encoding="UTF-8") as f:
+        d = dict(sorted(table_fields.items()))
+        json.dump(d, f, indent=2)
