@@ -52,7 +52,7 @@ ItemCount = 1
 RootDir = os.path.dirname(os.path.realpath(__file__))
 Compose = tuple(file for file in os.listdir(RootDir) if re.match(r"^\w*?-compose(\.\w*?)?\.yaml$", file))
 if not options.logger:
-    Compose = tuple(c for c in Compose if not re.match(r"^\w*?-compose\.log\.yaml$", c))
+    Compose = tuple(c for c in Compose if not re.match(r"^\w*?-compose\.log(\w*?)?\.yaml$", c))
 
 CONFIG = FrozenDict(
     WorkDir=RootDir,
