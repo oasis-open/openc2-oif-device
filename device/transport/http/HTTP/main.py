@@ -177,7 +177,7 @@ if __name__ == "__main__":
     print("Connecting to RabbitMQ...")
     try:
         consumer = Consumer(
-            exchange="transport",
+            exchange="consumer_transport",
             routing_key="http",
             callbacks=[process_message],
             debug=True

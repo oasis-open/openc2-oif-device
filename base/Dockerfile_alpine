@@ -1,12 +1,10 @@
-FROM alpine:latest
+FROM alpine:3.13
 
 LABEL name="Base Alpine" \
 vendor="Screaming Bunny" \
 license="BSD" \
 version="2.0" \
 description="This is the Base Alpine container for Screaming Bunny."
-
-ENV DOCKERIZE_VERSION v0.6.1
 
 COPY modules/tmp/ /tmp/
 
@@ -15,12 +13,17 @@ COPY modules/tmp/ /tmp/
 RUN apk upgrade --update && \
 apk add --no-cache bash \
   curl \
+  git \
   shadow \
   tar \
   dos2unix && \
 #
 # Dockerize Config
-tar -C /usr/local/bin -xzvf /tmp/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz && \
+tar -C /usr/local/bin -xzvf /tmp/dockerize-alpine-linux-amd64-*.tar.gz && \
+#
+# Wait Config
+mv /tmp/wait /usr/local/bin/wait && \
+chmod +x /usr/local/bin/wait && \
 #
 # Cleanup
 apk del --no-cache tar && \

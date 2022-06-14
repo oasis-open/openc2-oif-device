@@ -1,9 +1,10 @@
-image: ${GITLAB_CI_REGISTRY}/screamingbunny/docker/plus:centos-python3
+image: python:3.8-buster
 
 variables:
   GIT_SSL_NO_VERIFY: "true"
   GIT_STRATEGY: clone
   DOCKER_DRIVER: overlay2
+  REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
 
 stages:
   - build
@@ -12,11 +13,10 @@ before_script:
   - REPO=${CI_REPOSITORY_URL#*@}
   - REPO_BASE=${REPO%.com/*}.com
   - REPO_URL=git@${REPO_BASE}:${REPO#*/}
-  - yum update -y
-  - yum install --disablerepo=epel -y git openssh-clients ca-certificates
-  - update-ca-trust force-enable
-  - echo "$HII_CA_PUBLIC" | base64 --decode | tr -d '\r' > /etc/pki/ca-trust/source/anchors/hii_ca.crt
-  - update-ca-trust extract
+  - apt-get update -y
+  - apt-get install -y git ca-certificates
+  - echo "$HII_CA_PUBLIC" | base64 --decode | tr -d '\r' > /usr/local/share/ca-certificates/hii_ca.crt
+  - update-ca-certificates
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   - echo "$SSH_PRIVATE_KEY" | base64 --decode | tr -d '\r' > ~/.ssh/id_rsa
   - chmod 600 ~/.ssh/id_rsa

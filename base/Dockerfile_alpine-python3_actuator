@@ -20,7 +20,7 @@ cd && \
 #
 # Cleanup
 apk del --no-cache .build-deps && \
-rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.gnupg /tmp/* && \
+rm -rf /var/cache/apk/* *.tar.gz* /usr/src /root/.cache /root/.gnupg /tmp/* && \
 #
 # Check versions
 python3 --version && \

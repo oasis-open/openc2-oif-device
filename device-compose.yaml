@@ -65,7 +65,7 @@ services:
     hostname: actuator-base
     image:  oif/device-actuator-base
     build:
-      context: ./device/actuator/base
+      context: ./device/actuator/Base
     env_file:
       - ./environment/queue.connect.env
       - ./environment/etcd.connect.env
@@ -81,7 +81,7 @@ services:
     hostname: actuator-slpf
     image:  oif/device-actuator-slpf
     build:
-      context: ./device/actuator/slpf
+      context: ./device/actuator/SLPF
     env_file:
       - ./environment/queue.connect.env
       - ./environment/etcd.connect.env
