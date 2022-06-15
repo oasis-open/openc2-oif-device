@@ -1,5 +1,5 @@
 import webpack from 'webpack';
-import merge from 'webpack-merge';
+import { merge } from 'webpack-merge';
 import path from 'path';
 
 import CopyWebpackPlugin from 'copy-webpack-plugin';
@@ -10,9 +10,10 @@ import TerserPlugin from 'terser-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 
-import baseConfig from './base.config.babel';
+import baseConfig from './webpack.config.base';
+import Loaders from './webpack.loaders';
 
-const env = 'production';
+const NODE_ENV = 'production';
 
 const ROOT_DIR = path.join(__dirname, '..');
 const BUILD_DIR = path.join(ROOT_DIR, 'build');
@@ -20,16 +21,11 @@ const COMPONENTS_DIR = path.join(ROOT_DIR, 'src', 'components');
 const DEPEND_DIR = path.join(COMPONENTS_DIR, 'dependencies');
 
 export default merge(baseConfig, {
-  mode: env,
+  mode: NODE_ENV,
   devtool: 'source-map',
-  resolve: {
-    alias: {
-      // 'jquery': 'jquery-min',  // TODO: Verify the jquery-min version
-    }
-  },
   plugins: [
     new webpack.DefinePlugin({
-      NODE_ENV: env
+      NODE_ENV
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
@@ -42,18 +38,20 @@ export default merge(baseConfig, {
       filename: 'css/[name].bundle.min.css',
       chunkFilename: 'css/[name].bundle.min.css'
     }),
-    new CopyWebpackPlugin([
-      { // Custom Assets
-        from: path.join(DEPEND_DIR, 'assets'),
-        to: path.join(BUILD_DIR, 'assets'),
-        toType: 'dir'
-      },
-      { // Theme Assets
-        from: path.resolve('node_modules', 'react-bootswatch-theme-switcher', 'assets'),
-        to: path.join(BUILD_DIR, 'assets'),
-        toType: 'dir'
-      }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { // Custom Assets
+          from: path.join(DEPEND_DIR, 'assets'),
+          to: path.join(BUILD_DIR, 'assets'),
+          toType: 'dir'
+        },
+        { // Theme Assets
+          from: path.resolve('node_modules', 'react-bootswatch-theme-switcher', 'assets'),
+          to: path.join(BUILD_DIR, 'assets'),
+          toType: 'dir'
+        }
+      ]
+    }),
     new FaviconsWebpackPlugin({
       logo: path.join(DEPEND_DIR, 'img', 'log-favicon.png'),
       cache: true,
@@ -70,7 +68,7 @@ export default merge(baseConfig, {
         icons: {
           android: true,        // Create Android homescreen icon. `boolean` or `{ offset, background, mask, overlayGlow, overlayShadow }`
           appleIcon: true,      // Create Apple touch icons. `boolean` or `{ offset, background, mask, overlayGlow, overlayShadow }`
-          appleStartup: true,   // Create Apple startup images. `boolean` or `{ offset, background, mask, overlayGlow, overlayShadow }`
+          appleStartup: false,  // Create Apple startup images. `boolean` or `{ offset, background, mask, overlayGlow, overlayShadow }`
           coast: false,         // Create Opera Coast icon. `boolean` or `{ offset, background, mask, overlayGlow, overlayShadow }`
           favicons: true,       // Create regular favicons. `boolean` or `{ offset, background, mask, overlayGlow, overlayShadow }`
           firefox: true,        // Create Firefox OS icons. `boolean` or `{ offset, background, mask, overlayGlow, overlayShadow }`
@@ -81,7 +79,6 @@ export default merge(baseConfig, {
         }
       }
     }),
-    // new LodashModuleReplacementPlugin(),
     new CleanWebpackPlugin({
       dry: false
     })
@@ -113,27 +110,17 @@ export default merge(baseConfig, {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              url: false
-            }
-          }
+          Loaders.css
         ]
       },
       {
         test: /\.s[ac]ss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              url: false
-            }
-          },
+          Loaders.css,
           'sass-loader'
         ]
-      },
+      }
     ]
   }
 });

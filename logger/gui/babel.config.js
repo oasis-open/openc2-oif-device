@@ -7,7 +7,7 @@ const developmentPlugins = [
 
 const productionPlugins = [
   require('babel-plugin-dev-expression'),
-  // babel-preset-react-optimize
+  // require('babel-preset-react-optimize'),
   require('@babel/plugin-transform-react-constant-elements'),
   require('@babel/plugin-transform-react-inline-elements'),
   require('babel-plugin-transform-react-remove-prop-types')
@@ -50,6 +50,9 @@ module.exports = api => {
       [require('@babel/plugin-proposal-class-properties'), { loose: true }],
       [require('@babel/plugin-proposal-private-methods'), { loose: true }],
       require('@babel/plugin-proposal-json-strings'),
+
+      // Stage ??
+      ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
 
       ...(development ? developmentPlugins : productionPlugins)
     ]

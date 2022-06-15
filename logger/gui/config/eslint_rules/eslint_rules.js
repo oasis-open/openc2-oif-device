@@ -63,7 +63,13 @@ module.exports = {
       'getSnapshotBeforeUpdate'
     ]
   }],
-  'comma-dangle': [2, 'never'],
+  'comma-dangle': [2, {
+    arrays: 'never',
+    exports: 'never',
+    functions: 'never',
+    imports: 'never',
+    objects: 'never'
+  }],
   'comma-spacing': [2, {
     after: true,
     before: false
@@ -71,8 +77,8 @@ module.exports = {
   'comma-style': [2, 'last', {
     exceptions: {
       ArrayExpression: false,
-      ArrowFunctionExpression: false,
       ArrayPattern: false,
+      ArrowFunctionExpression: false,
       CallExpression: false,
       FunctionDeclaration: false,
       FunctionExpression: false,
@@ -268,7 +274,7 @@ module.exports = {
     allow: ['error', 'info', 'warn']
   }],
   'no-const-assign': 2,
-  'no-constant-condition': 2,
+  'no-constant-condition': 1,
   'no-constructor-return': 0,
   'no-continue': 2,
   'no-control-regex': 2,
@@ -305,7 +311,7 @@ module.exports = {
     returnAssign: false
   }],
   'no-extra-semi': 2,
-  'no-fallthrough': 0,
+  'no-fallthrough': 1,
   'no-floating-decimal': 0,
   'no-func-assign': 2,
   'no-global-assign': [2, {
@@ -365,7 +371,7 @@ module.exports = {
   'no-multi-str': 2,
   'no-multiple-empty-lines': [2, {
     max: 2,
-    maxBOF: 1,
+    maxBOF: 0,
     maxEOF: 1
   }],
   'no-native-reassign': 0,
@@ -400,8 +406,14 @@ module.exports = {
     restrictedNamedExports: ['default', 'then']
   }],
   'no-restricted-globals': [2,
-    'isFinite',
-    'isNaN',
+    {
+      message: 'Use Number.isFinite instead https://github.com/airbnb/javascript#standard-library--isfinite',
+      name: 'isFinite'
+    },
+    {
+      message: 'Use Number.isNaN instead https://github.com/airbnb/javascript#standard-library--isnan',
+      name: 'isNaN'
+    },
     'addEventListener',
     'blur',
     'close',
@@ -583,7 +595,8 @@ module.exports = {
   'no-unused-expressions': [2, {
     allowShortCircuit: false,
     allowTaggedTemplates: false,
-    allowTernary: false
+    allowTernary: false,
+    enforceForJSX: false
   }],
   'no-unused-labels': 2,
   'no-unused-vars': [2, {
