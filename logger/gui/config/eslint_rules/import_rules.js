@@ -20,7 +20,7 @@ module.exports = {
   'import/max-dependencies': [2, {
     max: 15
   }],
-  'import/named': 0,
+  'import/named': 2,
   'import/namespace': 0,
   'import/newline-after-import': 2,
   'import/no-absolute-path': 2,
@@ -35,7 +35,8 @@ module.exports = {
   }],
   'import/no-commonjs': 0,
   'import/no-cycle': [2, {
-    ignoreExternal: false
+    ignoreExternal: false,
+    maxDepth: '∞'
   }],
   'import/no-default-export': 0,
   'import/no-deprecated': 0,
@@ -48,22 +49,25 @@ module.exports = {
       'spec/**',
       '**/__tests__/**',
       '**/__mocks__/**',
-      'test.{js,jsx,ts,tsx}',
-      'test-*.{js,jsx,ts,tsx}',
-      '**/*{.,_}{test,spec}.{js,jsx,ts,tsx}',
-      '**/jest.config.js',
-      '**/jest.setup.js',
-      '**/vue.config.js',
-      '**/webpack.config.js',
-      '**/webpack.config.*.js',
-      '**/rollup.config.js',
-      '**/rollup.config.*.js',
-      '**/gulpfile.js',
-      '**/gulpfile.*.js',
-      '**/Gruntfile{,.js}',
-      '**/protractor.conf.js',
-      '**/protractor.conf.*.js',
-      '**/karma.conf.js'
+      'test.{js,jsx}',
+      'test.{ts,tsx}',
+      'test-*.{js,jsx}',
+      'test-*.{ts,tsx}',
+      '**/*{.,_}{test,spec}.{js,jsx}',
+      '**/*{.,_}{test,spec}.{ts,tsx}',
+      '**/jest.config.{js,ts}',
+      '**/jest.setup.{js,ts}',
+      '**/vue.config.{js,ts}',
+      '**/webpack.config.{js,ts}',
+      '**/webpack.config.*.{js,ts}',
+      '**/rollup.config.{js,ts}',
+      '**/rollup.config.*.{js,ts}',
+      '**/gulpfile.{js,ts}',
+      '**/gulpfile.*.{js,ts}',
+      '**/Gruntfile.{js,ts}',
+      '**/protractor.conf.{js,ts}',
+      '**/protractor.conf.*.{js,ts}',
+      '**/karma.conf.{js,ts}'
     ],
     optionalDependencies: false
   }],
@@ -83,6 +87,7 @@ module.exports = {
   'import/no-unassigned-import': 0,
   'import/no-unresolved': [2, {
     caseSensitive: true,
+    caseSensitiveStrict: false,
     commonjs: true
   }],
   'import/no-unused-modules': [0, {
@@ -97,7 +102,8 @@ module.exports = {
   'import/order': [2, {
     groups: [
       ['builtin', 'external', 'internal']
-    ]
+    ],
+    warnOnUnassignedImports: false
   }],
   'import/prefer-default-export': 2,
   'import/unambiguous': 0

@@ -1,12 +1,14 @@
 # GUI Builder
 FROM node:12-alpine as builder
 
+ENV YARN_INSTALL="yarn --network-timeout 100000 --frozen-lockfile"
+
 ADD . /tmp/gui
 
 RUN apk add --no-cache git yarn && \
 cd /tmp/gui && \
 yarn cache clean && \
-yarn --network-timeout 100000 || yarn --network-timeout 100000  && \
+$YARN_INSTALL || while [ $? -ne 0 ]; do $YARN_INSTALL; done  && \
 yarn build && \
 mkdir -p /opt/syslog/gui && \
 cp -r build/* /opt/syslog/gui

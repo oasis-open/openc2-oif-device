@@ -1,13 +1,13 @@
-import webpack from 'webpack';
-import merge from 'webpack-merge';
 import path from 'path';
+import webpack from 'webpack';
+import { merge } from 'webpack-merge';
 
 import DeadCodePlugin from 'webpack-deadcode-plugin';
-// import CircularDependencyPlugin from 'circular-dependency-plugin';
+import CircularDependencyPlugin from 'circular-dependency-plugin';
 
-import baseConfig from './base.config.babel';
+import baseConfig from './webpack.config.base';
 
-const env = 'development';
+const NODE_ENV = 'development';
 
 const ROOT_DIR = path.join(__dirname, '..');
 const BUILD_DIR = path.join(ROOT_DIR, 'build');
@@ -15,11 +15,11 @@ const COMPONENTS_DIR = path.join(ROOT_DIR, 'src', 'components');
 const DEPEND_DIR = path.join(COMPONENTS_DIR, 'dependencies');
 
 export default merge(baseConfig, {
-  mode: env,
+  mode: NODE_ENV,
   devtool: 'eval',
   plugins: [
     new webpack.DefinePlugin({
-      NODE_ENV: env
+      NODE_ENV
     }),
     new DeadCodePlugin({
       patterns: [
@@ -31,16 +31,16 @@ export default merge(baseConfig, {
         '**/theme-switcher/download_themes.js',
         path.join(COMPONENTS_DIR, 'utils', 'theme-switcher', 'assets')
       ]
-    }),/*
+    }),
     new CircularDependencyPlugin({
       exclude: /node_modules/,
       failOnError: false,
       allowAsyncCycles: false,
       cwd: ROOT_DIR
-    }),*/
+    }),
+    new webpack.NoEmitOnErrorsPlugin()
   ],
   devServer: {
-    contentBase: BUILD_DIR,
     compress: true,
     port: 3000,
     hot: true,
@@ -52,6 +52,9 @@ export default merge(baseConfig, {
         pathRewrite: {"^/api/" : ""},
         secure: false
       }
+    },
+    static: {
+      directory: BUILD_DIR
     }
   },
   optimization: {

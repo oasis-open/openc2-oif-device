@@ -1,6 +1,6 @@
 // jsx-a11y Rules
 module.exports = {
-  'jsx-a11y/accessible-emoji': 2,
+  'jsx-a11y/accessible-emoji': 1,
   'jsx-a11y/alt-text': [2, {
     area: [],
     elements: ['img', 'object', 'area', 'input[type=\"image\"]'],
@@ -20,8 +20,7 @@ module.exports = {
   'jsx-a11y/aria-props': 2,
   'jsx-a11y/aria-proptypes': 2,
   'jsx-a11y/aria-role': [2, {
-    ignoreNonDOM: false,
-    ignoreNonDom: false
+    ignoreNonDOM: false
   }],
   'jsx-a11y/aria-unsupported-elements': 2,
   'jsx-a11y/autocomplete-valid': [0, {
