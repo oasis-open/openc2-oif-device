@@ -12,21 +12,6 @@ volumes:
       com.screaming_bunny.description: 'Persistent RabbitMQ Volume'
 
 services:
-  transport-http:
-    hostname: transport-http
-    image:  oif/device-transport-http
-    build:
-      context: ./device/transport/http
-    env_file:
-      - ./environment/queue.connect.env
-      - ./environment/security.env
-    external_links:
-      - queue
-    ports:
-      - 5000:5001
-    depends_on:
-      - queue
-
   transport-https:
     hostname: transport-https
     image:  oif/device-transport-https
