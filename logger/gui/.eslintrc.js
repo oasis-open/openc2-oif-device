@@ -1,34 +1,29 @@
 module.exports = {
   extends: [
+    'airbnb',
     'airbnb-typescript',
-    'plugin:react/recommended',
-    'plugin:import/typescript',
+    'airbnb/hooks',
     'plugin:@typescript-eslint/recommended',
     'plugin:jest/recommended',
     'plugin:promise/recommended',
     'plugin:compat/recommended',
-    'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
-    'prettier/@typescript-eslint',
-    'prettier/react'
+    // 'plugin:react/recommended',
+    // 'plugin:import/typescript',
+    // 'plugin:react-hooks/recommended',
+    // 'prettier/@typescript-eslint',
+    // 'prettier/react'
   ],
   env: {
-    browser: true
+    browser: true,
+    node: true
   },
   globals: {
     JSX: true,
     React: true
   },
-  overrides: [
-    {
-        files: ["**/*.tsx"],
-        rules: {
-            "react/prop-types": 0
-        }
-    }
-  ],
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 2020,
     sourceType: 'module',
     project: 'tsconfig.json',
     tsconfigRootDir: __dirname,
@@ -47,7 +42,7 @@ module.exports = {
   settings: {
     'import/resolver': {
       webpack: {
-        config: require.resolve('./config/config.eslint')
+        config: require.resolve('./config/webpack.config.eslint.js')
       }
     }
   }

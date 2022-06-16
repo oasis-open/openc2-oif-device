@@ -122,29 +122,29 @@ def xml_decode(msg: str) -> dict:
 # Message Conversion helpers for VelocityPack (VPack)
 def vpack_encode(msg: dict) -> bytes:
     with tempfile.NamedTemporaryFile(delete=True) as msg_tmp:
-        with open(msg_tmp.name, "w") as f:
+        with open(msg_tmp.name, "w", encoding="UTF-8") as f:
             f.write(json.dumps(msg))
         os.chmod(msg_tmp.name, 0o0777)
         msg_tmp.close()
 
         with tempfile.NamedTemporaryFile(delete=True) as enc_tmp:
-            process = Popen(["json-to-vpack", msg_tmp.name, enc_tmp.name], stdout=PIPE, stderr=PIPE)
-            _, _ = process.communicate()
+            with Popen(["json-to-vpack", msg_tmp.name, enc_tmp.name], stdout=PIPE, stderr=PIPE) as process:
+                _, _ = process.communicate()
 
-            with open(enc_tmp.name, "rb") as f:
-                return f.read()
+                with open(enc_tmp.name, "rb") as f:
+                    return f.read()
 
 
 def vpack_decode(msg: bytes) -> dict:
     with tempfile.NamedTemporaryFile(delete=True) as msg_tmp:
-        with open(msg_tmp.name, "wb") as f:
+        with open(msg_tmp.name, "wb", encoding="UTF-8") as f:
             f.write(msg)
         os.chmod(msg_tmp.name, 0o0777)
         msg_tmp.close()
 
         with tempfile.NamedTemporaryFile(delete=True) as dec_tmp:
-            process = Popen(["vpack-to-json", msg_tmp.name, dec_tmp.name], stdout=PIPE, stderr=PIPE)
-            _, _ = process.communicate()
+            with Popen(["vpack-to-json", msg_tmp.name, dec_tmp.name], stdout=PIPE, stderr=PIPE) as process:
+                _, _ = process.communicate()
 
-            with open(dec_tmp.name, "rb") as f:
-                return json.load(f)
+                with open(dec_tmp.name, "rb") as f:
+                    return json.load(f)

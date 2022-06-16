@@ -78,16 +78,17 @@ client.connect(
     clean_start=mqtt.MQTT_CLEAN_START_FIRST_ONLY
 )
 
-client.loop_start()
 
 # Begin consuming messages from internal message queue
 consumer = None
 try:
     consumer = Consumer(
-        exchange='transport',
+        exchange='consumer_transport',
         routing_key="mqtt",
         callbacks=[partial(send_mqtt, Config)]
     )
+    client.loop_forever()
 except Exception as err:
     print(f"Consumer Error: {err}")
+    client.disconnect()
     consumer.shutdown()

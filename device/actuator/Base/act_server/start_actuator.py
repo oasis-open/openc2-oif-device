@@ -71,15 +71,16 @@ if __name__ == '__main__':
             ('actuator_all', 'fanout', 'actuator_all')
         ]
 
+    for sig in signals:
+        signal.signal(sig, on_exit)
+
     try:
         consumer = Consumer(
             binding=bindings,
             callbacks=[partial(on_message, actuator, producer)],
             debug=True
         )
+        consumer.join()
     except Exception as e:
         print(f'Error {e}')
         consumer.shutdown()
-
-    for sig in signals:
-        signal.signal(sig, on_exit)

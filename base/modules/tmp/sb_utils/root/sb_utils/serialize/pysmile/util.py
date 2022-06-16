@@ -4,33 +4,33 @@ Miscellaneous helper methods
 import struct
 
 
-def zigzag_encode(inp):
+def zigzag_encode(inp: int) -> int:
     if inp < 0:
         return (inp << 1) ^ -1
     return inp << 1
 
 
-def zigzag_decode(encoded):
+def zigzag_decode(encoded: int) -> int:
     return (encoded >> 1) ^ (-(encoded & 1))
 
 
-def float_to_raw_long_bits(value):
+def float_to_raw_long_bits(value: float) -> bytes:
     return struct.unpack('Q', struct.pack('d', value))[0]
 
 
-def long_bits_to_float(bits):
+def long_bits_to_float(bits: bytes) -> float:
     return struct.unpack('d', struct.pack('Q', bits))[0]
 
 
-def float_to_bits(value):
+def float_to_bits(value: float) -> bytes:
     return struct.unpack('>l', struct.pack('>f', value))[0]
 
 
-def bits_to_float(bits):
+def bits_to_float(bits: bytes) -> float:
     return round(struct.unpack('>f', struct.pack('>l', bits))[0], 6)
 
 
-def bit_len(i):
+def bit_len(i: int) -> int:
     """
     Calculate the bit length of an int
     :param int i: Int
@@ -44,7 +44,7 @@ def bit_len(i):
     return length
 
 
-def bit_count(i):
+def bit_count(i: int) -> int:
     """
     Calculate the number of set bits (1's) in an int
     :param int i: An int
@@ -58,7 +58,7 @@ def bit_count(i):
     return count
 
 
-def bsr(value, bits):
+def bsr(value: int, bits: int) -> int:
     """
     bsr(value, bits) -> value shifted right by bits
     This function is here because an expression in the original java
@@ -84,7 +84,7 @@ def bsr(value, bits):
     return tmp
 
 
-def hash_string(s):
+def hash_string(s: str) -> int:
     """
     This does what Java hashCode does
     :param str s:

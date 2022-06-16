@@ -16,7 +16,7 @@ RUN apk add --no-cache \
   unzip && \
 #
 # VelocityPack Install
-unzip -d /tmp/ /tmp/velocypack-${VPACK_VERSION}.zip && \
+unzip -q -d /tmp/ /tmp/velocypack-${VPACK_VERSION}.zip && \
 cd /tmp/velocypack-${VPACK_VERSION} && \
 mkdir -p ./build && \
 (cd build && cmake .. && make install DESTDIR=/opt/velocitypack)
@@ -39,7 +39,7 @@ RUN apk add --no-cache libressl libstdc++ python3 && \
 apk add --no-cache --virtual .build-deps \
   cargo \
   gcc \
-  git \
+  g++ \
   libffi-dev \
   libressl-dev \
   linux-headers \
@@ -50,7 +50,7 @@ apk add --no-cache --virtual .build-deps \
 #
 # Python PIP Install
 python3 /tmp/get-pip.py && \
-pip3 install --no-cache-dir --upgrade pip && \
+pip3 install --no-cache-dir --upgrade pip setuptools && \
 #
 # SB_Utils install
 cd /tmp/sb_utils/root && \

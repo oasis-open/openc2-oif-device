@@ -8,7 +8,7 @@ import os
 
 from datetime import datetime
 from functools import partial
-from multiprocessing import Event, Process
+from threading import Event, Thread
 from typing import Any, Callable, Dict, List, Literal, Tuple, Union
 from .general import isFunction, safe_cast
 
@@ -37,9 +37,10 @@ AMQP_HOST = os.environ.get("QUEUE_HOST", "localhost")
 AMQP_PORT: int = safe_cast(os.environ.get("QUEUE_PORT", 5672), int, 5672)
 
 
-class Consumer(Process):
+class Consumer(Thread):
     """
     The Consumer class reads messages from message queue and determines what to do with them.
+    The Consumer is configured as a thread and will automatically start.
     """
     _callbacks: List[Callback]
     _conn: kombu.Connection
@@ -71,7 +72,7 @@ class Consumer(Process):
             :param exchange: specifies where to read messages from
             :param routing_key:
         """
-        super().__init__()
+        Thread.__init__(self, daemon=True)
         self._exit = Event()
 
         self._url = f"amqp://{host}:{port}"
@@ -103,7 +104,7 @@ class Consumer(Process):
         # Start consumer as an independent process
         self.start()
         if self._debug:
-            print(f"Connected to {self._url}")
+            print(f"Connected to {self._url}", flush=True)
 
     def run(self) -> None:
         """
@@ -113,7 +114,7 @@ class Consumer(Process):
             if self._debug:
                 for q in self._queues:
                     binds = ','.join(f'Bind:{{{b.exchange}->{b.routing_key}}}' for b in q.bindings)
-                    print(f"Connected to {self._url} on queue {q.name} with [{binds}] and waiting to consume...")
+                    print(f"Connected to {self._url} on queue {q.name} with [{binds}] and waiting to consume...", flush=True)
 
             while not self._exit.is_set():
                 try:
@@ -130,7 +131,7 @@ class Consumer(Process):
         :param message: contains meta data about the message sent (ie. delivery_info)
         """
         if self._debug:
-            print(f"Message Received @ {datetime.now()}")
+            print(f"Message Received @ {datetime.now()}", flush=True)
 
         message.ack()
         for fun in self._callbacks:
@@ -186,7 +187,7 @@ class Consumer(Process):
         Shutdown the consumer and cleanly close the process
         """
         self._exit.set()
-        print("The consumer has shutdown.")
+        print("The consumer has shutdown.", flush=True)
 
 
 class Producer:

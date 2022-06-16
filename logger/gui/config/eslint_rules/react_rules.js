@@ -32,7 +32,7 @@ module.exports = {
   'react/forbid-prop-types': [2, {
     checkChildContextTypes: true,
     checkContextTypes: true,
-    forbid: ['any']
+    forbid: ['any', 'array', 'object']
   }],
   'react/function-component-definition': [0, {
     namedComponents: 'function-expression',
@@ -76,6 +76,7 @@ module.exports = {
     maximum: 1,
     when: 'multiline'
   }],
+  'react/jsx-newline': 0,
   'react/jsx-no-bind': [2, {
     allowArrowFunctions: true,
     allowBind: false,
@@ -97,7 +98,9 @@ module.exports = {
     }
   ]],
   'react/jsx-no-target-blank': [2, {
-    enforceDynamicLinks: 'always'
+    enforceDynamicLinks: 'always',
+    forms: false,
+    links: true
   }],
   'react/jsx-no-undef': 2,
   'react/jsx-no-useless-fragment': 0,
@@ -112,6 +115,7 @@ module.exports = {
   'react/jsx-props-no-spreading': [2, {
     custom: 'ignore',
     exceptions: [],
+    explicitSpread: 'ignore',
     html: 'enforce'
   }],
   'react/jsx-sort-default-props': [0, {
@@ -166,7 +170,7 @@ module.exports = {
   'react/no-unescaped-entities': 2,
   'react/no-unknown-property': 2,
   'react/no-unsafe': 0,
-  'react/no-unused-prop-types': [2, {
+  'react/no-unused-prop-types': [1, {
     customValidators: [],
     skipShapeProps: true
   }],
@@ -183,7 +187,7 @@ module.exports = {
     skipUndeclared: false
   }],
   'react/react-in-jsx-scope': 2,
-  'react/require-default-props': [2, {
+  'react/require-default-props': [1, {
     forbidDefaultForRequired: true
   }],
   'react/require-optimization': [0, {
@@ -227,6 +231,7 @@ module.exports = {
       'static-methods',
       'instance-variables',
       'lifecycle',
+      '/^handle.+$/',
       '/^on.+$/',
       'getters',
       'setters',

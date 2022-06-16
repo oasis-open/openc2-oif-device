@@ -1,15 +1,16 @@
 """
 PySMILE - JSON Binary SMILE format Encoding/Decoding
+Original Author: Jonathan Hosmer
+Original Source: https://github.com/jhosmer/PySmile
 """
 
 from .encode import encode, SMILEEncodeError
 from .decode import decode, SMILEDecodeError
 
-__author__ = 'Jonathan Hosmer'
 
 __all__ = [
-    'encode',
-    'decode',
-    'SMILEEncodeError',
     'SMILEDecodeError',
+    'SMILEEncodeError',
+    'decode',
+    'encode'
 ]

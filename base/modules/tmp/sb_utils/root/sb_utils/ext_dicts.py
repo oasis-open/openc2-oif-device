@@ -1,7 +1,9 @@
 import copy
 
-from typing import Any, List
+from typing import Any, Iterable, List, Mapping, Union
 from .general import safe_cast
+
+DictLike = Union[Mapping, Iterable]
 
 
 # Dictionary Classes
@@ -14,20 +16,21 @@ class ObjectDict(dict):
         SAME AS
     d.key = 'value'
     """
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, seq: DictLike = None, **kwargs):
         """
         Initialize an QueryDict
         :param args: positional parameters
         :param kwargs: key/value parameters
         """
-        dict.__init__(self, *args, **kwargs)
-        Cls = self.__class__
+        data = dict(seq) if seq else {}
+        data.update(kwargs)
 
-        for k, v in self.items():
-            if isinstance(v, dict) and not isinstance(v, Cls):
-                dict.__setitem__(self, k, Cls(v))
+        for k, v in data.items():
+            if isinstance(v, dict) and not isinstance(v, self.__class__):
+                data[k] = self.__class__(v)
             elif isinstance(v, (list, tuple)):
-                dict.__setitem__(self, k, tuple(Cls(i) if isinstance(i, dict) else i for i in v))
+                data[k] = tuple(self.__class__(i) if isinstance(i, dict) else i for i in v)
+        dict.__init__(self, **data)
 
     def __setitem__(self, key: str, value: Any) -> None:
         """
@@ -36,7 +39,7 @@ class ObjectDict(dict):
         :param value: property value
         :return: None
         """
-        value = ObjectDict(value) if isinstance(value, dict) else value
+        value = self.__class__(value) if isinstance(value, dict) else value
         dict.__setitem__(self, key, value)
 
     __getattr__ = dict.__getitem__
@@ -87,6 +90,22 @@ class FrozenDict(ObjectDict):
     update = _immutable
     setdefault = _immutable
 
+    # Custom functions
+    def unfreeze(self) -> dict:
+        rtn = {}
+        for k, v in self.items():
+            rtn[k] = self._unfreeze(v)
+
+        return rtn
+
+    # Helper functions
+    def _unfreeze(self, obj: Any) -> Any:
+        if isinstance(obj, self.__class__):
+            return obj.unfreeze()
+        if isinstance(obj, tuple):
+            return [self._unfreeze(i) for i in obj]
+        return obj
+
 
 class QueryDict(ObjectDict):
     """
@@ -104,7 +123,7 @@ class QueryDict(ObjectDict):
         """
         Get a key/path from the QueryDict
         :param path: key(s) to get the value of separated by the separator character
-        :param default: default value if the pey/path is not found
+        :param default: default value if the key/path is not found
         :return: value of key/path or default
         """
         if self.separator in path:
@@ -197,6 +216,11 @@ class QueryDict(ObjectDict):
                 else:
                     print(f"Other - {type(ref)}")
 
+    def setdefault(self, path: str, default: Any) -> Any:
+        if path not in self.compositeKeys():
+            self.set(path, default)
+        return self.get(path)
+
     def __contains__(self, path: str) -> bool:
         """
         Verify if a key is in the MultiKeyDict - 'key0' in d and 'key1' in d['key0'] - SAME AS - 'key0.key1' in d
@@ -230,7 +254,7 @@ class QueryDict(ObjectDict):
         :param sep: key separator character
         :return: list of composite keys
         """
-        sep = sep if sep else self.separator
+        sep = sep or self.separator
         return self._compositeKeys(self, sep)
 
     def setSeperator(self, value: str) -> None:
@@ -244,7 +268,7 @@ class QueryDict(ObjectDict):
         :param sep: path separator character
         :return: list of keys
         """
-        sep = sep if sep else self.separator
+        sep = sep or self.separator
         rtn = []
         key_vals = {}
         if isinstance(obj, self.__class__):

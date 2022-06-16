@@ -58,6 +58,9 @@ class SignatureTests(unittest.TestCase):
         with self.subTest():
             self.assertEqual(d["content.target.uri"], "http://www.example.com")
 
+        with self.subTest():
+            self.assertEqual(d.compositeKeys(), ["recipients.0", "recipients.1", "recipients.2", "origin", "created", "msg_type", "request_id", "content.action", "content.target.uri"])
+
 
 if __name__ == "__main__":
     unittest.main()

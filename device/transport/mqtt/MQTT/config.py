@@ -17,5 +17,6 @@ Config = FrozenDict(
     TOPICS=[t.lower().strip() for t in os.environ.get("MQTT_TOPICS", "").split(",")],
     # ETCD Options
     ETCD_HOST=os.environ.get('ETCD_HOST', 'etcd'),
-    ETCD_PORT=safe_cast(os.environ.get('ETCD_PORT', 2379), int, 2379)
+    ETCD_PORT=safe_cast(os.environ.get('ETCD_PORT', 2379), int, 2379),
+    RSP_SPECIFIC=safe_cast(os.environ.get('RSP_SPECIFIC', False), bool, False)
 )

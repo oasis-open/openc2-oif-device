@@ -3,6 +3,7 @@ import uuid
 
 from datetime import datetime
 from io import BytesIO
+from textwrap import shorten
 from typing import Any, List, Union
 
 from . import signature
@@ -61,6 +62,7 @@ class Message:
             m_type = f"Status:{msg.pop('status', 'STATUS')}"
         else:
             m_type = "Notif"
+        msg = shorten(f"{msg}", width=100, placeholder="...")
         return f"Message: <{self.msg_type.name}({m_type}) - {msg}>"
 
     @property

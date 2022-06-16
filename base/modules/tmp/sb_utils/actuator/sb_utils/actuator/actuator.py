@@ -42,7 +42,8 @@ class ActuatorBase:
         config = general.safe_load(config_file)
         if "actuator_id" not in config.keys():
             config.setdefault("actuator_id", act_id)
-            json.dump(config, open(config_file, "w"), indent=4)
+            with open(config_file, "w", encoding="UTF-8") as f:
+                json.dump(config, f, indent=4)
         schema = general.safe_load(schema_file)
         self._config = FrozenDict(
             **config,

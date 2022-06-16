@@ -21,6 +21,7 @@ module.exports = {
     before: false
   }],
   '@typescript-eslint/dot-notation': [2, {
+    allowIndexSignaturePropertyAccess: false,
     allowKeywords: true,
     allowPattern: '',
     allowPrivateClassPropertyAccess: false,
@@ -121,6 +122,7 @@ module.exports = {
   '@typescript-eslint/no-implied-eval': 2,
   '@typescript-eslint/no-inferrable-types': 2,
   '@typescript-eslint/no-loop-func': 2,
+  '@typescript-eslint/no-loss-of-precision': 2,
   '@typescript-eslint/no-magic-numbers': [0, {
     detectObjects: false,
     enforceConst: true,
@@ -135,10 +137,12 @@ module.exports = {
   '@typescript-eslint/no-shadow': 2,
   '@typescript-eslint/no-this-alias': 2,
   '@typescript-eslint/no-throw-literal': 2,
+  '@typescript-eslint/no-unnecessary-type-constraint': 2,
   '@typescript-eslint/no-unused-expressions': [2, {
     allowShortCircuit: false,
     allowTaggedTemplates: false,
-    allowTernary: false
+    allowTernary: false,
+    enforceForJSX: false
   }],
   '@typescript-eslint/no-unused-vars': [1, {
     args: 'after-used',
@@ -152,11 +156,14 @@ module.exports = {
   }],
   '@typescript-eslint/no-useless-constructor': 2,
   '@typescript-eslint/no-var-requires': 0,
+  '@typescript-eslint/object-curly-spacing': [0, 'always'],
   '@typescript-eslint/prefer-as-const': 2,
   '@typescript-eslint/prefer-namespace-keyword': 2,
   '@typescript-eslint/quotes': [0, 'single', {
     avoidEscape: true
   }],
+  '@typescript-eslint/require-await': 0,
+  '@typescript-eslint/return-await': 2,
   '@typescript-eslint/semi': [0, 'always'],
   '@typescript-eslint/space-before-function-paren': [0, {
     anonymous: 'always',
