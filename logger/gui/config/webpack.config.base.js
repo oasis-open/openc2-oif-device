@@ -18,7 +18,7 @@ const DEPEND_DIR = path.join(COMPONENTS_DIR, 'dependencies');
 export default {
   devtool: 'inline-source-map',
   entry: {
-    main: path.join(ROOT_DIR, 'src', 'index.jsx')
+    main: path.join(ROOT_DIR, 'src', 'index.tsx')
   },
   output: {
     path: BUILD_DIR,

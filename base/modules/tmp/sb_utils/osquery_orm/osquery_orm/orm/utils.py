@@ -25,7 +25,9 @@ def model_to_dict(model: Model, recurse: bool = True, backrefs: bool = False, on
     recurse = False if max_depth == 0 else recurse
     only = _clone_set(only)
     extra_attrs = _clone_set(extra_attrs)
-    should_skip = lambda n: (n in exclude) or (only and (n not in only))
+
+    def should_skip(n: str) -> bool:
+        return (n in exclude) or (only and (n not in only))
 
     if fields_from_query is not None:
         for item in fields_from_query._returning:

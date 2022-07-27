@@ -47,7 +47,6 @@ package.json
 
 # Non-packaged files
 config
-flow-typed
 httpd
 internals
 

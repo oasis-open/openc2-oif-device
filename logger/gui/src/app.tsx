@@ -6,24 +6,30 @@ import {
 import { ThemeChooser } from 'react-bootswatch-theme-switcher';
 import { LogItem } from './components/lib';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.searchkit = new SearchkitManager('/api/');
-    this.searchkit.addDefaultQuery(query => query);
-    this.refreshInterval = null;
+// Interfaces
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface AppProps {}
 
-    this.searchkit.translateFunction = key => {
+
+class App extends Component<AppProps> {
+  searchkit = new SearchkitManager('/api/');
+  refreshInterval?: NodeJS.Timer = undefined;
+
+  themeOptionStyles = {
+    position: 'fixed',
+    bottom: '5px',
+    right: '5px'
+  };
+
+  constructor(props: AppProps) {
+    super(props);
+    this.searchkit.addDefaultQuery(query => query);
+
+    this.searchkit.translateFunction = (key: string) => {
       return {
         'pagination.next': 'Next Page',
         'pagination.previous': 'Previous Page'
       }[key];
-    };
-
-    this.themeOptionStyles = {
-      position: 'fixed',
-      bottom: '5px',
-      right: '5px'
     };
   }
 

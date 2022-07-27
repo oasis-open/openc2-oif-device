@@ -159,6 +159,17 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+# Yarn
+.pnp.*
+.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Yarn Custom cache
+!.yarn/cache/react-bootswatch-theme-switcher-*
 
 # Custom Ignore
 analyzer.stats.html

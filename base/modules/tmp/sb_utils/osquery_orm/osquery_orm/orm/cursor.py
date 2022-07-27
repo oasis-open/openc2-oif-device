@@ -25,8 +25,8 @@ class _ParamSubstitutor:
         self.index += 1
         try:
             return bytes(self.params[index])
-        except IndexError:
-            raise ProgrammingError("Not enough parameters for the SQL statement")
+        except IndexError as err:
+            raise ProgrammingError("Not enough parameters for the SQL statement") from err
 
     @property
     def remaining(self):
@@ -77,8 +77,8 @@ class OSQueryCursor:
     def __next__(self):
         try:
             row = self.fetchone()
-        except InterfaceError:
-            raise StopIteration
+        except InterfaceError as err:
+            raise StopIteration from err
         if not row:
             raise StopIteration
         return row
@@ -175,10 +175,9 @@ class OSQueryCursor:
     def _fetch_row(self):
         if self._fetchcount == len(self._stored_results):
             return None
-
         if self._nextrow is None and len(self._stored_results) == 0:
             return None
-        elif self._nextrow is None:
+        if self._nextrow is None:
             row = self._stored_results[0]
         else:
             row = self._nextrow
@@ -204,7 +203,7 @@ class OSQueryCursor:
         try:
             res = dict(zip(map(str.encode, params.keys()), self._process_params(params.values())))
         except Exception as err:
-            raise ProgrammingError(f"Failed processing pyformat-parameters; {err}")
+            raise ProgrammingError(f"Failed processing pyformat-parameters; {err}") from err
         else:
             return res
 
