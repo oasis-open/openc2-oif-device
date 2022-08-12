@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, CSSProperties } from 'react';
 import {
   ActionBar, ActionBarRow, Hits, HitsStats, InitialLoader, NoHits, PageSizeSelector, Pagination, RefinementListFilter,
   ResetFilters, SearchBox, SearchkitManager, SearchkitProvider, SelectedFilters, SortingSelector
@@ -15,7 +15,14 @@ class App extends Component<AppProps> {
   searchkit = new SearchkitManager('/api/');
   refreshInterval?: NodeJS.Timer = undefined;
 
-  themeOptionStyles = {
+  sortOptions = [
+    // eslint-disable-next-line object-curly-newline
+    {label: 'Most Recent', field: 'timestamp', order: 'desc', defaultOption: true},
+    {label: 'App', field: 'appname.keyword', order: 'asc'},
+    {label: 'Severity', field: 'severity.keyword', order: 'asc'}
+  ];
+
+  themeOptionStyles: CSSProperties = {
     position: 'fixed',
     bottom: '5px',
     right: '5px'
@@ -77,6 +84,7 @@ class App extends Component<AppProps> {
                 <h5>App</h5>
                 <RefinementListFilter
                   id="appnames"
+                  title=""
                   field="appname.keyword"
                   operator="OR"
                   size={ 10 }
@@ -86,6 +94,7 @@ class App extends Component<AppProps> {
                 <h5>Severity</h5>
                 <RefinementListFilter
                   id="severity"
+                  title=""
                   field="severity.keyword"
                   operator="OR"
                   size={ 10 }
@@ -95,6 +104,7 @@ class App extends Component<AppProps> {
                 <h5>Source</h5>
                 <RefinementListFilter
                   id="log_source"
+                  title=""
                   field="hostname.keyword"
                   operator="OR"
                   size={ 10 }
@@ -118,13 +128,7 @@ class App extends Component<AppProps> {
                     options={ [10, 20, 30, 40, 50] }
                   />
                   <SortingSelector
-                    options={
-                      [
-                        {label: 'Most Recent', field: 'timestamp', order: 'desc', defaultOption: true},
-                        {label: 'App', field: 'appname.keyword', order: 'asc'},
-                        {label: 'Severity', field: 'severity.keyword', order: 'asc'}
-                      ]
-                    }
+                    options={ this.sortOptions }
                   />
                 </ActionBarRow>
               </ActionBar>
