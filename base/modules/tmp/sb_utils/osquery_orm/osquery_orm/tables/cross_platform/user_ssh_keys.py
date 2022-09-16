@@ -1,7 +1,7 @@
 """
 OSQuery user_ssh_keys ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import BigIntegerField, ForeignKeyField, IntegerField, TextField
 from .users import Users
 

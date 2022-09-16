@@ -46,8 +46,8 @@ class SmileEncoder:
     output: bytearray
     share_keys: bool
     share_values: bool
-    shared_keys: List
-    shared_values: List
+    shared_keys: List[Union[SharedStringNode, None]]
+    shared_values: List[Union[SharedStringNode, None]]
     _encoders: Dict[Type, Callable]
 
     def __init__(self, shared_keys: bool = True, shared_values: bool = True, encode_as_7bit: bool = True):

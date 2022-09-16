@@ -1,12 +1,11 @@
 """
 OSQuery syslog_events ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import BigIntegerField, IntegerField, TextField
 
 
 class SyslogEvents(BaseModel):
-    
     time = BigIntegerField(help_text="Current unix epoch time")
     datetime = TextField(help_text="Time known to syslog")
     host = TextField(help_text="Hostname configured for syslog")

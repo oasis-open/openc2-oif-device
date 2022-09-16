@@ -1,3 +1,4 @@
+# pylint: disable=W0613
 """
 Actuator Error/Exception Functions
 """

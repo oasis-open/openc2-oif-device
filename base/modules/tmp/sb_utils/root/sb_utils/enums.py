@@ -6,7 +6,6 @@ class EnumMetaSB(EnumMeta):
     def __new__(mcs, name: str, bases: Tuple[Type], attrs: dict):
         if opts := attrs.get('_optional_values'):
             attrs.update(opts(mcs))
-
         return super(EnumMetaSB, mcs).__new__(mcs, name, bases, attrs)
 
     def __contains__(cls, item):
@@ -20,7 +19,7 @@ class EnumBase(Enum, metaclass=EnumMetaSB):
         for k, v in dict(cls.__members__).items():
             if name == k.upper():
                 return v
-        raise ValueError(f'{name} is not a valid format name')
+        raise ValueError(f'{name} is not a valid name')
 
     @classmethod
     def from_value(cls, fmt: Union[int, str]) -> 'EnumBase':
@@ -28,4 +27,4 @@ class EnumBase(Enum, metaclass=EnumMetaSB):
         for k, v in members.items():
             if fmt == v:
                 return cls.__getattr__(k)
-        raise ValueError(f'{fmt} is not a valid format value')
+        raise ValueError(f'{fmt} is not a valid value')

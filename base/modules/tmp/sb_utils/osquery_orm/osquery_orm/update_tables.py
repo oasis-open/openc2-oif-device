@@ -99,12 +99,12 @@ def escapeText(txt: str) -> str:
 def schemaName(_name: str, select: bool = True):
     words = _name.split("_")
     words = list(map(str.capitalize, words))
-    name = "-".join([Substitutions.get(w.lower(), w) for w in words])
-    return f"osquery:{'Select' if select else 'Data'}-{name}"
+    schema_name = "-".join([Substitutions.get(w.lower(), w) for w in words])
+    return f"osquery:{'Select' if select else 'Data'}-{schema_name}"
 
 
 # Table functions
-def table_name(attrs: dict, _name: str, *args, **kwargs):
+def table_name(attrs: dict, _name: str, *args, **kwargs):  # pylint: disable=W0613
     attrs.update(
         class_name=getClassName(_name),
         table_name=_name,
@@ -112,7 +112,7 @@ def table_name(attrs: dict, _name: str, *args, **kwargs):
     )
 
 
-def description(attrs: dict, desc: str):
+def description(attrs: dict, desc: str):  # pylint: disable=W0621
     attrs["description"] = escapeText(desc)
 
 
@@ -124,7 +124,7 @@ def schema(attrs: dict, fields: List[str]):
     )
 
 
-def schema_column(attrs: dict, _name: str, _type: str, desc: str, **kwargs):
+def schema_column(attrs: dict, _name: str, _type: str, desc: str, **kwargs):  # pylint: disable=W0621
     _type = TypeMap.get(_type, _type)
     attrs.setdefault("field_imports", set()).add(_type)
     args = {
@@ -140,7 +140,7 @@ def schema_column(attrs: dict, _name: str, _type: str, desc: str, **kwargs):
     return field
 
 
-def schema_foreign_key(attrs: dict, column: str, table: str, **kwargs):
+def schema_foreign_key(attrs: dict, column: str, table: str, **kwargs):  # pylint: disable=W0621
     cls = getClassName(table)
     attrs.setdefault("field_imports", set()).add("ForeignKeyField")
     attrs.setdefault("local_imports", set()).add(f"from .{table} import {cls}")
@@ -160,15 +160,15 @@ def extended_schema(attrs: dict, _os: str, fields: List[str]):
     attrs["extended_schema"] += ext_schema.replace("\t", " " * 4) + "\n"
 
 
-def implementation(attrs: dict, imp: str, **kwargs):
+def implementation(attrs: dict, imp: str, **kwargs):  # pylint: disable=W0613
     pass
 
 
-def fuzz_paths(attrs: dict, *paths):
+def fuzz_paths(attrs: dict, *paths):  # pylint: disable=W0613
     pass
 
 
-def attributes(attrs: dict, **attr):
+def attributes(attrs: dict, **attr):  # pylint: disable=W0613
     pass
 
 
@@ -191,7 +191,7 @@ table_funcs = {
 }
 
 
-def doc2table(doc: str) -> dict:
+def doc2table(doc_file: str) -> dict:
     attrs = {
         "general_imports": set(),
         "field_imports": set(),
@@ -213,13 +213,14 @@ def doc2table(doc: str) -> dict:
         "__builtins__": env_funcs
     }
 
-    with open(doc, "r") as d:
-        spec = d.read()
+    with open(doc_file, "r", encoding="utf-8") as doc:
+        spec = doc.read()
         try:
-            cc = compile(spec, doc, "exec")
+            cc = compile(spec, doc_file, "exec")
             eval(cc, eval_env)
             attrs["description"] = re.sub("\t", "    ", f'''"""\n\t{attrs["description"]}\n\t"""''' if attrs["description"] else "")
             attrs["general_imports"] = ("\n".join(attrs["general_imports"]) + "\n") if attrs["general_imports"] else ""
+            attrs["pkg_root"] = "..."
             attrs["field_imports"] = attrs["field_imports"] - {"int", "str"}
             attrs["field_imports"] = f"from peewee import {', '.join(sorted(attrs['field_imports']))}\n" if attrs["field_imports"] else ""
             attrs["local_imports"] = ("\n".join(attrs["local_imports"]) + "\n\n") if attrs["local_imports"] else "\n"
@@ -250,6 +251,11 @@ if __name__ == "__main__":
                 table_path = table_path.replace(spec_dir, table_dir)
                 print(f"Updating table for {spec_path}")
                 opts = doc2table(spec_path)
+                depth = table_path.replace(table_dir, "")
+                if depth.count("/") == 3:
+                    print(f"level 3 - {depth}")
+                    opts["pkg_root"] += "."
+
                 # Create JSON consts
                 d = dirpath.split("/")[-1]
                 desc = re.sub(r"\n\s+Examples:\n(.|\n)*", "", opts.get("description")[3:-3].strip())

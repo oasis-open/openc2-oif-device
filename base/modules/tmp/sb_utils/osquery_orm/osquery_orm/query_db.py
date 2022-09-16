@@ -3,7 +3,7 @@ import osquery
 from types import MethodType
 from typing import Union
 from osquery.extension_client import Client
-from peewee import Database, SQL, ColumnMetadata, ForeignKeyMetadata, IndexMetadata, ProgrammingError, fn, simple_date_time
+from peewee import Database, SQL, ColumnMetadata, ForeignKeyMetadata, IndexMetadata, OnConflict, ProgrammingError, fn, simple_date_time
 from .orm.cursor import OSQueryCursor
 from .tables import Tables
 
@@ -54,7 +54,7 @@ class OsQueryDatabase(Database):
         rslts = table.select(table.name).where(table.active == True).where(table.internal == False).where(table.registry == 'table')
         return tuple(sorted(r.name for r in rslts))
 
-    def get_indexes(self, table, schema=None):
+    def get_indexes(self, table: str, schema=None):
         schema = schema or 'main'
         query = f'SELECT name, sql FROM "{schema}".sqlite_master WHERE tbl_name = ? AND type = ? ORDER BY name'
         cursor = self.execute_sql(query, (table, 'index'))
@@ -83,24 +83,27 @@ class OsQueryDatabase(Database):
             table
         ) for name in sorted(index_to_sql)]
 
-    def get_columns(self, table, schema=None):
+    def get_columns(self, table: str, schema=None):
         cursor = self.execute_sql(f'PRAGMA "{schema or "main"}".table_info("{table}")')
         return [ColumnMetadata(r[1], r[2], not r[3], bool(r[5]), table, r[4]) for r in cursor.fetchall()]
 
-    def get_primary_keys(self, table, schema=None):
+    def get_primary_keys(self, table: str, schema=None):
         cursor = self.execute_sql(f'PRAGMA "{schema or "main"}".table_info("{table}")')
         return [row[1] for row in filter(lambda r: r[-1], cursor.fetchall())]
 
-    def get_foreign_keys(self, table, schema=None):
+    def get_foreign_keys(self, table: str, schema=None):
         cursor = self.execute_sql(f'PRAGMA "{schema or "main"}".foreign_key_list("{table}")')
         return [ForeignKeyMetadata(row[3], row[2], row[4], table) for row in cursor.fetchall()]
 
-    def conflict_statement(self, on_conflict, query):
+    def sequence_exists(self, seq):
+        pass
+
+    def conflict_statement(self, on_conflict: OnConflict, query):
         action = on_conflict._action.lower() if on_conflict._action else ''
         if action and action not in ('nothing', 'update'):
             return SQL(f'INSERT OR {on_conflict._action.upper()}')
 
-    def conflict_update(self, on_conflict, query):
+    def conflict_update(self, on_conflict: OnConflict, query):
         # Sqlite prior to 3.24.0 does not support Postgres-style upsert.
         if self.server_version < (3, 24, 0) and any((on_conflict._preserve, on_conflict._update, on_conflict._where, on_conflict._conflict_target, on_conflict._conflict_constraint)):
             raise ValueError('SQLite does not support specifying which values to preserve or update.')

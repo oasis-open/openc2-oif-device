@@ -14,11 +14,7 @@ from .general import isFunction, safe_cast
 
 # Type Hinting
 Callback = Union[Callable[[Any, kombu.Message], None], partial]
-Callbacks = Union[
-    List[Callback],
-    Tuple[Callback, ...]
-]
-
+Callbacks = Union[List[Callback], Tuple[Callback, ...]]
 Exchange_Type = Literal['direct', 'fanout', 'headers', 'topic']
 Bindings = Dict[
     str,  # Queue Name

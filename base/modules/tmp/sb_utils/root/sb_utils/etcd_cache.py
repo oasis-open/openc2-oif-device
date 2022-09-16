@@ -122,7 +122,10 @@ class EtcdCache:
         try:
             for k in self._etcd_client.read(root, recursive=True, sorted=True).children:
                 key = k.key.replace(root, '').replace('/', '.')
-                data[key] = json.loads(k.value)
+                try:
+                    data[key] = json.loads(k.value)
+                except json.decoder.JSONDecodeError as e:
+                    print(f"Cannot read value from key: {k.key}:{k.value} - {e.msg}")
         except (etcd.EtcdKeyNotFound, etcd.EtcdWatchTimedOut):
             pass
         return data

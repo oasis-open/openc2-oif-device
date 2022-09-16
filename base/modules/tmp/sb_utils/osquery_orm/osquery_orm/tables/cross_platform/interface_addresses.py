@@ -1,7 +1,7 @@
 """
 OSQuery interface_addresses ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import TextField
 
 

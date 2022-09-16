@@ -1,7 +1,7 @@
 """
 OSQuery cups_jobs ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import IntegerField, TextField
 
 

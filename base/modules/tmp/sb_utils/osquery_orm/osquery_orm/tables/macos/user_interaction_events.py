@@ -1,7 +1,7 @@
 """
 OSQuery user_interaction_events ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import BigIntegerField
 
 

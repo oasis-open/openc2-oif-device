@@ -1,9 +1,9 @@
 """
 OSQuery authorized_keys ORM
 """
-from osquery_orm.orm import BaseModel
+from ....orm import BaseModel
 from peewee import BigIntegerField, ForeignKeyField, IntegerField, TextField
-from ...cross_platform import Users
+from ...cross_platform import MacOS_Users
 
 
 class AuthorizedKeys(BaseModel):
@@ -16,7 +16,7 @@ class AuthorizedKeys(BaseModel):
     algorithm = TextField(help_text="algorithm of key")
     key = TextField(help_text="parsed authorized keys line")
     key_file = TextField(help_text="Path to the authorized_keys file")
-    authorized_keys = ForeignKeyField(Users, backref='uid')
+    authorized_keys = ForeignKeyField(MacOS_Users, backref='uid')
 
     class Meta:
         table_name = "authorized_keys"
