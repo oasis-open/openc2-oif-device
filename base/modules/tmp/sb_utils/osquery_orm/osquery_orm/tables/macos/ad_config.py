@@ -1,7 +1,7 @@
 """
 OSQuery ad_config ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import TextField
 
 

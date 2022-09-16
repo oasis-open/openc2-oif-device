@@ -1,7 +1,7 @@
 """
 OSQuery docker_container_mounts ORM
 """
-from osquery_orm.orm import BaseModel
+from ....orm import BaseModel
 from peewee import IntegerField, TextField
 
 

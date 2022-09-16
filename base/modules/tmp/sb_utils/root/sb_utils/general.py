@@ -15,14 +15,19 @@ from typing import Any, AnyStr, Callable, Dict, Tuple, Type, Union
 
 # Util Functions
 def camelCase(s: str, delim: str = '_') -> str:
+    """
+    Convert the given string to camelcase
+    :param s: String to cast
+    :param delim: delimiter to split and change case of character after
+    """
     s = s.split(delim)
     return s[0] + ''.join(map(str.capitalize, s[1:]))
 
 
 def toBytes(b: Any) -> bytes:
     """
-    Convert a given type to a default byte string
-    :param : item to convert to a byte string
+    Convert the given type to a default byte string
+    :param b: item to convert to a byte string
     :return: converted byte string
     """
     return b if isinstance(b, bytes) else bytes(str(b), sys.getdefaultencoding())
@@ -30,7 +35,7 @@ def toBytes(b: Any) -> bytes:
 
 def toStr(s: Any) -> str:
     """
-    Convert a given type to a default string
+    Convert the given type to a default string
     :param s: item to convert to a string
     :return: converted string
     """
@@ -51,11 +56,11 @@ def prefixUUID(pre: str = 'PREFIX', max_len: int = 30) -> str:
 
 def safe_cast(val: Any, to_type: Type, default: Any = None) -> Any:
     """
-    Cast the given value to the goven type safely without an exception being thrown
+    Cast the given value to the given type safely without an exception being thrown
     :param val: value to cast
     :param to_type: type to cast as
     :param default: default value if casting fails
-    :return: casted value or given default/None
+    :return: cast value or given default/None
     """
     try:
         return to_type(val)
@@ -222,7 +227,7 @@ def destructure(d: dict, *keys: Union[AnyStr, Tuple[AnyStr, Any]]) -> Tuple[Any,
     Destructure the dict using the given keys
     :param d: dict to destructure
     :param keys: keys and optional default to use to destructure the dict
-    :return: destructured values
+    :return: destructed values
     """
     rslt = []
     for k in keys:

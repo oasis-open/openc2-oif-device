@@ -9,7 +9,6 @@ kombu==5.2.4
 msgpack==1.0.4
 py3-bencode==0.0.3
 py-ubjson==0.16.1
-pycrypto==2.6.1
 pyrabbit==1.1.0
 python-etcd==0.4.5
 pyyaml==6.0

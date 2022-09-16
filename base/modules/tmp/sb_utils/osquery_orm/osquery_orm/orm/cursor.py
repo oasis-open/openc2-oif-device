@@ -115,7 +115,7 @@ class OSQueryCursor:
             results.append(self.execute(sql, param))
         print(f'-- {results}')
 
-    def executescript(self, sql: str):
+    def executescript(self, sql: str):  # pylint: disable=W0613
         """Executes a multiple SQL statements at once. Non-standard"""
         print('executescript')
 

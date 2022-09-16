@@ -40,7 +40,7 @@ class SmileHeader:
 
 class SmileDecoder:
     input: bytearray
-    output: List  # List[...]
+    output: List[Union[int, float, str]]
     mode: DecodeMode
     error: str
     index: int
@@ -66,8 +66,7 @@ class SmileDecoder:
     def init(self, smile: Union[bytes, str] = None) -> None:
         # Input
         if smile:
-            smile = smile if isinstance(smile, bytes) else bytes(smile, "UTF-8")
-            self.input = bytearray(smile)
+            self.input = bytearray(smile if isinstance(smile, bytes) else bytes(smile, "UTF-8"))
         else:
             self.input = bytearray()
 
@@ -192,7 +191,7 @@ class SmileDecoder:
             smile_zzvarint_decode |= ch
         return smile_zzvarint_decode
 
-    def write(self, *args) -> None:
+    def write(self, *args: Union[int, float, str]) -> None:
         if args:
             self.output.extend(args)
 
@@ -217,7 +216,7 @@ class SmileDecoder:
 
     def _decode_RAV(self) -> None:
         if byt := self.pull_byte():
-            log.debug("Pulled Byte: %s" % f"{byt:#02x}")
+            log.debug(f"Pulled Byte: {byt:#02x}")  # pylint: disable=W1201,W1203
 
             if self.in_array[self.nested_depth]:
                 if self.first_array_element[self.nested_depth]:
@@ -349,7 +348,7 @@ class SmileDecoder:
             log.debug("No bytes left to read!")
             self.mode = DecodeMode.DONE
             return
-        log.debug("Pulled Byte: %s" % f"{byt:#02x}")
+        log.debug(f"Pulled Byte: {byt:#02x}")  # pylint: disable=W1201,W1203
 
         try:
             if self.first_key[self.nested_depth]:

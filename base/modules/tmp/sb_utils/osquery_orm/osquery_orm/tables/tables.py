@@ -1,10 +1,10 @@
-from peewee import Model
+from peewee import Database, Model
 from . import cross_platform, freebsd, linux, macos, windows
 from .platform_base import mac_lin, mac_lin_win, mac_win
 
 
 class BindDatabase:
-    def __init__(self, conn):
+    def __init__(self, conn: Database):
         models = []
         for prop in dir(self):
             if not prop.startswith('_'):
@@ -495,7 +495,7 @@ class Tables:
     macos: MacOS
     windows: Windows
 
-    def __init__(self, conn):
+    def __init__(self, conn: Database):
         self._cross_platform = CrossPlatform(conn)
         self.freebsd = FreeBSD(conn)
         self.linux = Linux(conn)
