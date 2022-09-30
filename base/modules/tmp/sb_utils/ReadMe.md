@@ -1,5 +1,6 @@
+<a href="https://openc2.org/" target="_blank">![OpenC2](https://github.com/ScreamBun/SB_Utils/blob/master/assets/images/openc2.png?raw=true)</a>
 # Utils
-
+[![Python 3.10](https://img.shields.io/badge/Python-3.10-blue)](https://www.python.org/downloads/release/python-3100/)
 ## Installing
 - Note: update `PACKAGE` to the appropriate package being installed
   - sb_utils-->root
