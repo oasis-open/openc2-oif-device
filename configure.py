@@ -138,7 +138,7 @@ if __name__ == "__main__":
         name="base actuator",
         path="./base",
         dockerfile="./Dockerfile_alpine-python3_actuator",
-        tag=f"{CONFIG.ImagePrefix}//alpine-python3_actuator",
+        tag=f"{CONFIG.ImagePrefix}/alpine-python3_actuator",
         buildargs=dict(
             BASE_IMAGE=f"{CONFIG.ImagePrefix}/python3"
         ),

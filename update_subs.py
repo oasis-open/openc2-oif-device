@@ -64,14 +64,14 @@ CONFIG = FrozenDict(
         ('git', 'gitpython'),
         ('colorama', 'colorama')
     ),
-    ImagePrefix="oif",
+    ImagePrefix="screambunn",
     BaseRepo=f"{Base_URL}screamingbunny",
-    ImageReplace=(
-        ("base", r"ccoe-gitlab.*?docker:alpine( as.*)?", r"oif/alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
-        ("python3_actuator", r"ccoe-gitlab.*plus:alpine-python3_actuator( as.*)?", fr"oif/python3_actuator\g<1>\n"),
-        ("python3_twisted", r"ccoe-gitlab.*plus:alpine-python3_twisted( as.*)?", fr"oif/python3_twisted\g<1>\n"),
-        ("python3", r"ccoe-gitlab.*plus:alpine-python3( as.*)?", fr"oif/python3\g<1>\n"),
-    ),
+    # ImageReplace=(
+    #     ("base", r"ccoe-gitlab.*?docker:alpine( as.*)?", r"oif/alpine\g<1>\nRUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*"),
+    #     ("python3_actuator", r"ccoe-gitlab.*plus:alpine-python3_actuator( as.*)?", fr"oif/python3_actuator\g<1>\n"),
+    #     ("python3_twisted", r"ccoe-gitlab.*plus:alpine-python3_twisted( as.*)?", fr"oif/python3_twisted\g<1>\n"),
+    #     ("python3", r"ccoe-gitlab.*plus:alpine-python3( as.*)?", fr"oif/python3\g<1>\n"),
+    # ),
     Repos=FrozenDict(
         Transport=('HTTPS', 'MQTT'),
     )
@@ -145,7 +145,7 @@ if __name__ == '__main__':
         rslt = subprocess.call(
             [sys.executable, os.path.join("actuator", "configure.py")],
             env={
-                'BASE_IMAGE_NAME': f"{CONFIG.ImagePrefix}/python3_actuator"
+                'BASE_IMAGE_NAME': f"{CONFIG.ImagePrefix}/alpine-python3_actuator"
             }
         )
         if rslt != 0:
@@ -157,18 +157,18 @@ if __name__ == '__main__':
         update_repo(f"{CONFIG.BaseRepo}/logger.git", 'logger', options.repo_branch)
 
     # -------------------- Dockerfile -------------------- #
-    with Stage('Dockerfiles'):
-        for dockerfile in recursive_find(patterns=['Dockerfile']):
-            with open(dockerfile, 'r') as f:
-                tmpFile = f.read()
-
-            for (name, orig_img, repl_img) in CONFIG.ImageReplace:
-                if re.search(orig_img, tmpFile):
-                    Stylize.info(f'Updating {dockerfile}')
-                    Stylize.bold(f'- Found {name} image, updating for public repo\n')
-                    tmpFile = re.sub(orig_img, repl_img, tmpFile)
-                    with open(dockerfile, 'w') as f:
-                        f.write(tmpFile)
-                    break
+    # with Stage('Dockerfiles'):
+    #     for dockerfile in recursive_find(patterns=['Dockerfile']):
+    #         with open(dockerfile, 'r') as f:
+    #             tmpFile = f.read()
+    #
+    #         for (name, orig_img, repl_img) in CONFIG.ImageReplace:
+    #             if re.search(orig_img, tmpFile):
+    #                 Stylize.info(f'Updating {dockerfile}')
+    #                 Stylize.bold(f'- Found {name} image, updating for public repo\n')
+    #                 tmpFile = re.sub(orig_img, repl_img, tmpFile)
+    #                 with open(dockerfile, 'w') as f:
+    #                     f.write(tmpFile)
+    #                 break
 
     Stylize.info("Run `configure.py` from the public folder to create the base containers necessary to run the OIF Device")
