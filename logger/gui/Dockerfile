@@ -15,8 +15,7 @@ cp -r build/* /opt/syslog/gui
 
 
 # GUI Image
-FROM oif/alpine
-RUN apk upgrade --update && apk add --no-cache dos2unix && rm /var/cache/apk/*
+FROM ccoe-gitlab-registry.hii-tsd.com/screamingbunny/docker:alpine
 
 LABEL name="Logger GUI" \
 vendor="OpenC2" \

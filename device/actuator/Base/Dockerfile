@@ -1,4 +1,4 @@
-FROM oif/python3_actuator
+FROM screambunn/alpine-python3_actuator
 
 MAINTAINER Screaming_Bunny
 
