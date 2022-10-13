@@ -7,6 +7,10 @@
 [![Docker Compose 1.20+](https://img.shields.io/badge/Docker%20Compose-1.20%2B-blue)](https://docs.docker.com/compose/install/)
 [![Open2C Lang Spec](https://img.shields.io/badge/Open2C%20Lang%20Spec-1.0-brightgreen)](https://github.com/dlemire60/openc2-oc2ls/releases/tag/v1.0-cs01)
 
+## <a name="installation"></a> Installation
+
+To get started with the OpenC2 Integration Framework (OIF) Device please reference the [Device.md](docs/Device.md) found under docs.
+
 ## <a name="background"></a> Background
 
 This GitHub public repository [openc2-oif-device](https://github.com/oasis-open/openc2-oif-device) was created at the request of the [OASIS OpenC2 Technical Committee](https://www.oasis-open.org/committees/openc2/) as an [OASIS TC Open Repository](https://www.oasis-open.org/resources/open-repositories/) to support development of open source resources related to Technical Committee work.
@@ -25,13 +29,18 @@ OIF consists of two major parts. The "orchestrator" which functions as an OpenC2
 
 This particular repository contains the code required to set up an OpenC2 Device. The Orchestrator repository can be found [here](https://github.com/oasis-open/openc2-oif-orchestrator). Due to port bindings it is recommended that the orchestrator and the device not be run on the same machine.
 
-The OIF Device was created with the intent of being an easy-to-configure OpenC2 consumer that can be used in the creation of reference implemetations. To that end it allows for the addition of multiple actuators, serializations, and trasnportation types.
+The OIF Device was created with the intent of being an easy-to-configure OpenC2 consumer that can be used in the creation of reference implementations. To that end it allows for the addition of multiple actuators, serializations, and transportation types.
 
-To get started please reference [https://github.com/oasis-open/openc2-oif-device/blob/master/docs/Device.md](https://github.com/oasis-open/openc2-oif-device/blob/master/docs/Device.md)
+## <a name="overview"></a> Overview
+![GUI snippet](docs/images/overview.png)
 
-**Additions to Statement of Purpose**
+### <a name="device"></a> [Device](docs/Device.md)
 
-Repository Maintainers may include here any additional sections, subsections, and paragraphs that the Maintainer(s) wish to add as descriptive text, reflecting project status, milestones, releases, modifications to statement of purpose, etc.  The project Maintainers will create and maintain this content on behalf of the participants.
+### <a name="actuator"></a> [Actuator](docs/Actuator.md)
+
+### <a name="serializations"></a> [Serializations](docs/Serializations.md)
+
+### <a name="transport"></a> [Transport](docs/Transport.md)
 
 ## <a name="maintainers"></a> Maintainers
 
