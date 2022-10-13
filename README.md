@@ -34,13 +34,15 @@ The OIF Device was created with the intent of being an easy-to-configure OpenC2 
 ## <a name="overview"></a> Overview
 ![GUI snippet](docs/images/overview.png)
 
-### <a name="device"></a> [Device](docs/Device.md)
+### Further Documentation
 
-### <a name="actuator"></a> [Actuator](docs/Actuator.md)
+#### <a name="device"></a> [Device](docs/Device.md)
 
-### <a name="serializations"></a> [Serializations](docs/Serializations.md)
+#### <a name="actuator"></a> [Actuator](docs/Actuator.md)
 
-### <a name="transport"></a> [Transport](docs/Transport.md)
+#### <a name="serializations"></a> [Serializations](docs/Serializations.md)
+
+#### <a name="transport"></a> [Transport](docs/Transport.md)
 
 ## <a name="maintainers"></a> Maintainers
 
