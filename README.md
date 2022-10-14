@@ -9,7 +9,7 @@
 
 ## <a name="installation"></a> Installation
 
-To get started with the OpenC2 Integration Framework (OIF) Device please reference the [Device.md](docs/Device.md) found under docs.
+To get started with the OpenC2 Integration Framework (OIF) Device please reference the [WalkThrough.md](docs/WalkThrough.md) found under docs.
 
 ## <a name="background"></a> Background
 
