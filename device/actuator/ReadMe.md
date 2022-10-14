@@ -3,7 +3,6 @@
 #### Notes:
 - N/A
 
-
 ## Developing an Actuator
 - Actuators are configured to run as Docker containers by default
 
@@ -135,15 +134,15 @@
 	        self._dispatch.register_dispatch(Query)
 	```
 
-8. Add any additional, non standard, python libraries used to the `requirements.txt` file in the root folder
+8. Add any additional, non-standard, python libraries used to the `requirements.txt` file in the root folder
 
 
 ## Running the Actuator
-- Actuator is configured to run a Docker container
+Actuator is configured to run a Docker container.
 
 1. Install docker
 
-3. Build/pull container
+2. Build/pull container
     - Build
 		- Run the `configure.py` script in the parent folder to create the Dockerfiles for the actuators
 		- Return to the actuator folder and run the following commands, replacing `ACTUATOR` with the name of the actuator in lowercase
@@ -152,7 +151,7 @@
 	    docker build -f Dockerfile -t PATH:ACTUATOR .
 	    ```
 
-4. Start the container
+3. Start the container
     - Note: There should be a RabbitMQ and transport container/instance for the actuator to connect to
 
 - Development
