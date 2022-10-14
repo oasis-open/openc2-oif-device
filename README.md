@@ -1,4 +1,4 @@
-<a href="https://openc2.org/" target="_blank">![OpenC2](https://github.com/ScreamBun/SB_Utils/blob/master/assets/images/openc2.png?raw=true)</a>
+<a id="openc2-logo" href="https://openc2.org/" target="_blank">![OpenC2](https://github.com/ScreamBun/SB_Utils/blob/master/assets/images/openc2.png?raw=true)</a>
 # <a name="oasis-tc-open-repository:-openc2-oif-device"></a> OASIS TC Open Repository: openc2-oif-device
 ### <i>OpenC2 Integration Framework (OIF) Device</i>
 
@@ -68,4 +68,4 @@ Initially, the associated TC members have designated one or more persons to serv
 Questions or comments about this TC Open Repository's activities should be composed as GitHub issues or comments. If use of an issue/comment is not possible or appropriate, questions may be directed by email to the Maintainer(s) <a href="#currentMaintainers">listed above</a>. Please send general questions about TC Open Repository participation to OASIS Staff at repository-admin@oasis-open.org and any specific CLA-related questions to repository-cla@oasis-open.org.
 
 
-[Top of Page](#oasis-tc-open-repository:-openc2-oif-device)
+[Top of Page](#openc2-logo)
