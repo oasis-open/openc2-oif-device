@@ -11,6 +11,7 @@ volumes:
       com.screaming_bunny.container: 'RabbitMQ'
       com.screaming_bunny.description: 'Persistent RabbitMQ Volume'
 
+
 services:
   transport-https:
     hostname: transport-https
@@ -26,6 +27,7 @@ services:
       - "5001:5001"
     depends_on:
       - queue
+
 
   transport-mqtt:
     hostname: transport-mqtt
@@ -46,6 +48,7 @@ services:
       - etcd
       - queue
 
+
   actuator-base:
     hostname: actuator-base
     image: screambunn/device_actuator_base
@@ -61,6 +64,7 @@ services:
       - etcd
       - queue
     restart: on-failure
+
 
   actuator-slpf:
     hostname: actuator-slpf
@@ -78,6 +82,7 @@ services:
       - queue
     restart: on-failure
 
+
   queue:
     hostname: rabbit
     image: rabbitmq:management-alpine
@@ -90,6 +95,7 @@ services:
       timeout: 10s
       retries: 5
     restart: on-failure
+
 
   etcd:
     hostname: etcd
