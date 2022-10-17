@@ -1,4 +1,4 @@
-FROM harbor.olympus.mtn/screamingbunny/docker/alpine-python3
+FROM ccoe-gitlab-registry.hii-tsd.com/screamingbunny/docker/plus:alpine-python3
 
 LABEL name="Logger Server" \
 vendor="OpenC2" \
