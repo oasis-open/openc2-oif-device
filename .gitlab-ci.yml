@@ -34,6 +34,7 @@ Build:
   stage: build
   script:
     - git checkout ${CI_COMMIT_REF_NAME:-develop}
+    - git rev-parse --abbrev-ref HEAD
     - python3 update_subs.py --verbose --url_base git@${REPO_BASE} --repo_branch ${CI_COMMIT_REF_NAME:-develop}
     - git add --all
     - |
