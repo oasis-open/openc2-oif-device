@@ -28,7 +28,7 @@ before_script:
   - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
   - git config push.default matching
   - echo "**************"
-  - echo "${CI_COMMIT_REF_NAME:-develop}
+  - echo "${CI_COMMIT_REF_NAME:-develop}"
 
 Build:
   stage: build
