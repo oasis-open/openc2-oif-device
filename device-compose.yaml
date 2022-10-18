@@ -31,7 +31,7 @@ services:
 
   transport-mqtt:
     hostname: transport-mqtt
-    image: screambunn/device_transport_mqtt
+#    image: screambunn/device_transport_mqtt
     build:
       context: ./device/transport/mqtt
     env_file:
@@ -40,7 +40,7 @@ services:
       - ./environment/mqtt_transport.env
       - ./environment/security.env
     environment:
-      MQTT_HOST: '172.16.0.57'
+      MQTT_HOST: '91.121.93.94'  # https://test.mosquitto.org/ ** WARNING DO NOT USE IN PROD, TESTING ONLY **
     external_links:
       - etcd
       - queue
