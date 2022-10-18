@@ -93,7 +93,7 @@ docker-compose -f device-compose.yaml up --detach
 A detached instance of OIF Device is terminated with the complementary command:
 
 ```bash
-docker-compose down
+docker-compose -f device-compose.yaml down
 ```
 
 This command should also be run after terminating an attached OIF Device instance with `ctrl-c`, 
