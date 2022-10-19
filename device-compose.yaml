@@ -31,7 +31,7 @@ services:
 
   transport-mqtt:
     hostname: transport-mqtt
-#    image: screambunn/device_transport_mqtt
+    image: screambunn/device_transport_mqtt
     build:
       context: ./device/transport/mqtt
     env_file:
