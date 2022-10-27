@@ -1,7 +1,9 @@
 # OpenC2 Base Actuator
 
+
 ## Notes:
 - N/A
+
 
 Registering an Actuator in OIF:
  - Give actuator a name and generate a UUID.

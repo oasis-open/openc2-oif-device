@@ -27,9 +27,7 @@ export default merge(baseConfig, {
       ],
       exclude: [
         '**/*.(stories|spec).(js|jsx)$',
-        DEPEND_DIR,
-        '**/theme-switcher/download_themes.js',
-        path.join(COMPONENTS_DIR, 'utils', 'theme-switcher', 'assets')
+        DEPEND_DIR
       ]
     }),
     new CircularDependencyPlugin({

@@ -27,7 +27,7 @@ if sys.version_info < (3, 6):
 # Option Parsing
 parser = OptionParser()
 parser.add_option("-f", "--log-file", dest="log_file", help="Write logs to LOG_FILE")
-parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Verbose output of container/GUI build")
+parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Verbose output of container")
 parser.add_option("--logger", action="store_true", dest="logger", default=False, help="Build central log containers")
 
 (options, args) = parser.parse_args()
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         name="base alpine python3",
         path="./base",
         dockerfile="./Dockerfile_alpine-python3",
-        tag=f"{CONFIG.ImagePrefix}/python3",
+        tag=f"{CONFIG.ImagePrefix}/alpine-python3",
         buildargs=dict(
             BASE_IMAGE=f"{CONFIG.ImagePrefix}/alpine"
         ),
@@ -138,9 +138,9 @@ if __name__ == "__main__":
         name="base actuator",
         path="./base",
         dockerfile="./Dockerfile_alpine-python3_actuator",
-        tag=f"{CONFIG.ImagePrefix}/python3_actuator",
+        tag=f"{CONFIG.ImagePrefix}/alpine-python3_actuator",
         buildargs=dict(
-            BASE_IMAGE=f"{CONFIG.ImagePrefix}/python3"
+            BASE_IMAGE=f"{CONFIG.ImagePrefix}/alpine-python3"
         ),
         rm=True
     )

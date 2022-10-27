@@ -9,7 +9,7 @@ DictLike = Union[Mapping, Iterable]
 # Dictionary Classes
 class ObjectDict(dict):
     """
-    Dictionary that acts like a object
+    Dictionary that acts like an object
     d = ObjectDict()
 
     d['key'] = 'value'
@@ -217,6 +217,10 @@ class QueryDict(ObjectDict):
                     print(f"Other - {type(ref)}")
 
     def setdefault(self, path: str, default: Any) -> Any:
+        """
+        Insert key with a value of default if key is not in the dictionary.
+        Return the value for key if key is in the dictionary, else default.
+        """
         if path not in self.compositeKeys():
             self.set(path, default)
         return self.get(path)

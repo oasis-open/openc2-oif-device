@@ -270,7 +270,7 @@ def check_docker_compose(console=None):
     installed_compose = subprocess.Popen(["docker-compose", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = installed_compose.communicate()
 
-    if err in CONFIG.EmptyString:
+    if err in CONFIG.EmptyString or err.decode("utf-8").find("CryptographyDeprecationWarning"):
         installed_version = re.search(r"\d{,2}\.\d{,2}\.\d{,2}", str(out)).group()
         version = tuple(int(n) for n in installed_version.split("."))
 

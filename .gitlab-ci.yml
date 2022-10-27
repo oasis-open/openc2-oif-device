@@ -34,4 +34,11 @@ Build:
     - git checkout ${CI_COMMIT_REF_NAME:-develop}
     - python3 update_subs.py --verbose --url_base git@${REPO_BASE} --repo_branch ${CI_COMMIT_REF_NAME:-develop}
     - git add --all
-    - git commit -m "Update from repo ${TRIGGER_REPO:-"Commit"} - $(date -u +"%F %T %Z") [CI Skip]" && (echo "Pushing as $(git config --get user.name) - $(git config --get user.email)" && git push ${REPO_URL})
+    - |
+      CHANGES=$(git status --porcelain | wc -l)
+      if [[ "${CHANGES}" -gt 0 ]]; then
+        echo "Committing ${CHANGES} updated files to git"
+        git commit -m "Update from repo ${TRIGGER_REPO:-"Commit"} - $(date -u +"%F %T %Z") [CI Skip]" && (echo "Pushing as $(git config --get user.name) - $(git config --get user.email)" && git push ${REPO_URL})
+      else
+        echo "Nothing to commit"
+      fi

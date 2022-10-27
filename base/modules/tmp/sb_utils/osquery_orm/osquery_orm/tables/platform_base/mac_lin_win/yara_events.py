@@ -1,7 +1,7 @@
 """
 OSQuery yara_events ORM
 """
-from osquery_orm.orm import BaseModel
+from ....orm import BaseModel
 from peewee import BigIntegerField, IntegerField, TextField
 
 

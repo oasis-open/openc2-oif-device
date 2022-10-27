@@ -37,15 +37,8 @@
 ## Configuration
 - Run `configure.py` with the desired options prior to starting the Device for the first time
 	- Options
-<<<<<<< HEAD
-		- `-b` or `--build-image` -- Build base containers
     	- `-f FILE` or `--log_file FILE` -- Enables logging to the designated file
     	- `-h` or `--help` -- Shows the help and exits
-		- `-l` or `--log-gui` -- Build Logger GUI for use in container
-=======
-    	- `-f FILE` or `--log_file FILE` -- Enables logging to the designated file
-    	- `-h` or `--help` -- Shows the help and exits
->>>>>>> develop
     	- `-v` or `--verbose` -- Enables verbose output   
     	
     ```bash
@@ -139,11 +132,6 @@
 - Give actuator a name and generate a UUID for it.
 - Select a parent device.
     -  Note: device should be registered before the actuator.
-<<<<<<< HEAD
-- Upload/Copy-Paste schema. Schema for the default included ISR actuator can be found at [device/actuator/isr/act_server/schema.json](../device/actuator/isr/act_server/schema.json).
-- This information can also be found under the [ISR Actuator](../device/actuator/isr/ReadMe.md) page.
-=======
 - Upload/Copy-Paste schema. Schema for the default included SLPF actuator can be found at [device/actuator/slpf/act_server/schema.json](../device/actuator/slpf/act_server/schema.json).
 - This information can also be found under the [SLPF Actuator](../device/actuator/slpf/ReadMe.md) page.
->>>>>>> develop
 - If you are registering a new actuator for the first time while utilizing the MQTT transport you may need to update the `MQTT_TOPICS` environment variable. Read the MQTT Topics section [here](../transport/mqtt/ReadMe.md)

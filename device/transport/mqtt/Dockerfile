@@ -1,5 +1,4 @@
-FROM oif/python3
-
+FROM harbor.olympus.mtn/screamingbunny/alpine-python3
 
 MAINTAINER Screaming_Bunny
 

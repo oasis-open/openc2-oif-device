@@ -1,7 +1,7 @@
 """
 OSQuery browser_plugins ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import BigIntegerField, ForeignKeyField, IntegerField, TextField
 from ..cross_platform import MacOS_Users
 

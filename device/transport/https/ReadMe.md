@@ -52,7 +52,7 @@
 #### Starting Container
  - To start the container
 
-    - Use dev-compose.yaml, this will pull latest image from gitlab and start the service.
+    - Use dev-compose.yaml, this will pull the latest image from gitlab and start the service.
     ```
     docker-compose -f dev-compose.yaml up
     ```

@@ -1,7 +1,7 @@
 """
 OSQuery chrome_extension_content_scripts ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import BigIntegerField, ForeignKeyField, TextField
 from .users import Users
 

@@ -11,10 +11,11 @@ volumes:
       com.screaming_bunny.container: 'RabbitMQ'
       com.screaming_bunny.description: 'Persistent RabbitMQ Volume'
 
+
 services:
   transport-https:
     hostname: transport-https
-    image:  oif/device-transport-https
+    image: screambunn/device_transport_https
     build:
       context: ./device/transport/https
     env_file:
@@ -23,13 +24,14 @@ services:
     external_links:
       - queue
     ports:
-      - 5001:5001
+      - "5001:5001"
     depends_on:
       - queue
 
+
   transport-mqtt:
     hostname: transport-mqtt
-    image: oif/device-transport-mqtt
+    image: screambunn/device_transport_mqtt
     build:
       context: ./device/transport/mqtt
     env_file:
@@ -38,7 +40,7 @@ services:
       - ./environment/mqtt_transport.env
       - ./environment/security.env
     environment:
-      MQTT_HOST: '172.16.0.57'
+      MQTT_HOST: '91.121.93.94'  # https://test.mosquitto.org/ ** WARNING DO NOT USE IN PROD, TESTING ONLY **
     external_links:
       - etcd
       - queue
@@ -46,9 +48,10 @@ services:
       - etcd
       - queue
 
+
   actuator-base:
     hostname: actuator-base
-    image:  oif/device-actuator-base
+    image: screambunn/device_actuator_base
     build:
       context: ./device/actuator/Base
     env_file:
@@ -60,11 +63,12 @@ services:
     depends_on:
       - etcd
       - queue
-    restart: on-failure:5
+    restart: on-failure
+
 
   actuator-slpf:
     hostname: actuator-slpf
-    image:  oif/device-actuator-slpf
+    image: screambunn/device_actuator_slpf
     build:
       context: ./device/actuator/SLPF
     env_file:
@@ -76,7 +80,8 @@ services:
     depends_on:
       - etcd
       - queue
-    restart: on-failure:5
+    restart: on-failure
+
 
   queue:
     hostname: rabbit
@@ -89,7 +94,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    restart: on-failure:5
+    restart: on-failure
+
 
   etcd:
     hostname: etcd
@@ -100,4 +106,4 @@ services:
     volumes:
       - etcd:/data/etcd
     command: sh -c 'etcd -listen-client-urls http://0.0.0.0:2379 -advertise-client-urls http://etcd:2379'
-    restart: on-failure:5
+    restart: on-failure

@@ -1,7 +1,7 @@
 """
 OSQuery power_sensors ORM
 """
-from osquery_orm.orm import BaseModel
+from ...orm import BaseModel
 from peewee import ForeignKeyField, TextField
 from .smc_keys import SmcKeys
 
