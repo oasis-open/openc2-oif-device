@@ -5,7 +5,7 @@
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-yellow)](https://www.python.org/downloads/release/python-3100/)
 [![Docker 18.0+](https://img.shields.io/badge/Docker-18.0%2B-blue)](https://docs.docker.com/get-docker/)
 [![Docker Compose 1.20+](https://img.shields.io/badge/Docker%20Compose-1.20%2B-blue)](https://docs.docker.com/compose/install/)
-[![Open2C Lang Spec](https://img.shields.io/badge/Open2C%20Lang%20Spec-1.0-brightgreen)](https://github.com/dlemire60/openc2-oc2ls/releases/tag/v1.0-cs01)
+[![Open2C Lang Spec](https://img.shields.io/badge/Open2C%20Lang%20Spec-1.0-brightgreen)](https://openc2.org/specifications)
 
 ## <a name="installation"></a> Installation
 
@@ -52,7 +52,7 @@ Initially, the associated TC members have designated one or more persons to serv
 
 *Current Maintainers of this TC Open Repository*
 
-- David Lemire; GitHub ID: [https://github.com/dlemire60](https://github.com/dlemire60) WWW: National Security Agency
+- David Lemire; Email: david.lemire@hii-tsd.com 
 - The ScreamingBunny Development team; GitHub ID: [https://github.com/ScreamBun](https://github.com/ScreamBun)
 
 ## <a name="about-oasis-tc-open-repositories"></a> About OASIS TC Open Repositories
