@@ -5,7 +5,7 @@
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-yellow)](https://www.python.org/downloads/release/python-3100/)
 [![Docker 18.0+](https://img.shields.io/badge/Docker-18.0%2B-blue)](https://docs.docker.com/get-docker/)
 [![Docker Compose 1.20+](https://img.shields.io/badge/Docker%20Compose-1.20%2B-blue)](https://docs.docker.com/compose/install/)
-[![Open2C Lang Spec](https://img.shields.io/badge/Open2C%20Lang%20Spec-1.0-brightgreen)](https://openc2.org/specifications)
+[![OpenC2 Lang Spec](https://img.shields.io/badge/OpenC2%20Lang%20Spec-1.0-brightgreen)](https://openc2.org/specifications)
 
 ## <a name="installation"></a> Installation
 
