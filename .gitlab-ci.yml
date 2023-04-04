@@ -14,8 +14,8 @@ before_script:
   - REPO_BASE=${REPO%.com/*}.com
   - REPO_URL=git@${REPO_BASE}:${REPO#*/}
   - apt-get update -y
-  # - apt-get install -y git ca-certificates
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - apt-get install openssh-client -y
+  - apt-get install -y git ca-certificates
   - eval $(ssh-agent -s)  
   - echo "$HII_CA_PUBLIC" | base64 --decode | tr -d '\r' > /usr/local/share/ca-certificates/hii_ca.crt
   - update-ca-certificates
