@@ -1,18 +1,24 @@
-<a href="https://openc2.org/" target="_blank">![OpenC2](https://github.com/ScreamBun/SB_Utils/blob/master/assets/images/openc2.png?raw=true)</a>
 # Utils
+[![Python 3.6](https://img.shields.io/badge/Python-3.7-blue)](https://www.python.org/downloads/release/python-370/)
+[![Python 3.6](https://img.shields.io/badge/Python-3.8-blue)](https://www.python.org/downloads/release/python-380/)
+[![Python 3.6](https://img.shields.io/badge/Python-3.9-blue)](https://www.python.org/downloads/release/python-390/)
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue)](https://www.python.org/downloads/release/python-3100/)
+
 ## Installing
 - Note: update `PACKAGE` to the appropriate package being installed
-  - sb_utils-->root
-  - sb_utils.actuator-->actuator
+
+  | Package Name      | Subdirectory |
+  | ----------------- | ------------ |
+  | SB Utils          | root         |
+  | SB Utils.Actuator | actuator     |
+  | OSQuery ORM       | osquery_orm  |
 
 ### On a standalone System via pip
 - Install requires Python 3.7+ and pip
 
 - Install via pip
-    - Base package
     ```bash
-    pip install git+https://github.com/ScreamBun/SB_utils.git#subdirectory=RACKAGE
+    pip install git+https://github.com/ScreamBun/SB_utils.git#subdirectory=PACKAGE
     ```
 
 - To update if already installed
@@ -21,7 +27,7 @@
     ```
 
 ### On a standalone System via requirements
-- Install requires Python 3.7+ and pip
+- Install requires Python 3.5+ and pip
 
 - Installing via requirements.txt
-    - Add `SB-Utils@git+https://github.com/ScreamBun/SB_utils.git#subdirectory=PACKAGE` to the requirements file
+    - Add `PACKAGE_NAME@git+https://github.com/ScreamBun/SB_utils.git#subdirectory=PACKAGE` to the requirements file.

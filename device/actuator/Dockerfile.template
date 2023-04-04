@@ -1,7 +1,5 @@
 FROM ${BASE_NAME}
 
-MAINTAINER $MAINTAINER
-
 LABEL name="Actuator ${ACT_NAME}" \
 vendor="OpenC2" \
 license="BSD" \
@@ -16,7 +14,7 @@ ADD act_server /opt/actuator/act_server${EXTRA_ADD}
 # Packages - https://pkgs.alpinelinux.org/packages
 #
 # Requirements install
-RUN ${EXTRA_INIT}pip3 install -r /tmp/requirements.txt && \${EXTRA_CONFIG}
+RUN ${EXTRA_INIT}pip3 install -r /tmp/requirements.txt && \${EXTRA_CONFIG} && \
 #
 # Mod Startup Scripts
 chmod +x /opt/actuator/start.sh && \

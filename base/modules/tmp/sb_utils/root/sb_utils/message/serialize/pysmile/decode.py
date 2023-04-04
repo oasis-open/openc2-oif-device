@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 SMILE Decode
 """
@@ -72,34 +71,24 @@ class SmileDecoder:
 
         # Output
         self.output = []
-
         # Current Decoder State
         self.mode = DecodeMode.HEAD
-
         # Error message
         del self.error
-
         # Current read index
         self.index = 0
-
         # current nest level
         self.nested_depth = 0
-
         # true if in array context
         self.in_array = [False] * 30
-
         # true if the next token is the first value of an array (used for printing)
         self.first_array_element = [False] * 30
-
         # true if the next token is the first key of an object (used for printing)
         self.first_key = [False] * 30
-
         # smile header
         del self.header
-
         # Cached Keys for back references
         self.shared_key_strings = []
-
         # Cached Values for back references
         self.shared_value_strings = []
 
@@ -125,8 +114,8 @@ class SmileDecoder:
         try:
             sh_str = self.shared_key_strings[self.input[self.index - 1] - 0x40]
         except IndexError:
-            log.debug("self.index: %d", self.index)
-            log.debug("self.shared_key_strings: %s", self.shared_key_strings)
+            log.debug("index: {}", self.index)
+            log.debug("shared_key_strings: {}", self.shared_key_strings)
         else:
             self.write(f"\"{sh_str}\":")
 
@@ -136,8 +125,8 @@ class SmileDecoder:
         try:
             svr = self.shared_value_strings[self.input[self.index - 1] - 1]
         except IndexError:
-            log.debug("self.index: %d", self.index)
-            log.debug("self.shared_value_strings: %s", self.shared_value_strings)
+            log.debug("index: {}", self.index)
+            log.debug("shared_value_strings: {}", self.shared_value_strings)
         else:
             self.write(f"\"{svr}\"")
 
@@ -171,11 +160,11 @@ class SmileDecoder:
         return None
 
     def save_key_string(self, key_str: str) -> None:
-        log.debug("key_str: %s", key_str)
+        log.debug("key_str: {}", key_str)
         self.shared_key_strings.append(key_str)
 
     def save_value_string(self, val_str: str) -> None:
-        log.debug("val_str: %s", val_str)
+        log.debug("val_str: {}", val_str)
         self.shared_value_strings.append(val_str)
 
     def varint_decode(self) -> int:
@@ -466,5 +455,5 @@ def decode(smile: Union[bytes, str]) -> Union[dict, list]:
     :param smile: SMILE formatted data string
     :returns: Decoded python object
     """
-    log.debug("Decoding: %s", smile)
+    log.debug("Decoding: {}", smile)
     return SmileDecoder.decode_smile(smile)

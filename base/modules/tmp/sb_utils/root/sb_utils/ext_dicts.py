@@ -1,46 +1,66 @@
+"""
+Extended Dict Utils
+"""
 import copy
 
-from typing import Any, Iterable, List, Mapping, Union
+from typing import Any, List, MutableMapping, Type
 from .general import safe_cast
+__all__ = ["ObjectDict", "FrozenDict", "QueryDict"]
 
-DictLike = Union[Mapping, Iterable]
+
+# Dictionary Helpers
+def pdoc_wrapped_fix(wraps: Type = object):
+    # TODO: fix extended dics so this wrapper is not necessary
+    def inner(cls: Type) -> Type:
+        if wraps != object:
+            attrs = {*dir(cls)} - {*dir(wraps)}
+            cls.__wrapped__ = type(cls.__name__, (wraps, ), {k: getattr(cls, k) for k in attrs if not k.startswith("_")})
+        return cls
+    return inner
+
+
+def immutable(*args, **kwargs) -> None:
+    """
+    Raise an error for an attempt to alter the FrozenDict
+    :param args: positional args
+    :param kwargs: key/value args
+    :raise TypeError
+    """
+    raise TypeError('cannot change object - object is immutable')
 
 
 # Dictionary Classes
+@pdoc_wrapped_fix(dict)
 class ObjectDict(dict):
     """
     Dictionary that acts like an object
+    ```python
     d = ObjectDict()
 
     d['key'] = 'value'
         SAME AS
     d.key = 'value'
+    ```
     """
-    def __init__(self, seq: DictLike = None, **kwargs):
+    def __init__(self, seq: MutableMapping = None, **kwargs):
         """
-        Initialize an QueryDict
+        Initialize an ObjectDict
         :param args: positional parameters
         :param kwargs: key/value parameters
         """
-        data = dict(seq) if seq else {}
-        data.update(kwargs)
-
+        cls = self.__class__
+        data = dict(seq or {}, **kwargs)
         for k, v in data.items():
-            if isinstance(v, dict) and not isinstance(v, self.__class__):
-                data[k] = self.__class__(v)
+            if isinstance(v, dict) and not isinstance(v, cls):
+                data[k] = cls(v)
             elif isinstance(v, (list, tuple)):
-                data[k] = tuple(self.__class__(i) if isinstance(i, dict) else i for i in v)
-        dict.__init__(self, **data)
+                data[k] = tuple(cls(i) if isinstance(i, dict) else i for i in v)
+        super().__init__(data)
 
     def __setitem__(self, key: str, value: Any) -> None:
-        """
-        Override setitem of dict to change the value to an ObjectDict if a standard dictionary
-        :param key: property name
-        :param value: property value
-        :return: None
-        """
-        value = self.__class__(value) if isinstance(value, dict) else value
-        dict.__setitem__(self, key, value)
+        if isinstance(value, dict):
+            value = self.__class__(value)  # if len(value.keys()) > 0 else self.__class__()
+        super().__setitem__(key, value)
 
     __getattr__ = dict.__getitem__
     __setattr__ = __setitem__
@@ -54,44 +74,53 @@ class ObjectDict(dict):
         cls = self.__class__
         return cls(copy.deepcopy(dict(self)))
 
+    def update(self, seq: MutableMapping = None, **kwargs) -> None:
+        """Updates the dictionary with the specified key-value pairs"""
+        data = dict(seq or {}, **kwargs)
+        for k, v in data.items():
+            if isinstance(v, dict) and not isinstance(v, self.__class__):
+                data[k] = self.__class__(v)
+            elif isinstance(v, (list, tuple)):
+                data[k] = tuple(self.__class__(i) if isinstance(i, dict) else i for i in v)
+        super().update(data)
 
+
+@pdoc_wrapped_fix(dict)
 class FrozenDict(ObjectDict):
     """
     Immutable/Frozen dictionary
+    The API is the same as `dict`, without methods that can change the
+    immutability. In addition, it supports __hash__().
     """
+    __slots__ = ("_hash", )
     _hash: hash
 
     def __hash__(self) -> hash:
         """
-        Create a hash for the FrozenDict
+        Calculates the hash if all values are hashable
+        :raise TypeError: if a value is not hashable
         :return: object hash
         """
         if self._hash is None:
-            self._hash = hash(tuple(sorted(self.items())))
+            self._hash = hash(frozenset(self.items()))
         return self._hash
 
-    def _immutable(self, *args, **kwargs) -> None:
-        """
-        Raise an error for an attempt to alter the FrozenDict
-        :param args: positional args
-        :param kwargs: key/value args
-        :return: None
-        :raise TypeError
-        """
-        raise TypeError('cannot change object - object is immutable')
-
-    __setattr__ = _immutable
-    __setitem__ = _immutable
-    __delattr__ = _immutable
-    __delitem__ = _immutable
-    pop = _immutable
-    popitem = _immutable
-    clear = _immutable
-    update = _immutable
-    setdefault = _immutable
+    __setattr__ = immutable
+    __setitem__ = immutable
+    __delattr__ = immutable
+    __delitem__ = immutable
+    clear = immutable
+    pop = immutable
+    popitem = immutable
+    update = immutable
+    setdefault = immutable
 
     # Custom functions
     def unfreeze(self) -> dict:
+        """
+        Convert the 'FrozenDict' to a standard dict with editable values
+        :return: standard dict
+        """
         rtn = {}
         for k, v in self.items():
             rtn[k] = self._unfreeze(v)
@@ -107,6 +136,7 @@ class FrozenDict(ObjectDict):
         return obj
 
 
+@pdoc_wrapped_fix(dict)
 class QueryDict(ObjectDict):
     """
     Nested Key traversal dictionary
@@ -244,10 +274,8 @@ class QueryDict(ObjectDict):
 
     __getattr__ = get
     __getitem__ = get
-
     __setattr__ = set
     __setitem__ = set
-
     __delattr__ = delete
     __delitem__ = delete
 
@@ -262,6 +290,10 @@ class QueryDict(ObjectDict):
         return self._compositeKeys(self, sep)
 
     def setSeperator(self, value: str) -> None:
+        """
+        Set the seperator character for the 'QueryDict'
+        :param value: single character to use as the seperator
+        """
         self.separator = value
 
     # Helper Functions

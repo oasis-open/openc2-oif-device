@@ -1,7 +1,5 @@
 # Image environment
-FROM harbor.olympus.mtn/screamingbunny/alpine-python3
-
-MAINTAINER Screaming_Bunny
+FROM harbor.olympus.mtn/screamingbunny/alpine_python3
 
 LABEL name="HTTPS Transport Module" \
 vendor="OpenC2" \
