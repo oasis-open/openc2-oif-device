@@ -13,7 +13,7 @@ before_script:
   - REPO=${CI_REPOSITORY_URL#*@}
   - REPO_BASE=${REPO%.com/*}.com
   - REPO_URL=git@${REPO_BASE}:${REPO#*/}
-  - sudo timedatectl set-local-rtc 0
+  - timedatectl set-local-rtc 0
   - apt-get update -y
   - apt-get install openssh-client -y
   - apt-get install -y git ca-certificates
