@@ -9,6 +9,8 @@ import stat
 import subprocess
 import sys
 
+import git
+
 try:
     from pip import main as pipmain
 except ImportError:
