@@ -15,19 +15,19 @@ before_script:
   - REPO_URL=git@${REPO_BASE}:${REPO#*/}
   - apt-get update -y
   - apt-get install openssh-client -y
-  - apt-get install -y git ca-certificates
+  # - apt-get install -y git ca-certificates
   - eval $(ssh-agent -s)  
-  - echo "$HII_CA_PUBLIC" | base64 --decode | tr -d '\r' > /usr/local/share/ca-certificates/hii_ca.crt
-  - update-ca-certificates
+  # - echo "$HII_CA_PUBLIC" | base64 --decode | tr -d '\r' > /usr/local/share/ca-certificates/hii_ca.crt
+  # - update-ca-certificates
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh
   - echo "$SSH_PRIVATE_KEY" | base64 --decode | tr -d '\r' > ~/.ssh/id_rsa
   - chmod 700 ~/.ssh/id_rsa
   - chmod +x ./.git_ssh
   - cp ./.ssh_config ~/.ssh/config
   - chmod 700 ~/.ssh/config
-  - pip config set global.cert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
-  - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
-  - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
+  # - pip config set global.cert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+  # - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
+  # - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
   - git config push.default matching
 
 Build:
