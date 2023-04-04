@@ -26,8 +26,8 @@ before_script:
   - cp ./.ssh_config ~/.ssh/config
   - chmod 700 ~/.ssh/config
   # - pip config set global.cert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
-  # - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
-  # - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
+  - git config user.name "${TRIGGER_USER_NAME:-${GITLAB_USER_NAME:-"GitLab CI"}}"
+  - git config user.email "${TRIGGER_USER_EMAIL:-$GITLAB_USER_EMAIL}"
   - git config push.default matching
 
 Build:
