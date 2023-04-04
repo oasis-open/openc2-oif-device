@@ -1,0 +1,29 @@
+{
+  "headers": {
+    "to": [],
+    "from": "",
+    "created": 1611227337000,
+    "request_id": "15e2de83-61c2-4857-991a-fc50f2d51da8"
+  },
+  "body": {
+    "openc2": {
+      "request": {
+        "action": "deny",
+        "target": {
+          "ipv6_net": "3ffe:1900:4545:3:200:f8ff:fe21:67cf"
+        },
+        "args": {
+          "response_requested": "none",
+          "slpf": {
+            "direction": "ingress"
+          }
+        },
+        "actuator": {
+          "slpf": {
+            "named_group": "perimeter"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+version: '3'
+
+volumes:
+  logger:
+    labels:
+      com.screaming_bunny.container: 'ES Logger'
+      com.screaming_bunny.description: 'Persistent Log Data Volume'
+
+services:
+  logger_gui:
+    hostname: gui
+    image: ccoe-gitlab-registry.hii-tsd.com/screamingbunny/logger/gui
+    environment:
+      ES_HOST: elasticsearch
+      ES_PORT: 9200
+    ports:
+      - 8081:80
+    external_links:
+      - elasticsearch
+    restart: on-failure:5
+    logging:
+      driver: syslog
+      options:
+        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
+        syslog-format: rfc5424
+        tag: "gui"
+
+  logger_server:
+    hostname: server
+    image: ccoe-gitlab-registry.hii-tsd.com/screamingbunny/logger/server
+    environment:
+      ES_HOST: elasticsearch
+      ES_PORT: 9200
+      LOG_PREFIX: 'logger'
+      HOST_PORT: ${LOG_PORT:-514}
+    ports:
+      - 127.0.0.1:${LOG_PORT:-514}:514/udp
+    volumes:
+      - ./logs:/var/log/syslog
+    external_links:
+      - elasticsearch
+    restart: on-failure:5
+
+  elasticsearch:
+    hostname: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+    environment:
+      - cluster.name=logger
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - "http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE"
+      - "http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type, Content-Length"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - logger:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    logging:
+      driver: syslog
+      options:
+        syslog-address: 'udp://127.0.0.1:${LOG_PORT:-514}'
+        syslog-format: rfc5424
+        tag: "elasticsearch"
+    restart: on-failure:5
