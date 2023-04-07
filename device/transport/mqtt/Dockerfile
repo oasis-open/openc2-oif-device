@@ -1,6 +1,5 @@
-FROM harbor.olympus.mtn/screamingbunny/alpine-python3
+FROM harbor.olympus.mtn/screamingbunny/alpine_python
 
-MAINTAINER Screaming_Bunny
 
 LABEL name="MQTT Transport Module" \
 vendor="OpenC2" \

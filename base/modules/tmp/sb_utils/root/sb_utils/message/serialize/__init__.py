@@ -1,5 +1,5 @@
 """
-Message Conversion functions
+Message Serialization
 """
 import base64
 import bson
@@ -12,55 +12,71 @@ import ubjson
 import yaml
 
 from typing import Union
-from amazon.ion import simpleion as ion
-from . import enums, helpers, pybinn, pysmile
-from .. import ext_dicts, general
+from amazon.ion import simpleion as ion, simple_types as ion_types
+from . import pybinn, pysmile
+from .enums import SerialFormats
+from .helpers import bencode_encode, bencode_decode, sp_encode, sp_decode, vpack_encode, vpack_decode, xml_encode, xml_decode
+from ... import ext_dicts, general
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
+__all__ = [
+    "decode_msg",
+    "encode_msg",
+    "serializations",
+    "SerialFormats"
+]
 
 
 serializations = ext_dicts.FrozenDict(
     encode=ext_dicts.FrozenDict(
         binn=pybinn.dumps,
-        bencode=helpers.bencode_encode,
+        bencode=bencode_encode,
         bson=bson.dumps,
         cbor=cbor2.dumps,
         edn=edn_format.dumps,
         json=json.dumps,
         ion=lambda m: ion.dumps(m, binary=True),
         msgpack=lambda m: msgpack.packb(m, use_bin_type=True),
-        sexp=helpers.sp_encode,  # S-Expression
+        sexp=sp_encode,  # S-Expression
         smile=pysmile.encode,
         toml=toml.dumps,
-        xml=helpers.xml_encode,
+        xml=xml_encode,
         ubjson=ubjson.dumpb,
-        vpack=helpers.vpack_encode,
+        vpack=vpack_encode,
         yaml=lambda m: yaml.dump(m, Dumper=Dumper)
     ),
     decode=ext_dicts.FrozenDict(
         binn=pybinn.loads,
-        bencode=helpers.bencode_decode,
+        bencode=bencode_decode,
         bson=bson.loads,
         cbor=cbor2.loads,
         edn=edn_format.loads,
         json=json.loads,
         ion=ion.loads,
         msgpack=msgpack.unpackb,
-        sexp=helpers.sp_decode,  # S-Expression
+        sexp=sp_decode,  # S-Expression
         smile=pysmile.decode,
         toml=toml.loads,
-        xml=helpers.xml_decode,
+        xml=xml_decode,
         ubjson=ubjson.loadb,
-        vpack=helpers.vpack_decode,
+        vpack=vpack_decode,
         yaml=lambda m: yaml.load(m, Loader=Loader)
     )
 )
 
+extra_decoders = ext_dicts.FrozenDict({
+    # Builtin Types
+    bytes: bytes.decode,
+    # Serialization Types
+    ion_types.IonPyDict: dict,
+    edn_format.immutable_dict.ImmutableDict: dict
+})
 
-def encode_msg(msg: dict, enc: enums.SerialFormats = enums.SerialFormats.JSON, raw: bool = False) -> Union[bytes, str]:
+
+def encode_msg(msg: dict, enc: SerialFormats = SerialFormats.JSON, raw: bool = False) -> Union[bytes, str]:
     """
     Encode the given message using the serialization specified
     :param msg: message to encode
@@ -84,7 +100,7 @@ def encode_msg(msg: dict, enc: enums.SerialFormats = enums.SerialFormats.JSON, r
     raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.encode.keys())}")
 
 
-def decode_msg(msg: Union[bytes, str], enc: enums.SerialFormats, raw: bool = False) -> dict:
+def decode_msg(msg: Union[bytes, dict, str], enc: SerialFormats, raw: bool = False) -> dict:
     """
     Decode the given message using the serialization specified
     :param msg: message to decode
@@ -95,14 +111,14 @@ def decode_msg(msg: Union[bytes, str], enc: enums.SerialFormats, raw: bool = Fal
     if isinstance(msg, dict):
         return msg
 
-    if not isinstance(msg, (bytes, str)):
-        raise TypeError(f"Message is not expected type {bytes}/{str}, got {type(msg)}")
+    if isinstance(msg, (bytes, str)):
+        if not raw and general.isBase64(msg):
+            msg = base64.b64decode(msg if isinstance(msg, bytes) else msg.encode())
 
-    if not raw and general.isBase64(msg):
-        msg = base64.b64decode(msg if isinstance(msg, bytes) else msg.encode())
-
-    enc = enc.lower() if isinstance(enc, str) else enc.value
-    if decoder := serializations.decode.get(enc):
-        msg = decoder(msg)
-        return general.default_encode(msg, {bytes: bytes.decode})
-    raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.decode.keys())}")
+        msg = msg.encode("utf-8") if enc.is_binary(enc) and isinstance(msg, str) else msg
+        enc = (enc if isinstance(enc, str) else enc.value).lower()
+        if decoder := serializations.decode.get(enc):
+            msg = decoder(msg)
+            return general.default_encode(msg, extra_decoders)
+        raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.decode.keys())}")
+    raise TypeError(f"Message is not expected type {bytes}/{str}, got {type(msg)}")

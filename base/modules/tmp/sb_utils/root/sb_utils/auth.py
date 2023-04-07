@@ -24,7 +24,7 @@ class Auth:
         crypto = Fernet(toBytes(os.environ['TRANSPORT_SECRET']))
         self.username = toStr(auth.get('username', ''))
         self.password = toStr(crypto.decrypt(auth['password'])) if 'password' in auth else None
-        self._certsDir = TemporaryDirectory()
+        self._certsDir = TemporaryDirectory()  # pylint: disable=consider-using-with
         for cert in ['ca_cert', 'client_cert', 'client_key']:
             if val := crypto.decrypt(auth[cert]) if cert in auth else None:
                 path = os.path.join(self._certsDir.name, cert)

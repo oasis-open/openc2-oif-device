@@ -7,8 +7,8 @@ from .auth import Auth
 from .general import camelCase, destructure, toBytes, toStr, prefixUUID, default_decode, default_encode, safe_cast, safe_json
 from .etcd_cache import EtcdCache, ReusableThread
 from .ext_dicts import FrozenDict, ObjectDict, QueryDict
-from .message import Message, MessageType
-from .serialize import SerialFormats, decode_msg, encode_msg
+from .message import Message, MessageType, SerialFormats
+from .message.serialize import decode_msg, encode_msg
 
 __all__ = [
     # Authentication

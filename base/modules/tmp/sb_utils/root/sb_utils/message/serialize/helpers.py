@@ -11,7 +11,7 @@ import xmltodict
 
 from subprocess import Popen, PIPE
 from typing import Any, Union
-from ..general import check_values, default_encode, floatString
+from ...general import check_values, default_encode, floatString
 
 
 # Message Conversion helpers for Bencode

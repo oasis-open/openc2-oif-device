@@ -1,7 +1,5 @@
 FROM screambunn/alpine-python3_actuator
 
-MAINTAINER Screaming_Bunny
-
 LABEL name="Actuator Base" \
 vendor="OpenC2" \
 license="BSD" \
@@ -16,7 +14,7 @@ ADD act_server /opt/actuator/act_server
 # Packages - https://pkgs.alpinelinux.org/packages
 #
 # Requirements install
-RUN pip3 install -r /tmp/requirements.txt && \
+RUN pip3 install -r /tmp/requirements.txt && \ && \
 #
 # Mod Startup Scripts
 chmod +x /opt/actuator/start.sh && \

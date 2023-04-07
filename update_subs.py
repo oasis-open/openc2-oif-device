@@ -150,4 +150,4 @@ if __name__ == '__main__':
         Stylize.h2("Updating Logger")
         update_repo(f"{CONFIG.BaseRepo}/logger.git", 'logger', options.repo_branch)
 
-    Stylize.info("Run `configure.py` from the public folder to create the base containers necessary to run the OIF Device")
+    # Stylize.info("Run `configure.py` from the public folder to create the base containers necessary to run the OIF Device")

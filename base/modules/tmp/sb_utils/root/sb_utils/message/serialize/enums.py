@@ -1,6 +1,6 @@
 from shutil import which
 from typing import Dict
-from ..enums import EnumBase
+from ...enums import EnumBase
 
 
 class SerialFormats(str, EnumBase):

@@ -1,1 +1,4 @@
-beautifultable==1.0.1
+beautifultable
+pdoc3
+pylint
+pylint-json2html

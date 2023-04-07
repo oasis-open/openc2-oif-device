@@ -1,4 +1,6 @@
-# General
+"""
+General Utils
+"""
 import base64
 import binascii
 import json
@@ -13,7 +15,6 @@ from types import BuiltinFunctionType, BuiltinMethodType, FunctionType, MethodTy
 from typing import Any, AnyStr, Callable, Dict, Tuple, Type, Union
 
 
-# Util Functions
 def camelCase(s: str, delim: str = '_') -> str:
     """
     Convert the given string to camelcase
@@ -24,22 +25,146 @@ def camelCase(s: str, delim: str = '_') -> str:
     return s[0] + ''.join(map(str.capitalize, s[1:]))
 
 
-def toBytes(b: Any) -> bytes:
+def check_values(val: Any) -> Any:
     """
-    Convert the given type to a default byte string
-    :param b: item to convert to a byte string
-    :return: converted byte string
+    Check the value of the given arg and attempt to convert it to a bool, int, or float
+    :param val: value to check
+    :return: converted/original value
     """
-    return b if isinstance(b, bytes) else bytes(str(b), sys.getdefaultencoding())
+    if isinstance(val, str):
+        if val.lower() in ("true", "false"):
+            return safe_cast(val, bool, val)
+
+        if val.isdigit():
+            return safe_cast(val, int, val)
+
+        if re.match(r"^\d+\.\d+$", val):
+            return safe_cast(val, float, val)
+
+    return val
 
 
-def toStr(s: Any) -> str:
+def default_decode(itm: Any, decoders: Dict[Type, Callable[[Any], Any]] = None) -> Any:
     """
-    Convert the given type to a default string
-    :param s: item to convert to a string
-    :return: converted string
+    Default decode the given object to the predefined types
+    :param itm: object to encode/decode,
+    :param decoders: custom type decoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
+    :return: default system encoded object
     """
-    return s.decode(sys.getdefaultencoding(), 'backslashreplace') if hasattr(s, 'decode') else str(s)
+    if decoders and isinstance(itm, tuple(decoders.keys())):
+        return decoders[type(itm)](itm)
+
+    if isinstance(itm, dict):
+        return {default_decode(k, decoders): default_decode(v, decoders) for k, v in itm.items()}
+
+    if isinstance(itm, (list, set, tuple)):
+        return type(itm)(default_decode(i, decoders) for i in itm)
+
+    if isinstance(itm, (int, float)):
+        return itm
+
+    if isinstance(itm, str):
+        return check_values(itm)
+
+    return itm
+
+
+def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = None) -> Any:
+    """
+    Default encode the given object to the predefined types
+    :param itm: object to encode/decode,
+    :param encoders: custom type encoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
+    :return: default system encoded object
+    """
+    if encoders and isinstance(itm, tuple(encoders.keys())):
+        return encoders[type(itm)](itm)
+
+    if isinstance(itm, dict):
+        return {default_encode(k): default_encode(v, encoders) for k, v in itm.items()}
+
+    if isinstance(itm, (list, set, tuple)):
+        return type(itm)(default_encode(i, encoders) for i in itm)
+
+    if isinstance(itm, (int, float)):
+        return itm
+
+    return toStr(itm)
+
+
+def destructure(d: dict, *keys: Union[AnyStr, Tuple[AnyStr, Any]]) -> Tuple[Any, ...]:
+    """
+    Destructure the dict using the given keys
+    :param d: dict to destructure
+    :param keys: keys and optional default to use to destructure the dict
+    :return: destructed values
+    """
+    rslt = []
+    for k in keys:
+        if isinstance(k, (bytes, str)):
+            rslt.append(d.get(k, None))
+        elif isinstance(k, tuple):
+            rslt.append(d.get(*k))
+    return tuple(rslt)
+
+
+def floatByte(num: Union[float, bytes]) -> Union[float, bytes]:
+    """
+    Convert the value between a float and prefixed packed bytes; float -> bytes, bytes -> float
+    :param num: value to concert
+    :return: converted value if available
+    """
+    prefix = b"\x7E\x7F"  # `~ ` - tiddle, delete
+    if isinstance(num, float):
+        return prefix + struct.pack("!f", num)
+
+    if isinstance(num, bytes) and num.startswith(prefix) and len(num) == 6:
+        return struct.unpack("!f", num[1:])[0]
+
+    return num
+
+
+def floatString(num: Union[float, str]) -> Union[float, str]:
+    """
+    Convert the value between a float and prefixed string; float -> string, string -> float
+    :param num: value to concert
+    :return: converted value if available
+    """
+    prefix = "§£"
+    if isinstance(num, float):
+        return f"{prefix}{num}"
+
+    if isinstance(num, str) and num.startswith(prefix) and num[1:].replace(".", "", 1).isdigit():
+        return float(num[1:])
+
+    return num
+
+
+def isFunction(obj: Any) -> bool:
+    """
+    Determine if the given object is a function
+    :param obj: object to check if function
+    :return: bool if function
+    """
+    return isinstance(obj, (BuiltinFunctionType, BuiltinMethodType,  FunctionType, MethodType, LambdaType, partial))
+
+
+def isBase64(sb: Union[bytes, str]) -> bool:
+    """
+    Determine if the given value is a base64
+    :param sb: value to check
+    :return: bool if base64
+    """
+    try:
+        if isinstance(sb, str):
+            # If there's any unicode here, an exception will be thrown and the function will return false
+            sb_bytes = bytes(sb, 'ascii')
+        elif isinstance(sb, bytes):
+            sb_bytes = sb
+        else:
+            raise ValueError("Argument must be string or bytes")
+        return base64.b64encode(base64.b64decode(sb_bytes)) == sb_bytes
+    except (binascii.Error, ValueError):
+        return False
 
 
 def prefixUUID(pre: str = 'PREFIX', max_len: int = 30) -> str:
@@ -86,133 +211,25 @@ def safe_json(msg: Union[dict, str], encoders: Dict[Type, Callable[[Any], Any]] 
     return json.dumps(msg, *args, **kwargs)
 
 
-def check_values(val: Any) -> Any:
+def toBytes(b: Any) -> bytes:
     """
-    Check the value of given and attempt to convert it to a bool, int, float
-    :param val: value to check
-    :return: converted/original value
+    Convert the given type to a default byte string
+    :param b: item to convert to a byte string
+    :return: converted byte string
     """
-    if isinstance(val, str):
-        if val.lower() in ("true", "false"):
-            return safe_cast(val, bool, val)
-
-        if re.match(r"^\d+\.\d+$", val):
-            return safe_cast(val, float, val)
-
-        if val.isdigit():
-            return safe_cast(val, int, val)
-
-    return val
+    return b if isinstance(b, bytes) else bytes(str(b), sys.getdefaultencoding())
 
 
-def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = None) -> Any:
+def toStr(s: Any) -> str:
     """
-    Default encode the given object to the predefined types
-    :param itm: object to encode/decode,
-    :param encoders: custom type encoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
-    :return: default system encoded object
+    Convert the given type to a default string
+    :param s: item to convert to a string
+    :return: converted string
     """
-    if encoders and isinstance(itm, tuple(encoders.keys())):
-        return encoders[type(itm)](itm)
-
-    if isinstance(itm, dict):
-        return {default_encode(k): default_encode(v, encoders) for k, v in itm.items()}
-
-    if isinstance(itm, (list, set, tuple)):
-        return type(itm)(default_encode(i, encoders) for i in itm)
-
-    if isinstance(itm, (int, float)):
-        return itm
-
-    return toStr(itm)
+    return s.decode(sys.getdefaultencoding(), 'backslashreplace') if hasattr(s, 'decode') else str(s)
 
 
-def default_decode(itm: Any, decoders: Dict[Type, Callable[[Any], Any]] = None) -> Any:
-    """
-    Default decode the given object to the predefined types
-    :param itm: object to encode/decode,
-    :param decoders: custom type decoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
-    :return: default system encoded object
-    """
-    if decoders and isinstance(itm, tuple(decoders.keys())):
-        return decoders[type(itm)](itm)
-
-    if isinstance(itm, dict):
-        return {default_decode(k, decoders): default_decode(v, decoders) for k, v in itm.items()}
-
-    if isinstance(itm, (list, set, tuple)):
-        return type(itm)(default_decode(i, decoders) for i in itm)
-
-    if isinstance(itm, (int, float)):
-        return itm
-
-    if isinstance(itm, str):
-        return check_values(itm)
-
-    return itm
-
-
-def isFunction(obj: Any) -> bool:
-    """
-    Determine if the given object is a function
-    :param obj: object to check if function
-    :return: bool if function
-    """
-    return isinstance(obj, (BuiltinFunctionType, BuiltinMethodType,  FunctionType, MethodType, LambdaType, partial))
-
-
-def isBase64(sb: Union[bytes, str]) -> bool:
-    """
-    Determine if the given value is a base64
-    :param sb: value to check
-    :return: bool if base64
-    """
-    try:
-        if isinstance(sb, str):
-            # If there's any unicode here, an exception will be thrown and the function will return false
-            sb_bytes = bytes(sb, 'ascii')
-        elif isinstance(sb, bytes):
-            sb_bytes = sb
-        else:
-            raise ValueError("Argument must be string or bytes")
-        return base64.b64encode(base64.b64decode(sb_bytes)) == sb_bytes
-    except (binascii.Error, ValueError):
-        return False
-
-
-def floatByte(num: Union[float, bytes]) -> Union[float, bytes]:
-    """
-    Convert the value between a float and prefixed packed bytes; float -> bytes, bytes -> float
-    :param num: value to concert
-    :return: converted value if available
-    """
-    prefix = b"\x7E\x7F"  # `~ ` - tiddle, delete
-    if isinstance(num, float):
-        return prefix + struct.pack("!f", num)
-
-    if isinstance(num, bytes) and num.startswith(prefix) and len(num) == 6:
-        return struct.unpack("!f", num[1:])[0]
-
-    return num
-
-
-def floatString(num: Union[float, str]) -> Union[float, str]:
-    """
-    Convert the value between a float and prefixed string; float -> string, string -> float
-    :param num: value to concert
-    :return: converted value if available
-    """
-    prefix = "§£"
-    if isinstance(num, float):
-        return f"{prefix}{num}"
-
-    if isinstance(num, str) and num.startswith(prefix) and num[1:].replace(".", "", 1).isdigit():
-        return float(num[1:])
-
-    return num
-
-
-def unixTimeMillis(dt: datetime):
+def unixTimeMillis(dt: datetime) -> float:
     """
     Convert the datetime to a unix timestamp
     :param dt: datetime to concert
@@ -220,19 +237,3 @@ def unixTimeMillis(dt: datetime):
     """
     epoch = datetime.utcfromtimestamp(0)
     return (dt - epoch).total_seconds() * 1000.0
-
-
-def destructure(d: dict, *keys: Union[AnyStr, Tuple[AnyStr, Any]]) -> Tuple[Any, ...]:
-    """
-    Destructure the dict using the given keys
-    :param d: dict to destructure
-    :param keys: keys and optional default to use to destructure the dict
-    :return: destructed values
-    """
-    rslt = []
-    for k in keys:
-        if isinstance(k, (bytes, str)):
-            rslt.append(d.get(k, None))
-        elif isinstance(k, tuple):
-            rslt.append(d.get(*k))
-    return tuple(rslt)
