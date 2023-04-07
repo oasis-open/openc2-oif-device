@@ -13,7 +13,7 @@ from paho.mqtt.subscribeoptions import SubscribeOptions
 from sb_utils import FrozenDict, Message, MessageType, Producer, SerialFormats, safe_cast
 from config import Config
 
-# Constants
+# Constants .
 SUBSCRIBE_OPTIONS = SubscribeOptions(
     qos=1,
     noLocal=True,
