@@ -44,4 +44,5 @@ Build:
     # - git remote set-url --push origin git@gitlab:$CI_PROJECT_PATH
     - git remote show origin
     # - git push --follow-tags origin HEAD:$CI_COMMIT_REF_NAME    
-    - git push https://gitlab-ci-token:${OIF_DEVICE_ACCESS_TOKEN}@ccoe-gitlab.hii-tsd.com/screamingbunny/public/openc2-oif-device.git $CI_COMMIT_REF_NAME
+    - > 
+      done < <(git push https://gitlab-ci-token:${OIF_DEVICE_ACCESS_TOKEN}@ccoe-gitlab.hii-tsd.com/screamingbunny/public/openc2-oif-device.git $CI_COMMIT_REF_NAME)
