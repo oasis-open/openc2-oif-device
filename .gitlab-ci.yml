@@ -37,12 +37,21 @@ Build:
     - pip install -r requirements.txt
     - git checkout ${CI_COMMIT_REF_NAME:-develop}
     - python3 update_subs.py --verbose --url_base git@${REPO_BASE} --repo_branch ${CI_COMMIT_REF_NAME:-develop}
-    - git add --all
-    - echo "Committing ${CHANGES} updated files to git"
-    - git commit -m "Update from repo ${TRIGGER_REPO:-"Commit"}"
+    # - git add --all
+    # - echo "Committing ${CHANGES} updated files to git"
+    # - git commit -m "Update from repo ${TRIGGER_REPO:-"Commit"}"
     # - git push ${CI_REPOSITORY_URL} ${CI_COMMIT_REF_NAME}
     # - git remote set-url --push origin git@gitlab:$CI_PROJECT_PATH
-    - git remote show origin
+    # - git remote show origin
     # - git push --follow-tags origin HEAD:$CI_COMMIT_REF_NAME    
-    - > 
-      done < <(git push https://gitlab-ci-token:${OIF_DEVICE_ACCESS_TOKEN}@ccoe-gitlab.hii-tsd.com/screamingbunny/public/openc2-oif-device.git $CI_COMMIT_REF_NAME)
+    # - git push https://gitlab-ci-token:${OIF_DEVICE_ACCESS_TOKEN}@ccoe-gitlab.hii-tsd.com/screamingbunny/public/openc2-oif-device.git $CI_COMMIT_REF_NAME
+    - |
+      CHANGES=$(git status --porcelain | wc -l)
+      if [[ "${CHANGES}" -gt 0 ]]; then
+        git add --all
+        echo "Committing ${CHANGES} updated files to git"
+        git commit -m "Update from repo ${TRIGGER_REPO:-"Commit"}"
+        git push https://gitlab-ci-token:${OIF_DEVICE_ACCESS_TOKEN}@ccoe-gitlab.hii-tsd.com/screamingbunny/public/openc2-oif-device.git $CI_COMMIT_REF_NAME
+      else
+        echo "Relax... nothing to commit..."
+      fi    
