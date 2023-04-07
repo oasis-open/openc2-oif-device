@@ -1,4 +1,4 @@
-FROM harbor.olympus.mtn/screamingbunny/alpine_python3
+FROM harbor.olympus.mtn/screamingbunny/alpine_python
 
 
 LABEL name="MQTT Transport Module" \

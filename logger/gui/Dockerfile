@@ -1,21 +1,19 @@
 # GUI Builder
-FROM node:12-alpine as builder
+FROM node:gallium-alpine as builder
 
-ENV YARN_INSTALL="yarn --network-timeout 100000 --frozen-lockfile"
+WORKDIR /tmp/gui
+COPY . /tmp/gui
 
-ADD . /tmp/gui
-
-RUN apk add --no-cache git yarn && \
-cd /tmp/gui && \
-yarn cache clean && \
-$YARN_INSTALL || while [ $? -ne 0 ]; do $YARN_INSTALL; done  && \
+RUN apk add --no-cache git && \
+corepack enable
+RUN yarn && \
 yarn build && \
 mkdir -p /opt/syslog/gui && \
 cp -r build/* /opt/syslog/gui
 
 
 # GUI Image
-FROM ccoe-gitlab-registry.hii-tsd.com/screamingbunny/docker:alpine
+FROM harbor.olympus.mtn/screamingbunny/docker/alpine
 
 LABEL name="Logger GUI" \
 vendor="OpenC2" \
