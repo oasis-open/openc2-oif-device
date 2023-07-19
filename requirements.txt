@@ -1,1 +1,27 @@
-gitpython==3.1.31
+kestrel==0.0.1
+kestrel-lang==1.7.1
+kestrel-jupyter==1.0.9
+
+Jinja2==3.1.2
+
+stix-shifter==5.3.1
+stix-shifter-utils==5.3.1
+stix2-matcher
+stix2-patterns
+stix2-validator
+
+paho-mqtt==1.6.1
+toml==0.10.2
+jsonschema
+python-benedict==0.31.0
+fastapi==0.100.0
+uvicorn==0.22.0
+
+pyopenssl==23.1.1
+
+setuptools==68.0.0
+SB-Utils@git+https://github.com/ScreamBun/SB_Utils.git#subdirectory=root
+
+# You may need to run these separately 
+# pip install --upgrade pip
+# pip install --upgrade setuptools

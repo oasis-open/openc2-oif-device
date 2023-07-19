@@ -1,0 +1,41 @@
+name = "OIF Device"
+client_id = "oif-device"
+schema_path = "./oc2/schemas"
+schema_file = "th_schema.json"
+
+[HTTP]
+is_enabled = true
+host = "127.0.0.1"
+port = 5000
+log_Level="info"
+
+
+[MQTT]
+is_enabled = true
+
+# Note: CHECK WHICH MQTT PROTOCOL VER THE BROKER SUPPORTS THEN MAKE SURE THE MQTTMANAGER MATCHES
+protocol = "MQTTv5"
+# protocol = "MQTTv311"
+
+transport = "tcp"
+# transport = "websockets"
+
+# broker = "localhost"
+# broker="mosquitto.olympus.mtn" 
+broker = "test.mosquitto.org" 
+
+# port = 8883
+port = 1883
+
+username = 'Cav01'
+password = 'Tango01Village'
+
+listen_topics = ["oc2/cmd", "oc2/cmd/all"]
+# listen_topics = ["oc2/cmd/device/th"]
+resp_topics = ["oc2/rsp"]
+
+
+[KESTREL]
+is_enabled = false
+datasources = ["elastic", "file", "uri"]
+huntbook_paths = ["./hunts/huntflow/"]

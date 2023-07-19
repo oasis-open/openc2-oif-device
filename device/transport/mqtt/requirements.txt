@@ -1,4 +1,0 @@
-# SB-Utils@git+https://github.com/ScreamBun/SB_utils.git#subdirectory=root
-paho-mqtt==1.6.1
-kombu==5.2.4
-python-etcd  # Use version from SB-Utils

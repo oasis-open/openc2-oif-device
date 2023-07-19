@@ -1,0 +1,12 @@
+traffic = GET network-traffic
+          FROM file://./data/stix-bundles-data.json
+          WHERE dst_ref = '6'
+          START 2021-04-03T00:00:00Z STOP 2023-04-30T02:00:00Z
+
+DISP traffic ATTR name, pid, command_line
+
+winlaptop141 = NEW ipv4-addr ["10.171.5.141"]
+
+results = GET network-traffic
+            WHERE src_ref.value = winlaptop141.value
+            START 2021-04-03T00:00:00Z STOP 2021-04-04T00:00:00Z

@@ -1,0 +1,268 @@
+{
+    "_index": "linux-91-sysflow-bh22-20220727",
+    "_id": "951220be06ef3a52",
+    "_score": 1,
+    "_source": {
+        "@timestamp": "2022-08-09T20:12:20.318620851Z",
+        "agent": {
+            "type": "SysFlow",
+            "version": "0.4.3"
+        },
+        "ecs": {
+            "version": "1.7.0"
+        },
+        "event": {
+            "action": "process-exit",
+            "category": "process",
+            "duration": 0,
+            "end": "2022-08-09T20:12:20.318620851Z",
+            "kind": "event",
+            "sf_ret": 9,
+            "sf_type": "PE",
+            "start": "2022-08-09T20:12:20.318620851Z",
+            "type": "exit"
+        },
+        "container": {
+            "id": "af3a433e7a5c",
+            "image": {
+                "id": "81168b5fb5b57c30924a4ba86a4788edfa11467032dc9a61767f9d980a28f11d",
+                "name": "internal-service:latest"
+            },
+            "name": "zen_hugle",
+            "runtime": "DOCKER",
+            "sf_privileged": false
+        },
+        "host": {
+            "id": "victimtestc",
+            "ip": "192.168.56.91"
+        },
+        "process": {
+            "args": "./entry.sh",
+            "command_line": "/bin/bash ./entry.sh",
+            "executable": "/bin/bash",
+            "name": "bash",
+            "parent": {
+                "args": "",
+                "command_line": "",
+                "executable": "",
+                "name": ".",
+                "pid": 0,
+                "start": "1970-01-01T00:00:00Z"
+            },
+            "pid": 13299,
+            "start": "2022-07-26T22:10:40.412498335Z",
+            "thread": {
+                "id": 13299
+            }
+        },
+        "user": {
+            "group": {
+                "id": 0,
+                "name": "root"
+            },
+            "id": 0,
+            "name": "root"
+        }
+    }
+}
+{
+    "_index": "linux-91-sysflow-bh22-20220727",
+    "_id": "5b2f765cea1cfa9f",
+    "_score": 1,
+    "_source": {
+        "@timestamp": "2022-08-09T20:12:20.318752095Z",
+        "agent": {
+            "type": "SysFlow",
+            "version": "0.4.3"
+        },
+        "ecs": {
+            "version": "1.7.0"
+        },
+        "event": {
+            "action": "process-exit",
+            "category": "process",
+            "duration": 0,
+            "end": "2022-08-09T20:12:20.318752095Z",
+            "kind": "event",
+            "sf_ret": 9,
+            "sf_type": "PE",
+            "start": "2022-08-09T20:12:20.318752095Z",
+            "type": "exit"
+        },
+        "container": {
+            "id": "af3a433e7a5c",
+            "image": {
+                "id": "81168b5fb5b57c30924a4ba86a4788edfa11467032dc9a61767f9d980a28f11d",
+                "name": "internal-service:latest"
+            },
+            "name": "zen_hugle",
+            "runtime": "DOCKER",
+            "sf_privileged": false
+        },
+        "host": {
+            "id": "victimtestc",
+            "ip": "192.168.56.91"
+        },
+        "process": {
+            "args": "/usr/local/bin/npm start",
+            "command_line": "/usr/local/bin/node /usr/local/bin/npm start",
+            "executable": "/usr/local/bin/node",
+            "name": "node",
+            "parent": {
+                "args": "./entry.sh",
+                "command_line": "/bin/bash ./entry.sh",
+                "executable": "/bin/bash",
+                "name": "bash",
+                "pid": 13299,
+                "start": "2022-07-26T22:10:40.412498335Z"
+            },
+            "pid": 13334,
+            "start": "2022-07-26T22:10:40.811069902Z",
+            "thread": {
+                "id": 13334
+            }
+        },
+        "user": {
+            "group": {
+                "id": 0,
+                "name": "root"
+            },
+            "id": 0,
+            "name": "root"
+        }
+    }
+}
+{
+    "_index": "linux-91-sysflow-bh22-20220727",
+    "_id": "2a795b18b4b2cf12",
+    "_score": 1,
+    "_source": {
+        "@timestamp": "2022-08-09T20:12:20.318898908Z",
+        "agent": {
+            "type": "SysFlow",
+            "version": "0.4.3"
+        },
+        "ecs": {
+            "version": "1.7.0"
+        },
+        "event": {
+            "action": "process-exit",
+            "category": "process",
+            "duration": 0,
+            "end": "2022-08-09T20:12:20.318898908Z",
+            "kind": "event",
+            "sf_ret": 9,
+            "sf_type": "PE",
+            "start": "2022-08-09T20:12:20.318898908Z",
+            "type": "exit"
+        },
+        "container": {
+            "id": "af3a433e7a5c",
+            "image": {
+                "id": "81168b5fb5b57c30924a4ba86a4788edfa11467032dc9a61767f9d980a28f11d",
+                "name": "internal-service:latest"
+            },
+            "name": "zen_hugle",
+            "runtime": "DOCKER",
+            "sf_privileged": false
+        },
+        "host": {
+            "id": "victimtestc",
+            "ip": "192.168.56.91"
+        },
+        "process": {
+            "args": "/usr/local/src/starx/sshd.sh /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config",
+            "command_line": "/bin/bash /usr/local/src/starx/sshd.sh /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config",
+            "executable": "/bin/bash",
+            "name": "bash",
+            "parent": {
+                "args": "./entry.sh",
+                "command_line": "/bin/bash ./entry.sh",
+                "executable": "/bin/bash",
+                "name": "bash",
+                "pid": 13299,
+                "start": "2022-07-26T22:10:40.412498335Z"
+            },
+            "pid": 13333,
+            "start": "2022-07-26T22:10:40.807093416Z",
+            "thread": {
+                "id": 13333
+            }
+        },
+        "user": {
+            "group": {
+                "id": 0,
+                "name": "root"
+            },
+            "id": 0,
+            "name": "root"
+        }
+    }
+}
+{
+    "_index": "linux-91-sysflow-bh22-20220727",
+    "_id": "87a0e4c5b8b1515d",
+    "_score": 1,
+    "_source": {
+        "@timestamp": "2022-08-09T20:12:20.319442284Z",
+        "agent": {
+            "type": "SysFlow",
+            "version": "0.4.3"
+        },
+        "ecs": {
+            "version": "1.7.0"
+        },
+        "event": {
+            "action": "process-exit",
+            "category": "process",
+            "duration": 0,
+            "end": "2022-08-09T20:12:20.319442284Z",
+            "kind": "event",
+            "sf_ret": 9,
+            "sf_type": "PE",
+            "start": "2022-08-09T20:12:20.319442284Z",
+            "type": "exit"
+        },
+        "container": {
+            "id": "af3a433e7a5c",
+            "image": {
+                "id": "81168b5fb5b57c30924a4ba86a4788edfa11467032dc9a61767f9d980a28f11d",
+                "name": "internal-service:latest"
+            },
+            "name": "zen_hugle",
+            "runtime": "DOCKER",
+            "sf_privileged": false
+        },
+        "host": {
+            "id": "victimtestc",
+            "ip": "192.168.56.91"
+        },
+        "process": {
+            "args": "-D -e -f /etc/ssh/sshd_config",
+            "command_line": "/usr/sbin/sshd -D -e -f /etc/ssh/sshd_config",
+            "executable": "/usr/sbin/sshd",
+            "name": "sshd",
+            "parent": {
+                "args": "/usr/local/src/starx/sshd.sh /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config",
+                "command_line": "/bin/bash /usr/local/src/starx/sshd.sh /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config",
+                "executable": "/bin/bash",
+                "name": "bash",
+                "pid": 13333,
+                "start": "2022-07-26T22:10:40.807093416Z"
+            },
+            "pid": 13413,
+            "start": "2022-07-26T22:10:45.135286876Z",
+            "thread": {
+                "id": 13413
+            }
+        },
+        "user": {
+            "group": {
+                "id": 0,
+                "name": "root"
+            },
+            "id": 0,
+            "name": "root"
+        }
+    }
+}
