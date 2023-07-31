@@ -35,12 +35,6 @@ Various other configurations are available from the config.toml file.  The appli
 
 The examples provided with OIF Device are not intended for production use.
 
-## References
-
-- [How to run Elasticsearch 8 on Docker for Local Development](https://levelup.gitconnected.com/how-to-run-elasticsearch-8-on-docker-for-local-development-401fd3fff829)
-
-- [Kestrel's Hunting Stack Testing](https://github.com/opencybersecurityalliance/hunting-stack-testing/blob/main/scripts/)
-
 ## <a name="background"></a> Background
 
 This GitHub public repository [openc2-oif-device](https://github.com/oasis-open/openc2-oif-device) was created at the request of the [OASIS OpenC2 Technical Committee](https://www.oasis-open.org/committees/openc2/) as an [OASIS TC Open Repository](https://www.oasis-open.org/resources/open-repositories/) to support development of open source resources related to Technical Committee work.
@@ -65,7 +59,7 @@ The OIF Device was created with the intent of being an easy-to-configure OpenC2 
 ![GUI snippet](assets/oif_overview.png)
 
 
-## General Setup & Start ##
+## General Setup & Start
 
 - Clone from git
 - Create a virtual environment
@@ -78,7 +72,7 @@ The OIF Device was created with the intent of being an easy-to-configure OpenC2 
 
 ***Note:** If no huntbooks available, config.toml may need to be adjusted to the correct file path - **schema_path** and **huntbook_path***
 
-## Kestrel Elasticsearch and Kibana Setup ##
+## Kestrel Elasticsearch and Kibana Setup
 
 Clean your docker instances:
 
@@ -193,20 +187,20 @@ Then, run:
 Mon, 05 Jun 2023 13:46:55 GMT | dump complete
 ```
 
-## View Data in KibanaGuide ##
+## View Data in KibanaGuide
 
-### View Data ###
+### View Data
 
  On the side navigation bar, go to **Management > Stack Management > Index Management** to view the Indices. This will show you the data stored in the Elasticsearch.
 
-### Execute Queries ###
+### Execute Queries
 
 - On the side navigation bar, go to **Management > DevTools** to do raw queries similar to HTTP GET requests or curl requests
 - On the side navigation bar, go to **Analytics > Dashboard** and create a DataView to query the data using a UI
 
-## Sample queries ##
+## Sample queries
 
-### Kibana DevTools ###
+### Kibana DevTools
 
 ```json
 GET /linux-91-sysflow-bh22-20220727/_search?size=1
@@ -222,13 +216,13 @@ GET /linux-91-sysflow-bh22-20220727/_search?size=1
 }
 ```
 
-### Curl ###
+### Curl
 
 ```bash
 curl --cacert ./http_ca.crt  "https://elastic:elastic@localhost:9200/linux-91-sysflow-bh22-20220727/_search?size=1"
 ```
 
-#### To get Pretty Print ####
+#### To get Pretty Print
 
 - Add to your ~/.bashrc file:
   `
@@ -251,9 +245,9 @@ curl --cacert ./http_ca.crt -XGET "https://elastic:elastic@localhost:9200/linux-
 }' | pp
 ```
 
-## Kicking off a Kestrel Hunt ##
+## Kicking off a Kestrel Hunt
 
-### Setup Kestrel ###
+### Setup Kestrel
 
 Install dependencies
 
@@ -281,7 +275,7 @@ browsers process            2           2         0
 *Number of related records cached.
 ```
 
-### Run the STIXShifter Hunt on Elastic ###
+### Run the STIXShifter Hunt on Elastic
 
 <sup>Preloaded and mapped data</sup>
 
@@ -293,7 +287,7 @@ kestrel ./hunts/huntflow/query_data_via_stixshifter.hf
 
 ***Note:** If profile is not found, kestrel / config.py (python3.10 site package inside the virtualenv) may need to be adjusted to the correct file path - **CONFIG_DIR_DEFAULT***
 
-### Run STIX Bundle Hunts on JSON files ###
+### Run STIX Bundle Hunts on JSON files
 
 <sup>STIX formatted data</sup>
 
@@ -317,3 +311,8 @@ kestrel ./hunts/huntflow/query_net_traffic_stixdata.hf
 kestrel ./hunts/huntflow/query_web_stixdata.hf
 ```
 
+## References
+
+- [How to run Elasticsearch 8 on Docker for Local Development](https://levelup.gitconnected.com/how-to-run-elasticsearch-8-on-docker-for-local-development-401fd3fff829)
+
+- [Kestrel's Hunting Stack Testing](https://github.com/opencybersecurityalliance/hunting-stack-testing/blob/main/scripts/)
