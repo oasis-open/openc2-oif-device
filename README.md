@@ -8,7 +8,7 @@
 
 # OIF Device
 
-The OIF Device provides an example of an OpenC2 Consumer, which as the potential to easily interoperate with other entities and functions and then, provide an OpenC2 Resonse.  
+The OIF Device provides an example of an OpenC2 Consumer, which has the potential to easily interoperate with other entities and functions and then, provide an OpenC2 Resonse.  
 Tranports available are JSON over MQTT or HTTP.
 
 Given OpenC2's goals and design philosphy, the Consumer implementer essentially should:
@@ -17,12 +17,23 @@ Given OpenC2's goals and design philosphy, the Consumer implementer essentially 
 2) Receive commands and validate them against the relevant AP schema
 3) Parse the command and convert / translate / interpret into the local syntax / API for the relevant function
 4) Execute the commanded action, and collect response information
-5) Package the response information up in OpenC2 format
+5) Package the response information in OpenC2 format
 6) Send the response back to the Producer (or other destination, per the environment)
 
-Goals 3 and 4 are meant to be extremely basic to provide examples that can be built on or extended by others.
+OIF Device provides a skeleton for steps 3 and 4, but only a very basic implementation as a starting point.
 
-Kestrel is tied into the application as an example of interoperatorability, but is disabled by default.  To enabled Kestrel functionality, update the KESTREL / is_enabled flag within the config.toml file.  Further instructions regarding enabling and interacting with the Kestrel (Threat Hunting) examples.  Please keep in mind these are only basic examples and are not meant to be used in a production environment.
+Basic support for two OpenC2 APs is provided; either can be enabled within the config.toml file via the following configuration fields:
+
+- schema_file: Actuator Profile to be used for message validation
+  - options are [th_ap_vbeta.json or slpf_ap_v2.0.json]
+- HTTP / is_enabled: HTTP transport functionality.  Enabled by default.
+- MQTT / is_enabled: MQTT transport functionality.  Enabled by default.
+- KESTREL / is_enabled: Kestrel exmample queiries.  Disabled by default.
+- SLPF: Feature Flag comming soon, explicidly on by default.
+
+Various other configurations are available from the config.toml file.  The application will need to be bounced if a change is applied.
+
+The examples provided with OIF Device are not intended for production use.
 
 ## References
 

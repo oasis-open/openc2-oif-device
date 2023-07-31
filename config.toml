@@ -1,7 +1,7 @@
 name = "OIF Device"
 client_id = "oif-device"
 schema_path = "./oc2/schemas"
-schema_file = "th_schema.json"
+schema_file = "th_ap_vbeta.json"
 
 [HTTP]
 is_enabled = true
