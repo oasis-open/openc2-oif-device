@@ -6,15 +6,25 @@
 [![Docker 18.0+](https://img.shields.io/badge/Docker-18.0%2B-blue)](https://docs.docker.com/get-docker/)
 [![OpenC2 Lang Spec](https://img.shields.io/badge/OpenC2%20Lang%20Spec-1.0-brightgreen)](https://openc2.org/specifications)
 
-
-# OIF Device #
+# OIF Device
 
 The OIF Device provides an example of an OpenC2 Consumer, which as the potential to easily interoperate with other entities and functions and then, provide an OpenC2 Resonse.  
 Tranports available are JSON over MQTT or HTTP.
 
-Kestrel is tied into the application as an example of interoperatorability, but is disabled by default.  To enabled Kestrel functionay, update the KESTREL / is_enabled flag within the config.toml file.  Further instructions regarding enabling and interacting with the Kestrel (Threat Hunting) examples.
+Given OpenC2's goals and design philosphy, the Consumer implementer essentially should:
 
-## References ##
+1) Interface to the message fabric to receive commands and send responses
+2) Receive commands and validate them against the relevant AP schema
+3) Parse the command and convert / translate / interpret into the local syntax / API for the relevant function
+4) Execute the commanded action, and collect response information
+5) Package the response information up in OpenC2 format
+6) Send the response back to the Producer (or other destination, per the environment)
+
+Goals 3 and 4 are meant to be extremely basic to provide examples that can be built on or extended by others.
+
+Kestrel is tied into the application as an example of interoperatorability, but is disabled by default.  To enabled Kestrel functionality, update the KESTREL / is_enabled flag within the config.toml file.  Further instructions regarding enabling and interacting with the Kestrel (Threat Hunting) examples.  Please keep in mind these are only basic examples and are not meant to be used in a production environment.
+
+## References
 
 - [How to run Elasticsearch 8 on Docker for Local Development](https://levelup.gitconnected.com/how-to-run-elasticsearch-8-on-docker-for-local-development-401fd3fff829)
 
