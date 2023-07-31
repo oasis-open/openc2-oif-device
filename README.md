@@ -9,7 +9,7 @@
 # OIF Device
 
 The OIF Device provides an example of an OpenC2 Consumer, which has the potential to easily interoperate with other entities and functions and then, provide an OpenC2 Resonse.  
-Tranports available are JSON over MQTT or HTTP.
+The OIF Device supports JSON encoding of OpenC2 commands and responses, and message transfer over MQTT or HTTP.
 
 Given OpenC2's goals and design philosphy, the Consumer implementer essentially should:
 
