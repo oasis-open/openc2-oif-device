@@ -2,6 +2,7 @@ name = "OIF Device"
 client_id = "oif-device"
 schema_path = "./oc2/schemas"
 schema_file = "th_ap_vbeta.json"
+# schema_file = "slpf_ap_v2.0.json"
 
 [HTTP]
 is_enabled = true
@@ -12,8 +13,6 @@ log_Level="info"
 
 [MQTT]
 is_enabled = true
-
-# Note: CHECK WHICH MQTT PROTOCOL VER THE BROKER SUPPORTS THEN MAKE SURE THE MQTTMANAGER MATCHES
 protocol = "MQTTv5"
 # protocol = "MQTTv311"
 
@@ -36,6 +35,7 @@ resp_topics = ["oc2/rsp"]
 
 
 [KESTREL]
-is_enabled = false
+is_enabled = true
+is_sample_data = true
 datasources = ["elastic", "file", "uri"]
 huntbook_paths = ["./hunts/huntflow/"]

@@ -36,7 +36,7 @@ class Test_Hunts(unittest.TestCase):
         from_cmd = "file://./data/test_stixbundle.json"
         where_cmd = "[process:name='compattelrunner.exe']"
 
-        hunt_data = hunt_via_variables(True, get_cmd, from_cmd, where_cmd)
+        hunt_data = hunt_via_variables(get_cmd, from_cmd, where_cmd)
 
         # Might be safer to test on keys, if data changes..
         search_for = "MYORGIDX-01aac66c-00000820-00000000-1d70c280e79cd04"
@@ -51,7 +51,7 @@ class Test_Hunts(unittest.TestCase):
         from_cmd = "file://./data/test_stixbundle.json"
         where_cmd = "[process:name='compattelrunner.exe']"
 
-        hunt_data = hunt_jinja_via_variables(True, get_cmd, from_cmd, where_cmd)
+        hunt_data = hunt_jinja_via_variables(get_cmd, from_cmd, where_cmd)
 
         search_for = "MYORGIDX-01aac66c-00000820-00000000-1d70c280e79cd04"
         is_found = search_for in hunt_data.values()

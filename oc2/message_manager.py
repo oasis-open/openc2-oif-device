@@ -142,7 +142,7 @@ def process_oc2_msg(msg_benedict: benedict):
         if is_kestrel_enabled:
             if TH_HUNT_PATH in msg_benedict and TH_HUNTARGS_STRING_ARG_PATH in msg_benedict:
                 where_cmd = msg_benedict[TH_HUNTARGS_STRING_ARG_PATH]
-                work_result = hunt_via_variables(True, None, None, where_cmd, None, None)
+                work_result = hunt_via_variables(None, None, where_cmd, None, None)
 
             elif TH_HUNT_PATH in msg_benedict:
                 hunt_path = msg_benedict[TH_HUNT_PATH] 
