@@ -148,7 +148,7 @@ def process_oc2_msg(msg_benedict: benedict):
                 hunt_path = msg_benedict[TH_HUNT_PATH] 
                 work_result = hunt_via_file(hunt_path)
 
-    # TODO: Add other interactions here...
+    # TODO: Add other interactions here ...
 
     if not work_result:
         who = config_data["name"]
