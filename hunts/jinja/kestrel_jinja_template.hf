@@ -1,0 +1,6 @@
+results = GET {{ get_cmd }}
+                  FROM {{ from_cmd }}
+                  WHERE {{ where_cmd }}
+{% if start_cmd and stop_cmd %}                  
+        START {{ start_cmd }} STOP {{ stop_cmd }}
+{% endif %}        

@@ -1,0 +1,15 @@
+profiles:
+    bh22-linux:
+        connector: elastic_ecs
+        connection:
+            host: localhost
+            port: 9200
+            selfSignedCert: false
+            indices: linux-91-sysflow-bh22-20220727
+            options:
+                dialects:
+                  - beats
+        config:
+            auth:
+                username: elastic
+                password: elastic

@@ -1,0 +1,6 @@
+results = GET process
+       FROM file://./data/test_stixbundle.json
+       WHERE [process:name='compattelrunner.exe'] 
+
+
+  

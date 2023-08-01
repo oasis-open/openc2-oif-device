@@ -1,0 +1,86 @@
+{
+    "took": 1,
+    "timed_out": false,
+    "_shards": {
+        "total": 1,
+        "successful": 1,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": {
+            "value": 1373,
+            "relation": "eq"
+        },
+        "max_score": 1.0,
+        "hits": [
+            {
+                "_index": "linux-91-sysflow-bh22-20220727",
+                "_id": "b432776f202e5da4",
+                "_score": 1.0,
+                "_source": {
+                    "@timestamp": "2022-07-26T03:59:55.638870164Z",
+                    "agent": {
+                        "type": "SysFlow",
+                        "version": "0.4.3"
+                    },
+                    "ecs": {
+                        "version": "1.7.0"
+                    },
+                    "event": {
+                        "action": "process-exit",
+                        "category": "process",
+                        "duration": 0,
+                        "end": "2022-07-26T03:59:55.638870164Z",
+                        "kind": "event",
+                        "sf_ret": 9,
+                        "sf_type": "PE",
+                        "start": "2022-07-26T03:59:55.638870164Z",
+                        "type": "exit"
+                    },
+                    "container": {
+                        "id": "ecb931d2884b",
+                        "image": {
+                            "id": "81168b5fb5b57c30924a4ba86a4788edfa11467032dc9a61767f9d980a28f11d",
+                            "name": "internal-service:latest"
+                        },
+                        "name": "ecstatic_beaver",
+                        "runtime": "DOCKER",
+                        "sf_privileged": false
+                    },
+                    "host": {
+                        "id": "victimtestc",
+                        "ip": "192.168.56.91"
+                    },
+                    "process": {
+                        "args": "app.js",
+                        "command_line": "/usr/local/bin/node app.js",
+                        "executable": "/usr/local/bin/node",
+                        "name": "node",
+                        "parent": {
+                            "args": "/usr/local/bin/npm start",
+                            "command_line": "/usr/local/bin/node /usr/local/bin/npm start",
+                            "executable": "/usr/local/bin/node",
+                            "name": "node",
+                            "pid": 11364,
+                            "start": "2022-07-26T03:19:03.083807961Z"
+                        },
+                        "pid": 11398,
+                        "start": "2022-07-26T03:19:07.721206141Z",
+                        "thread": {
+                            "id": 11398
+                        }
+                    },
+                    "user": {
+                        "group": {
+                            "id": 0,
+                            "name": "root"
+                        },
+                        "id": 0,
+                        "name": "root"
+                    }
+                }
+            }
+        ]
+    }
+}

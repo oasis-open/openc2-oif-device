@@ -1,3 +1,0 @@
-elasticsearch
-syslog_rfc5424_parser
-twisted

@@ -1,4 +1,0 @@
-beautifultable
-pdoc3
-pylint
-pylint-json2html

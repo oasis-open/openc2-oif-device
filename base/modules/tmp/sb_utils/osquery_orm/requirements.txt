@@ -1,2 +1,0 @@
-osquery==3.0.7
-peewee==3.15.1

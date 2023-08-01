@@ -1,0 +1,198 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://docs.oasis-open.org/openc2/ns/ap-slpf/v2.0",
+  "title": "Stateless Packet Filtering Profile",
+  "version": "0-wd01",
+  "description": "Data definitions for Stateless Packet Filtering (SLPF) functions",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "$ref": "#/definitions/Action"
+    },
+    "target": {
+      "$ref": "#/definitions/Target"
+    },
+    "args": {
+      "$ref": "#/definitions/Args"
+    },
+    "results": {
+      "$ref": "#/definitions/Results"
+    },
+    "pairs": {
+      "$ref": "#/definitions/Pairs"
+    }
+  },
+  "definitions": {
+    "Action": {
+      "title": "Action",
+      "type": "string",
+      "enum": [
+        "deny",
+        "allow",
+        "update",
+        "delete"
+      ]
+    },
+    "Target": {
+      "title": "Target",
+      "type": "object",
+      "description": "SLPF targets",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "rule_number": {
+          "$ref": "#/definitions/Rule-ID",
+          "description": "Immutable identifier assigned when a rule is created. Identifies a rule to be deleted"
+        }
+      }
+    },
+    "Args": {
+      "title": "Args",
+      "type": "object",
+      "description": "SLPF command arguments",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 100,
+      "properties": {
+        "drop_process": {
+          "$ref": "#/definitions/Drop-Process",
+          "description": "Specifies how to handle denied packets"
+        },
+        "persistent": {
+          "type": "boolean",
+          "description": "Normal operations assume any changes to a device are to be implemented persistently. Setting the persistent modifier to FALSE results in a change that is not persistent in the event of a reboot or restart"
+        },
+        "direction": {
+          "$ref": "#/definitions/Direction",
+          "description": "Specifies whether to apply rules to incoming or outgoing traffic. If omitted, rules are applied to both"
+        },
+        "insert_rule": {
+          "$ref": "#/definitions/Rule-ID",
+          "description": "Specifies the identifier of the rule within a list, typically used in a top-down rule list"
+        }
+      }
+    },
+    "Results": {
+      "title": "Results",
+      "type": "object",
+      "description": "SLPF results defined in this profile",
+      "additionalProperties": false,
+      "maxProperties": 100,
+      "properties": {
+        "rule_number": {
+          "$ref": "#/definitions/Rule-ID",
+          "description": "Rule identifier returned from allow or deny Command."
+        }
+      }
+    },
+    "Pairs": {
+      "title": "Pairs",
+      "type": "object",
+      "description": "Targets applicable to each action",
+      "additionalProperties": false,
+      "required": [
+        "deny",
+        "allow",
+        "update",
+        "delete"
+      ],
+      "maxProperties": 100,
+      "properties": {
+        "deny": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/Deny-Targets"
+          }
+        },
+        "allow": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/Allow-Targets"
+          }
+        },
+        "update": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/Update-Targets"
+          }
+        },
+        "delete": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/Delete-Targets"
+          }
+        }
+      }
+    },
+    "Deny-Targets": {
+      "title": "Deny Targets",
+      "type": "string",
+      "enum": [
+        "ipv4_net",
+        "ipv6_net",
+        "ipv4_connection",
+        "ipv6_connection"
+      ]
+    },
+    "Allow-Targets": {
+      "title": "Allow Targets",
+      "type": "string",
+      "enum": [
+        "ipv4_net",
+        "ipv6_net",
+        "ipv4_connection",
+        "ipv6_connection"
+      ]
+    },
+    "Update-Targets": {
+      "title": "Update Targets",
+      "type": "string",
+      "enum": [
+        "file"
+      ]
+    },
+    "Delete-Targets": {
+      "title": "Delete Targets",
+      "type": "string",
+      "enum": [
+        "rule_number"
+      ]
+    },
+    "Drop-Process": {
+      "title": "Drop Process",
+      "type": "string",
+      "enum": [
+        "none",
+        "reject",
+        "false_ack"
+      ]
+    },
+    "Direction": {
+      "title": "Direction",
+      "type": "string",
+      "enum": [
+        "both",
+        "ingress",
+        "egress"
+      ]
+    },
+    "Rule-ID": {
+      "title": "Rule ID",
+      "type": "integer",
+      "description": "Access rule identifier"
+    }
+  },
+  "imports": {
+    "ls": {}
+  }
+}

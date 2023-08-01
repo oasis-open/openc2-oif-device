@@ -1,0 +1,477 @@
+{
+    "linux-91-sysflow-bh22-20220727": {
+        "mappings": {
+            "properties": {
+                "@timestamp": {
+                    "type": "date"
+                },
+                "agent": {
+                    "properties": {
+                        "type": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "version": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                },
+                "container": {
+                    "properties": {
+                        "id": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "image": {
+                            "properties": {
+                                "id": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256
+                                        }
+                                    }
+                                },
+                                "name": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "name": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "runtime": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "sf_privileged": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "destination": {
+                    "properties": {
+                        "address": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "bytes": {
+                            "type": "long"
+                        },
+                        "ip": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "packets": {
+                            "type": "long"
+                        },
+                        "port": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "ecs": {
+                    "properties": {
+                        "version": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                },
+                "event": {
+                    "properties": {
+                        "action": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "category": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "duration": {
+                            "type": "long"
+                        },
+                        "end": {
+                            "type": "date"
+                        },
+                        "kind": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "sf_ret": {
+                            "type": "long"
+                        },
+                        "sf_type": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "start": {
+                            "type": "date"
+                        },
+                        "type": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                },
+                "file": {
+                    "properties": {
+                        "directory": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "name": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "path": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "target_path": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "type": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                },
+                "host": {
+                    "properties": {
+                        "id": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "ip": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                },
+                "network": {
+                    "properties": {
+                        "bytes": {
+                            "type": "long"
+                        },
+                        "community_id": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "iana_number": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "protocol": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                },
+                "process": {
+                    "properties": {
+                        "args": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "command_line": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 1024
+                                }
+                            }
+                        },
+                        "executable": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "name": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "parent": {
+                            "properties": {
+                                "args": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256
+                                        }
+                                    }
+                                },
+                                "command_line": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 1024
+                                        }
+                                    }
+                                },
+                                "executable": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256
+                                        }
+                                    }
+                                },
+                                "name": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256
+                                        }
+                                    }
+                                },
+                                "pid": {
+                                    "type": "long"
+                                },
+                                "start": {
+                                    "type": "date"
+                                }
+                            }
+                        },
+                        "pid": {
+                            "type": "long"
+                        },
+                        "start": {
+                            "type": "date"
+                        },
+                        "thread": {
+                            "properties": {
+                                "id": {
+                                    "type": "long"
+                                }
+                            }
+                        }
+                    }
+                },
+                "sf_file_action": {
+                    "properties": {
+                        "bytes_read": {
+                            "type": "long"
+                        },
+                        "bytes_written": {
+                            "type": "long"
+                        },
+                        "read_ops": {
+                            "type": "long"
+                        },
+                        "write_ops": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "source": {
+                    "properties": {
+                        "address": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "bytes": {
+                            "type": "long"
+                        },
+                        "ip": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "packets": {
+                            "type": "long"
+                        },
+                        "port": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "user": {
+                    "properties": {
+                        "group": {
+                            "properties": {
+                                "id": {
+                                    "type": "long"
+                                },
+                                "name": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "id": {
+                            "type": "long"
+                        },
+                        "name": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
