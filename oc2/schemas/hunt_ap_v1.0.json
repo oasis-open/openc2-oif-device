@@ -1,0 +1,3611 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://docs.oasis-open.org/openc2/ns/ap-th/v1.0/resolved",
+  "title": "Threat Hunting Profile",
+  "version": "0-wd01",
+  "description": "Data definitions for Threat Hunting (TH) functions",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "openc2_command": {
+      "$ref": "#/definitions/OpenC2-Command"
+    },
+    "openc2_response": {
+      "$ref": "#/definitions/OpenC2-Response"
+    },
+    "sco": {
+      "$ref": "#/definitions/SCO"
+    }
+  },
+  "definitions": {
+    "OpenC2-Command": {
+      "title": "OpenC2 Command",
+      "type": "object",
+      "description": "The Command defines an Action to be performed on a Target",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "target"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "action": {
+          "$ref": "#/definitions/Action",
+          "description": "The task or activity to be performed (i.e., the 'verb')."
+        },
+        "target": {
+          "$ref": "#/definitions/Target",
+          "description": "The object of the Action. The Action is performed on the Target."
+        },
+        "args": {
+          "$ref": "#/definitions/Args",
+          "description": "Additional information that applies to the Command."
+        },
+        "actuator": {
+          "$ref": "#/definitions/Actuator",
+          "description": "The subject of the Action. The Actuator executes the Action on the Target."
+        },
+        "command_id": {
+          "$ref": "#/definitions/Command-ID",
+          "description": "An identifier of this Command."
+        }
+      }
+    },
+    "OpenC2-Response": {
+      "title": "OpenC2 Response",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/Status-Code",
+          "description": "An integer status code"
+        },
+        "status_text": {
+          "type": "string",
+          "description": "A free-form human-readable description of the Response status",
+          "maxLength": 5555
+        },
+        "results": {
+          "$ref": "#/definitions/Results",
+          "description": "Map of key:value pairs that contain additional results based on the invoking Command."
+        }
+      }
+    },
+    "SCO": {
+      "title": "SCO",
+      "type": "object",
+      "description": "Availiable Cybersecurity Observables in the STIX language",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "Artifact": {
+          "$ref": "#/definitions/artifact",
+          "description": ""
+        },
+        "Autonomous-System": {
+          "$ref": "#/definitions/autonomous-system",
+          "description": ""
+        },
+        "Directory": {
+          "$ref": "#/definitions/directory",
+          "description": ""
+        },
+        "Domain-Name": {
+          "$ref": "#/definitions/domain-name",
+          "description": ""
+        },
+        "Email-Addr": {
+          "$ref": "#/definitions/email-addr",
+          "description": ""
+        },
+        "Email-Message": {
+          "$ref": "#/definitions/email-message",
+          "description": ""
+        },
+        "File": {
+          "$ref": "#/definitions/file",
+          "description": ""
+        },
+        "IPv4-Addr": {
+          "$ref": "#/definitions/ipv4-addr",
+          "description": ""
+        },
+        "IPv6-Addr": {
+          "$ref": "#/definitions/ipv6-addr",
+          "description": ""
+        },
+        "Mac-Addr": {
+          "$ref": "#/definitions/mac-addr",
+          "description": ""
+        },
+        "Mutex": {
+          "$ref": "#/definitions/mutex",
+          "description": ""
+        },
+        "Network-Traffic": {
+          "$ref": "#/definitions/network-traffic",
+          "description": ""
+        },
+        "Process": {
+          "$ref": "#/definitions/process",
+          "description": ""
+        },
+        "Software": {
+          "$ref": "#/definitions/software",
+          "description": ""
+        },
+        "URL": {
+          "$ref": "#/definitions/url",
+          "description": ""
+        },
+        "User-Account": {
+          "$ref": "#/definitions/user-account",
+          "description": ""
+        },
+        "Windows-Registry-Key": {
+          "$ref": "#/definitions/windows-registry-key",
+          "description": ""
+        },
+        "X509-Certificate": {
+          "$ref": "#/definitions/x509-certificate",
+          "description": ""
+        }
+      }
+    },
+    "Action": {
+      "title": "Action",
+      "type": "string",
+      "enum": [
+        "query",
+        "investigate"
+      ]
+    },
+    "Target": {
+      "title": "Target",
+      "type": "string",
+      "enum": [
+        "features",
+        "th"
+      ]
+    },
+    "Args": {
+      "title": "Args",
+      "type": "string",
+      "enum": [
+        "start_time",
+        "stop_time",
+        "duration",
+        "response_requested",
+        "th"
+      ]
+    },
+    "Actuator": {
+      "title": "Actuator",
+      "type": "string",
+      "enum": [
+        "th"
+      ]
+    },
+    "Results": {
+      "title": "Results",
+      "type": "string",
+      "enum": [
+        "versions",
+        "profiles",
+        "pairs",
+        "rate_limit",
+        "args",
+        "th"
+      ]
+    },
+    "Pairs": {
+      "title": "Pairs",
+      "type": "string",
+      "enum": [
+        "query: features, /huntflows, /datasources",
+        "investigate: /hunt"
+      ]
+    },
+    "AP-Target": {
+      "title": "AP Target",
+      "type": "object",
+      "description": "TH targets defined in this profile.",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "hunt": {
+          "type": "string",
+          "description": "A procedure to find a set of entities in the monitored environment that associates with a cyberthreat.",
+          "maxLength": 5555
+        },
+        "huntflows": {
+          "$ref": "#/definitions/Huntflow-Specifiers",
+          "description": "TH Huntflow specifiers."
+        },
+        "datasources": {
+          "type": "string",
+          "maxLength": 5555
+        }
+      }
+    },
+    "AP-Args": {
+      "title": "AP Args",
+      "type": "object",
+      "description": "TH command arguments defined in this profile.",
+      "additionalProperties": false,
+      "required": [
+        "huntargs"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "huntargs": {
+          "$ref": "#/definitions/Huntargs",
+          "description": "Arguments for use in conjunction with huntflow implementation."
+        }
+      }
+    },
+    "Huntargs": {
+      "title": "Huntargs",
+      "type": "object",
+      "description": "TH command arguments defined in this profile.",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "string_args": {
+          "type": "array",
+          "description": "string arguments supplied as huntargs.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "integer_args": {
+          "type": "array",
+          "description": "integer arguments supplied as huntargs.",
+          "maxItems": 555,
+          "items": {
+            "type": "integer"
+          }
+        },
+        "typed_args": {
+          "$ref": "#/definitions/Typed-Arguments",
+          "description": "Paired strings of named arguments."
+        },
+        "native_oc2": {
+          "$ref": "#/definitions/OC2-Data",
+          "description": "OC2 Language types supplied as huntargs."
+        },
+        "stix": {
+          "$ref": "#/definitions/STIX-Cybersecurity-Observables",
+          "description": "STIX arguments supplied as huntargs."
+        },
+        "stix_extensions": {
+          "type": "string",
+          "description": "OCA Extended STIX arguments supplied as huntargs. add a custom stix for oca-asset and event",
+          "maxLength": 5555
+        },
+        "timeranges": {
+          "$ref": "#/definitions/Timeranges",
+          "description": "Timeranges used in the execution of a hunt."
+        },
+        "datasources": {
+          "$ref": "#/definitions/Datasource-Array",
+          "description": "Available data sources for hunting. These may be a host monitor, an EDR, a SIEM, a firewall, etc."
+        }
+      }
+    },
+    "OC2-Data": {
+      "title": "OC2 Data",
+      "type": "array",
+      "description": "OC2-Data is an array of one or more types defined in the OpenC2 language spec",
+      "minItems": 1,
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/Language-Spec-Types"
+      }
+    },
+    "Language-Spec-Types": {
+      "title": "Language Spec Types",
+      "type": "object",
+      "description": "for each track there's a file with the audio and a metadata record",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "artifact": {
+          "$ref": "#/definitions/Artifact",
+          "description": "An array of bytes representing a file-like object or a link to that object."
+        },
+        "device": {
+          "$ref": "#/definitions/Device",
+          "description": "The properties of a hardware device."
+        },
+        "domain_name": {
+          "$ref": "#/definitions/Domain-Name",
+          "description": "A network domain name."
+        },
+        "email-address": {
+          "$ref": "#/definitions/Email-Addr",
+          "description": "A single email address"
+        },
+        "file": {
+          "$ref": "#/definitions/File",
+          "description": "Properties of a file."
+        },
+        "hashes": {
+          "$ref": "#/definitions/Hashes",
+          "description": "Not used as an entity; use inside File or other attribute of another type. May be used as a query value."
+        },
+        "hostname": {
+          "$ref": "#/definitions/Hostname",
+          "description": "Value must be a hostname as defined in [RFC1034], Section 3.1"
+        },
+        "idn_domain_name": {
+          "$ref": "#/definitions/IDN-Domain-Name",
+          "description": "An internationalized domain name."
+        },
+        "idn_email_address": {
+          "$ref": "#/definitions/IDN-Email-Addr",
+          "description": "A single internationalized email address."
+        },
+        "ipv4_address": {
+          "$ref": "#/definitions/IPv4-Addr",
+          "description": "IPv4 address as defined in [RFC0791]."
+        },
+        "ipv6_address": {
+          "$ref": "#/definitions/IPv6-Addr",
+          "description": "IPv6 address as defined in [RFC8200]."
+        },
+        "ipv4_network": {
+          "$ref": "#/definitions/IPv4-Net",
+          "description": "IPv4 network targeted by hunt activity."
+        },
+        "ipv6_network": {
+          "$ref": "#/definitions/IPv6-Net",
+          "description": "IPv6 network targeted by hunt activity."
+        },
+        "ipv4_connection": {
+          "$ref": "#/definitions/IPv4-Connection",
+          "description": "A 5-tuple of source and destination IPv4 address ranges, source and destination ports, and protocol."
+        },
+        "ipv6_connection": {
+          "$ref": "#/definitions/IPv6-Connection",
+          "description": "A 5-tuple of source and destination IPv6 address ranges, source and destination ports, and protocol."
+        },
+        "iri": {
+          "$ref": "#/definitions/IRI",
+          "description": "An internationalized resource identifier (IRI)."
+        },
+        "mac_address": {
+          "$ref": "#/definitions/MAC-Addr",
+          "description": "A Media Access Control (MAC) address - EUI-48 or EUI-64 as defined in [EUI]."
+        },
+        "port": {
+          "$ref": "#/definitions/Port",
+          "description": "Transport Protocol Port Number, [RFC6335]"
+        },
+        "process": {
+          "$ref": "#/definitions/Process",
+          "description": "Common properties of an instance of a computer program as executed on an operating system."
+        },
+        "uri": {
+          "$ref": "#/definitions/URI",
+          "description": "A uniform resource identifier (URI)."
+        }
+      }
+    },
+    "Artifact": {
+      "title": "Artifact",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "mime_type": {
+          "type": "string",
+          "description": "Permitted values specified in the IANA Media Types registry, [[RFC6838]](#rfc6838)",
+          "maxLength": 5555
+        },
+        "payload": {
+          "$ref": "#/definitions/Payload",
+          "description": "Choice of literal content or URL"
+        },
+        "hashes": {
+          "$ref": "#/definitions/Hashes",
+          "description": "Hashes of the payload content"
+        }
+      }
+    },
+    "Device": {
+      "title": "Device",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "hostname": {
+          "$ref": "#/definitions/Hostname",
+          "description": "A hostname that can be used to connect to this device over a network"
+        },
+        "idn_hostname": {
+          "$ref": "#/definitions/IDN-Hostname",
+          "description": "An internationalized hostname that can be used to connect to this device over a network"
+        },
+        "device_id": {
+          "type": "string",
+          "description": "An identifier that refers to this device within an inventory or management system",
+          "maxLength": 5555
+        }
+      }
+    },
+    "Domain-Name": {
+      "title": "Domain Name",
+      "type": "string",
+      "description": "[[RFC1034]](#rfc1034), Section 3.5",
+      "format": "hostname",
+      "maxLength": 5555
+    },
+    "Email-Addr": {
+      "title": "Email Addr",
+      "type": "string",
+      "description": "Email address, [[RFC5322]](#rfc5322), Section 3.4.1",
+      "format": "email",
+      "maxLength": 5555
+    },
+    "File": {
+      "title": "File",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the file as defined in the file system",
+          "maxLength": 5555
+        },
+        "path": {
+          "type": "string",
+          "description": "The absolute path to the location of the file in the file system",
+          "maxLength": 5555
+        },
+        "hashes": {
+          "$ref": "#/definitions/Hashes",
+          "description": "One or more cryptographic hash codes of the file contents"
+        }
+      }
+    },
+    "IDN-Domain-Name": {
+      "title": "IDN Domain Name",
+      "type": "string",
+      "description": "Internationalized Domain Name, [[RFC5890]](#rfc5890), Section 2.3.2.3.",
+      "format": "idn-hostname",
+      "maxLength": 5555
+    },
+    "IDN-Email-Addr": {
+      "title": "IDN Email Addr",
+      "type": "string",
+      "description": "Internationalized email address, [[RFC6531]](#rfc6531)",
+      "format": "idn-email",
+      "maxLength": 5555
+    },
+    "IPv4-Net": {
+      "title": "IPv4 Net",
+      "type": "string",
+      "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])(\\/(3[0-2]|[0-2]?[0-9]))?$"
+    },
+    "IPv4-Connection": {
+      "title": "IPv4 Connection",
+      "type": "object",
+      "description": "5-tuple that specifies a tcp/ip connection",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "src_addr": {
+          "$ref": "#/definitions/IPv4-Net",
+          "description": "IPv4 source address range"
+        },
+        "src_port": {
+          "$ref": "#/definitions/Port",
+          "description": "source service per [[RFC6335]](#rfc6335)"
+        },
+        "dst_addr": {
+          "$ref": "#/definitions/IPv4-Net",
+          "description": "IPv4 destination address range"
+        },
+        "dst_port": {
+          "$ref": "#/definitions/Port",
+          "description": "destination service per [[RFC6335]](#rfc6335)"
+        },
+        "protocol": {
+          "$ref": "#/definitions/L4-Protocol",
+          "description": "layer 4 protocol (e.g., TCP) - see [Section 3.4.2.10](#34210-l4-protocol)"
+        }
+      }
+    },
+    "IPv6-Net": {
+      "title": "IPv6 Net",
+      "type": "string",
+      "pattern": "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(%.+)?s*(\\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$"
+    },
+    "IPv6-Connection": {
+      "title": "IPv6 Connection",
+      "type": "object",
+      "description": "5-tuple that specifies a tcp/ip connection",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "src_addr": {
+          "$ref": "#/definitions/IPv6-Net",
+          "description": "IPv6 source address range"
+        },
+        "src_port": {
+          "$ref": "#/definitions/Port",
+          "description": "source service per [[RFC6335]](#rfc6335)"
+        },
+        "dst_addr": {
+          "$ref": "#/definitions/IPv6-Net",
+          "description": "IPv6 destination address range"
+        },
+        "dst_port": {
+          "$ref": "#/definitions/Port",
+          "description": "destination service per [[RFC6335]](#rfc6335)"
+        },
+        "protocol": {
+          "$ref": "#/definitions/L4-Protocol",
+          "description": "layer 4 protocol (e.g., TCP) - [Section 3.4.2.10](#34210-l4-protocol)"
+        }
+      }
+    },
+    "IRI": {
+      "title": "IRI",
+      "type": "string",
+      "description": "Internationalized Resource Identifier, [[RFC3987]](#rfc3987).",
+      "format": "iri",
+      "maxLength": 5555
+    },
+    "MAC-Addr": {
+      "title": "MAC Addr",
+      "type": "string",
+      "description": "Media Access Control / Extended Unique Identifier address - EUI-48 or EUI-64 as defined in [[EUI]](#eui).",
+      "pattern": "^([0-9a-fA-F]{2}[:-]){5}[0-9A-Fa-f]{2}(([:-][0-9A-Fa-f]{2}){2})?$"
+    },
+    "Process": {
+      "title": "Process",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "description": "Process ID of the process",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the process",
+          "maxLength": 5555
+        },
+        "cwd": {
+          "type": "string",
+          "description": "Current working directory of the process",
+          "maxLength": 5555
+        },
+        "executable": {
+          "$ref": "#/definitions/File",
+          "description": "Executable that was executed to start the process"
+        },
+        "parent": {
+          "$ref": "#/definitions/Process",
+          "description": "Process that spawned this one"
+        },
+        "command_line": {
+          "type": "string",
+          "description": "The full command line invocation used to start this process, including all arguments",
+          "maxLength": 5555
+        }
+      }
+    },
+    "URI": {
+      "title": "URI",
+      "type": "string",
+      "description": "Uniform Resource Identifier, [[RFC3986]](#rfc3986).",
+      "format": "uri",
+      "maxLength": 5555
+    },
+    "Hashes": {
+      "title": "Hashes",
+      "type": "object",
+      "description": "Cryptographic Hash values",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "md5": {
+          "type": "string",
+          "description": "MD5 hash as defined in [[RFC1321]](#rfc1321)",
+          "contentEncoding": "base16"
+        },
+        "sha1": {
+          "type": "string",
+          "description": "SHA1 hash as defined in [[RFC6234]](#rfc6234)",
+          "contentEncoding": "base16"
+        },
+        "sha256": {
+          "type": "string",
+          "description": "SHA256 hash as defined in [[RFC6234]](#rfc6234)",
+          "contentEncoding": "base16"
+        }
+      }
+    },
+    "Hostname": {
+      "title": "Hostname",
+      "type": "string",
+      "description": "Internet host name as specified in [[RFC1123]](#rfc1123)",
+      "format": "hostname",
+      "maxLength": 5555
+    },
+    "IDN-Hostname": {
+      "title": "IDN Hostname",
+      "type": "string",
+      "description": "Internationalized Internet host name as specified in [[RFC5890]](#rfc5890), Section 2.3.2.3.",
+      "format": "idn-hostname",
+      "maxLength": 5555
+    },
+    "IPv4-Addr": {
+      "title": "IPv4 Addr",
+      "type": "string",
+      "description": "32 bit IPv4 address as defined in [[RFC0791]](#rfc0791)",
+      "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$"
+    },
+    "IPv6-Addr": {
+      "title": "IPv6 Addr",
+      "type": "string",
+      "description": "128 bit IPv6 address as defined in [[RFC8200]](#rfc8200)",
+      "pattern": "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(%.+)$"
+    },
+    "Port": {
+      "title": "Port",
+      "type": "integer",
+      "description": "Transport Protocol Port Number, [[RFC6335]](#rfc6335)",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "AP-Specifiers": {
+      "title": "AP Specifiers",
+      "type": "object",
+      "description": "TH actuator specifiers (may be empty).",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {}
+    },
+    "Huntflow-Specifiers": {
+      "title": "Huntflow Specifiers",
+      "type": "object",
+      "description": "TH Huntflow specifiers.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Return huntflows at and below this filesystem location (absolute path).",
+          "maxLength": 5555
+        },
+        "tags": {
+          "$ref": "#/definitions/Tags",
+          "description": "Return huntflows with these keywords."
+        },
+        "arg_types": {
+          "$ref": "#/definitions/Specified-Arg-Types",
+          "description": "Return huntflows that take these argument types."
+        },
+        "arg_names": {
+          "$ref": "#/definitions/Specified-Arg-Names",
+          "description": "Return huntflows that take these argument types."
+        },
+        "format_types": {
+          "$ref": "#/definitions/Return-Type",
+          "description": "Return huntflows that produce these output types."
+        },
+        "return_format": {
+          "$ref": "#/definitions/Huntflow-Sections",
+          "description": "For each huntflow returned, include these data items."
+        }
+      }
+    },
+    "Specified-Arg-Types": {
+      "title": "Specified Arg Types",
+      "type": "array",
+      "description": "Return huntflows that take these argument types.",
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/Arg-Type"
+      }
+    },
+    "Specified-Arg-Names": {
+      "title": "Specified Arg Names",
+      "type": "array",
+      "description": "Return huntflows that take arguments with these names.",
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/Arg-Name"
+      }
+    },
+    "AP-Results": {
+      "title": "AP Results",
+      "type": "object",
+      "description": "TH results defined in this profile.",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "huntflow_info": {
+          "type": "array",
+          "description": "Structured data returned by Query: Huntflows.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/Huntflow-Info"
+          }
+        },
+        "datasources": {
+          "$ref": "#/definitions/Datasource-Array",
+          "description": "Datasource names and info returned by Query Datasources."
+        },
+        "inv_returns": {
+          "$ref": "#/definitions/Inv-Returns",
+          "description": "STIX SCO object returns"
+        }
+      }
+    },
+    "Inv-Returns": {
+      "title": "Inv Returns",
+      "type": "array",
+      "description": "Array of returns from threat hunt investigations.",
+      "minItems": 1,
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/Inv-Return"
+      }
+    },
+    "Inv-Return": {
+      "title": "Inv Return",
+      "type": "object",
+      "description": "Data returned by a threat hunt, in various formatted types.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "string_returns": {
+          "type": "array",
+          "description": "String return from an investigation",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "stix_sco": {
+          "$ref": "#/definitions/STIX-Cybersecurity-Observables",
+          "description": "STIX SCO object returns"
+        }
+      }
+    },
+    "Timeranges": {
+      "title": "Timeranges",
+      "type": "array",
+      "description": "a timerange used in the execution of a hunt.",
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/Timerange"
+      }
+    },
+    "Timerange": {
+      "title": "Timerange",
+      "type": "object",
+      "description": "Identification of process to be targeted by Threat Hunting activity.",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "timerange_absolute": {
+          "$ref": "#/definitions/Timerange-Abs",
+          "description": "Absolute timerange, defined by a start and end time in ISO 8601 format."
+        },
+        "timerange_relative": {
+          "$ref": "#/definitions/Timerange-Rel",
+          "description": "Relative timerange, example '3, Days' for last 3 days."
+        }
+      }
+    },
+    "Time-Unit": {
+      "title": "Time Unit",
+      "type": "string",
+      "description": "Time Unit Keywords.",
+      "enum": [
+        "Days",
+        "Hours",
+        "Minutes",
+        "Seconds"
+      ]
+    },
+    "Timerange-Abs": {
+      "title": "Timerange Abs",
+      "type": "object",
+      "description": "Absolute timerange, defined by a start and end time in ISO 8601 format.",
+      "additionalProperties": false,
+      "required": [
+        "hunt_start_time",
+        "hunt_stop_time"
+      ],
+      "minProperties": 2,
+      "maxProperties": 555,
+      "properties": {
+        "hunt_start_time": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Start time, as a STIX time string."
+        },
+        "hunt_stop_time": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Stop time, as a STIX time string."
+        }
+      }
+    },
+    "Timerange-Rel": {
+      "title": "Timerange Rel",
+      "type": "object",
+      "description": "Relative timerange, example '3, Days' for last 3 days.",
+      "additionalProperties": false,
+      "required": [
+        "number",
+        "time_unit"
+      ],
+      "minProperties": 2,
+      "maxProperties": 555,
+      "properties": {
+        "number": {
+          "type": "integer",
+          "description": "Number of specified Time Units used in Relative Timerange."
+        },
+        "time_unit": {
+          "$ref": "#/definitions/Time-Unit",
+          "description": "Time Unit Keywords."
+        }
+      }
+    },
+    "Return-Type": {
+      "title": "Return Type",
+      "type": "object",
+      "description": "Variable names and types expected as returns when using a Huntflow.",
+      "additionalProperties": false,
+      "required": [
+        "var_name",
+        "var_type"
+      ],
+      "minProperties": 2,
+      "maxProperties": 555,
+      "properties": {
+        "var_name": {
+          "$ref": "#/definitions/Arg-Name",
+          "description": "Variable name to be returned by use of Huntflow."
+        },
+        "var_type": {
+          "$ref": "#/definitions/Arg-Type",
+          "description": "Type of data to be returned by use of Huntflow."
+        }
+      }
+    },
+    "Datasource": {
+      "title": "Datasource",
+      "type": "object",
+      "description": "Datasource names and tags required for use with a particular Huntflow.",
+      "additionalProperties": false,
+      "required": [
+        "ds_name"
+      ],
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "ds_name": {
+          "type": "string",
+          "description": "Name of a Datasource used by a Huntflow in Kestrel runtime.",
+          "maxLength": 5555
+        },
+        "ds_tags": {
+          "$ref": "#/definitions/Tags",
+          "description": "Tags applied to a Datasource for search or filter purposes."
+        }
+      }
+    },
+    "Huntflow-Sections": {
+      "title": "Huntflow Sections",
+      "type": "array",
+      "description": "For each huntflow returned, include these data items.",
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/Huntflow-Section"
+      }
+    },
+    "Huntflow-Section": {
+      "title": "Huntflow Section",
+      "type": "string",
+      "description": "Data format to be returned by Query Huntflows. If none specified, return all.",
+      "enum": [
+        "path",
+        "uniqueId",
+        "version",
+        "args_required",
+        "expected_returns",
+        "script"
+      ]
+    },
+    "Huntflow-Info": {
+      "title": "Huntflow Info",
+      "type": "object",
+      "description": "Structured data returned by Query: Huntflows with specifiers for specific info.",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path used to identify a Huntflow in place of a name.",
+          "maxLength": 5555
+        },
+        "uniqueId": {
+          "type": "integer",
+          "description": "Unique ID associated with a specified Huntflow."
+        },
+        "version": {
+          "type": "string",
+          "description": "Unique ID associated with a specified Huntflow.",
+          "maxLength": 5555
+        },
+        "args_required": {
+          "$ref": "#/definitions/Typed-Arguments",
+          "description": "List of arguments used in the specified Huntflow."
+        },
+        "expected_returns": {
+          "$ref": "#/definitions/Typed-Arguments",
+          "description": "Data returned by the specified Huntflows."
+        },
+        "script": {
+          "type": "string",
+          "description": "Text of Hunt logic implemented by specified Huntflow.",
+          "maxLength": 5555
+        }
+      }
+    },
+    "Datasource-Array": {
+      "title": "Datasource Array",
+      "type": "array",
+      "description": "An Array of Datasources, with multiple uses in Threathunting",
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/Datasource"
+      }
+    },
+    "Tags": {
+      "title": "Tags",
+      "type": "array",
+      "description": "Tags applied for search or filter purposes.",
+      "maxItems": 555,
+      "items": {
+        "type": "string"
+      }
+    },
+    "Typed-Arguments": {
+      "title": "Typed Arguments",
+      "type": "object",
+      "description": "Argument names and types tied to a specific Huntflow.",
+      "additionalProperties": false,
+      "maxProperties": 555
+    },
+    "Arg-Type": {
+      "title": "Arg Type",
+      "type": "string",
+      "description": "Argument types used by a Huntflow. Follow STIX naming conventions, with lowercase characters and hyphens replacing spaces. Common types include process, file, and network-traffic.",
+      "maxLength": 5555
+    },
+    "Arg-Name": {
+      "title": "Arg Name",
+      "type": "string",
+      "description": "Argument names used by a Huntflow. Follow C variable naming conventions. Examples include name, src_port, and x_unique_id.",
+      "maxLength": 5555
+    },
+    "STIX-Cybersecurity-Observables": {
+      "title": "STIX Cybersecurity Observables",
+      "type": "array",
+      "description": "An Array of Cybersecurity Observables in STIX formatting",
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/SCO"
+      }
+    },
+    "artifact": {
+      "title": "artifact",
+      "type": "object",
+      "description": "The Artifact Object permits capturing an array of bytes (8-bits), as a base64-encoded string, or linking to a file-like payload.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "mime_type",
+        "url"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The value of this property MUST be `artifact`.",
+          "maxLength": 5555,
+          "pattern": "^artifact$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^artifact--"
+        },
+        "mime_type": {
+          "type": "string",
+          "description": "The value of this property MUST be a valid MIME type as specified in the IANA Media Types registry.",
+          "maxLength": 5555,
+          "pattern": "^(application|audio|font|image|message|model|multipart|text|video)/[a-zA-Z0-9.+_-]+"
+        },
+        "payload_bin": {
+          "type": "string",
+          "description": "Specifies the binary data contained in the artifact as a base64-encoded string.",
+          "contentEncoding": "base64url"
+        },
+        "url": {
+          "$ref": "#/definitions/url",
+          "description": "The value of this property MUST be a valid URL that resolves to the unencoded content."
+        },
+        "hashes": {
+          "type": "array",
+          "description": "Specifies a dictionary of hashes for the contents of the url or the payload_bin. This MUST be provided when the url property is present.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/hashes"
+          }
+        },
+        "encryption_algorithm": {
+          "$ref": "#/definitions/encryption_algorithm_enum",
+          "description": "If the artifact is encrypted, specifies the type of encryption algorithm the binary data  (either via payload_bin or url) is encoded in."
+        },
+        "decryption_key": {
+          "type": "string",
+          "description": "Specifies the decryption key for the encrypted binary data (either via payload_bin or url).",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "autonomous-system": {
+      "title": "autonomous system",
+      "type": "object",
+      "description": "The AS object represents the properties of an Autonomous Systems (AS).",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "number"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^autonomous-system$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^autonomous-system--"
+        },
+        "number": {
+          "type": "integer",
+          "description": "Specifies the number assigned to the AS. Such assignments are typically performed by a Regional Internet Registries (RIR)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Specifies the name of the AS. ",
+          "maxLength": 5555
+        },
+        "rir": {
+          "type": "string",
+          "description": "Specifies the name of the Regional Internet Registry (RIR) that assigned the number to the AS.",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "directory": {
+      "title": "directory",
+      "type": "object",
+      "description": "The Directory Object represents the properties common to a file system directory.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "path",
+        "path_enc",
+        "ctime",
+        "mtime",
+        "atime",
+        "contains_refs"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^directory$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^directory--"
+        },
+        "path": {
+          "type": "string",
+          "description": "Specifies the path, as originally observed, to the directory on the file system.",
+          "maxLength": 5555
+        },
+        "path_enc": {
+          "type": "string",
+          "description": "Specifies the observed encoding for the path.",
+          "maxLength": 5555,
+          "pattern": "^[a-zA-Z0-9/\\\\.+_:-]{2,250}$"
+        },
+        "ctime": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time the directory was created."
+        },
+        "mtime": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time the directory was last written to/modified."
+        },
+        "atime": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time the directory was last accessed."
+        },
+        "contains_refs": {
+          "type": "array",
+          "description": "Specifies a list of references to other File and/or Directory Objects contained within the directory.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "domain-name": {
+      "title": "domain name",
+      "type": "object",
+      "description": "The Domain Name represents the properties of a network domain name.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "domain_name"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^domain-name$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^domain-name--"
+        },
+        "domain_name": {
+          "type": "string",
+          "description": "Specifies the value of the domain name.",
+          "maxLength": 5555
+        },
+        "resolves_to_refs": {
+          "type": "array",
+          "description": "Specifies a list of references to one or more IP addresses or domain names that the domain name resolves to.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "email-addr": {
+      "title": "email addr",
+      "type": "object",
+      "description": "The Email Address Object represents a single email address.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "email_address"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^email-addr$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^email-addr--"
+        },
+        "email_address": {
+          "type": "string",
+          "description": "Specifies a single email address. This MUST not include the display name.",
+          "maxLength": 5555
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Specifies a single email display name, i.e., the name that is displayed to the human user of a mail application.",
+          "maxLength": 5555
+        },
+        "belongs_to_ref": {
+          "type": "string",
+          "description": "Specifies the user account that the email address belongs to, as a reference to a User Account Object.",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "email-message": {
+      "title": "email message",
+      "type": "object",
+      "description": "The Email Message Object represents an instance of an email message.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "is_multipart"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^email-message$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^email-message--"
+        },
+        "date": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time that the email message was sent."
+        },
+        "content_type": {
+          "type": "string",
+          "description": "Specifies the value of the 'Content-Type' header of the email message.",
+          "maxLength": 5555
+        },
+        "from_ref": {
+          "type": "string",
+          "description": "Specifies the value of the 'From:' header of the email message.",
+          "maxLength": 5555
+        },
+        "sender_ref": {
+          "$ref": "#/definitions/spec_version",
+          "description": "Specifies the value of the 'From' field of the email message."
+        },
+        "to_refs": {
+          "type": "array",
+          "description": "Specifies the mailboxes that are 'To:' recipients of the email message.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "cc_refs": {
+          "type": "array",
+          "description": "Specifies the mailboxes that are 'CC:' recipients of the email message.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "bcc_refs": {
+          "type": "array",
+          "description": "Specifies the mailboxes that are 'BCC:' recipients of the email message.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "message_id": {
+          "type": "string",
+          "description": "Specifies the Message-ID field of the email message.",
+          "maxLength": 5555
+        },
+        "subject": {
+          "type": "string",
+          "description": "Specifies the subject of the email message.",
+          "maxLength": 5555
+        },
+        "received_lines": {
+          "type": "array",
+          "description": "Specifies one or more Received header fields that may be included in the email headers.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "additional_header_fields": {
+          "type": "array",
+          "description": "Specifies any other header fields found in the email message, as a dictionary.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/email-additional-header-fields"
+          }
+        },
+        "raw_email_ref": {
+          "type": "string",
+          "description": "Specifies the raw binary contents of the email message, including both the headers and body, as a reference to an Artifact Object.",
+          "maxLength": 5555
+        },
+        "is_multipart": {
+          "type": "boolean",
+          "description": "Indicates whether the email body contains multiple MIME parts."
+        },
+        "body_multipart": {
+          "type": "array",
+          "description": "Specifies a list of the MIME parts that make up the email body. This property MAY only be used if is_multipart is true.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/mime-part-type"
+          }
+        },
+        "body": {
+          "type": "string",
+          "description": "Specifies a string containing the email body. This field MAY only be used if is_multipart is false.",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "file": {
+      "title": "file",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "name"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The value of this property MUST be `file`.",
+          "maxLength": 5555,
+          "pattern": "^file$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^file--"
+        },
+        "extensions": {
+          "type": "string",
+          "description": "The File Object defines the following extensions. In addition to these, producers MAY create their own. Extensions: ntfs-ext, raster-image-ext, pdf-ext, archive-ext, windows-pebinary-ext",
+          "maxLength": 5555
+        },
+        "hashes": {
+          "type": "array",
+          "description": "Specifies a dictionary of hashes for the file.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/hashes"
+          }
+        },
+        "size": {
+          "type": "integer",
+          "description": "Specifies the size of the file, in bytes, as a non-negative integer.",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 5555
+        },
+        "name_enc": {
+          "type": "string",
+          "description": "Specifies the observed encoding for the name of the file.",
+          "maxLength": 5555,
+          "pattern": "^[a-zA-Z0-9/\\\\.+_:-]{2,250}$"
+        },
+        "magic_number_hex": {
+          "$ref": "#/definitions/Hex",
+          "description": "Specifies the hexadecimal constant ('magic number') associated with a specific file format that corresponds to the file, if applicable."
+        },
+        "mime_type": {
+          "type": "string",
+          "description": "Specifies the MIME type name specified for the file, e.g., 'application/msword'.",
+          "maxLength": 5555
+        },
+        "ctime": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time the file was created."
+        },
+        "mtime": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time the file was last written to/modified."
+        },
+        "atime": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time the file was last accessed."
+        },
+        "parent_directory": {
+          "type": "string",
+          "description": "Specifies the parent directory of the file, as a reference to a Directory Object.",
+          "maxLength": 5555
+        },
+        "contains_refs": {
+          "type": "array",
+          "description": "Specifies a list of references to other Observable Objects contained within the file.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "content_ref": {
+          "type": "string",
+          "description": "Specifies the content of the file, represented as an Artifact Object.",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "ipv4-addr": {
+      "title": "ipv4 addr",
+      "type": "object",
+      "description": "The IPv4 Address Object represents one or more IPv4 addresses expressed using CIDR notation.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "ipv4_addr"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^ipv4-addr$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^ipv4-addr--"
+        },
+        "ipv4_addr": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\\\/(3[0-2]|[1-2][0-9]|[0-9]))?$"
+        },
+        "resolves_to_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "belongs_to_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "ipv6-addr": {
+      "title": "ipv6 addr",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "ipv6_addr",
+        "resolves_to_refs",
+        "belongs_to_refs"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^ipv6-addr$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^ipv6-addr--"
+        },
+        "ipv6_addr": {
+          "type": "string",
+          "description": "The IPv6 Address Object represents one or more IPv6 addresses expressed using CIDR notation.",
+          "maxLength": 5555,
+          "pattern": "^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\\\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9]))?$"
+        },
+        "resolves_to_refs": {
+          "type": "array",
+          "description": "Specifies a list of references to one or more Layer 2 Media Access Control (MAC) addresses that the IPv6 address resolves to.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "belongs_to_refs": {
+          "type": "array",
+          "description": "Specifies a reference to one or more autonomous systems (AS) that the IPv6 address belongs to.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "mac-addr": {
+      "title": "mac addr",
+      "type": "object",
+      "description": "Specifies one or more mac addresses expressed using CIDR notation.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "mac_address_value"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^mac-addr$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^mac-addr--"
+        },
+        "mac_address_value": {
+          "type": "string",
+          "description": "Specifies one or more mac addresses expressed using CIDR notation.",
+          "maxLength": 5555,
+          "pattern": "^([0-9a-f]{2}[:]){5}([0-9a-f]{2})$"
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "mutex": {
+      "title": "mutex",
+      "type": "object",
+      "description": "The Mutex Object represents the properties of a mutual exclusion (mutex) object.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "name"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^mutex$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^mutex--"
+        },
+        "name": {
+          "type": "string",
+          "description": "Specifies the name of the mutex object.",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "network-traffic": {
+      "title": "network traffic",
+      "type": "object",
+      "description": "The Network Traffic Object represents arbitrary network traffic that originates from a source and is addressed to a destination.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "start",
+        "stop",
+        "is_active",
+        "src_port",
+        "protocols",
+        "encapsulates_refs"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^network-traffic$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^network-traffic--"
+        },
+        "extensions": {
+          "$ref": "#/definitions/network_traffic_extensions_dictionary",
+          "description": "The Network Traffic Object defines the following extensions. In addition to these, producers MAY create their own. Extensions: http-ext, tcp-ext, icmp-ext, socket-ext"
+        },
+        "start": {
+          "type": "string",
+          "description": "Specifies the date/time the network traffic was initiated, if known.",
+          "maxLength": 5555,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+        },
+        "stop": {
+          "type": "string",
+          "description": "Specifies the date/time the network traffic ended, if known.",
+          "maxLength": 5555,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+        },
+        "is_active": {
+          "type": "boolean",
+          "description": "Indicates whether the network traffic is still ongoing."
+        },
+        "src_port": {
+          "type": "integer",
+          "description": "Specifies the source port used in the network traffic, as an integer. The port value MUST be in the range of 0 - 65535.",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "dst_port": {
+          "type": "integer",
+          "description": "Specifies the destination port used in the network traffic, as an integer. The port value MUST be in the range of 0 - 65535.",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "protocols": {
+          "type": "array",
+          "description": "Specifies the protocols observed in the network traffic, along with their corresponding state.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "src_byte_count": {
+          "type": "integer",
+          "description": "Specifies the number of bytes, as a positive integer, sent from the source to the destination."
+        },
+        "dst_byte_count": {
+          "type": "integer",
+          "description": "Specifies the number of bytes, as a positive integer, sent from the destination to the source."
+        },
+        "src_packets": {
+          "type": "integer",
+          "description": "Specifies the number of packets, as a positive integer, sent from the source to the destination."
+        },
+        "dst_packets": {
+          "type": "integer",
+          "description": "Specifies the number of packets, as a positive integer, sent from the destination to the source."
+        },
+        "ipfix": {
+          "$ref": "#/definitions/ipfix_choice",
+          "description": "Specifies any IP Flow Information Export (IPFIX) data for the traffic."
+        },
+        "src_payload_ref": {
+          "type": "string",
+          "description": "Specifies the bytes sent from the source to the destination.",
+          "maxLength": 5555
+        },
+        "dst_payload_ref": {
+          "type": "string",
+          "description": "Specifies the bytes sent from the source to the destination.",
+          "maxLength": 5555
+        },
+        "encapsulates_refs": {
+          "type": "array",
+          "description": "Specifies the bytes sent from the source to the destination.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "encapsulated_by_ref": {
+          "type": "string",
+          "description": "Links to another network-traffic object which encapsulates this object.",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "process": {
+      "title": "process",
+      "type": "object",
+      "description": "The Process Object represents common properties of an instance of a computer program as executed on an operating system.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^process$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^process--"
+        },
+        "extensions": {
+          "$ref": "#/definitions/process_extensions_dictionary",
+          "description": ""
+        },
+        "is_hidden": {
+          "type": "boolean"
+        },
+        "pid": {
+          "type": "integer",
+          "description": "Specifies the Process ID, or PID, of the process."
+        },
+        "created_time": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date/time at which the process was created."
+        },
+        "cwd": {
+          "type": "string",
+          "description": "Specifies the current working directory of the process.",
+          "maxLength": 5555
+        },
+        "command_line": {
+          "type": "string",
+          "description": "Specifies the full command line used in executing the process, including the process name (which may be specified individually via the binary_ref.name property) and any arguments.",
+          "maxLength": 5555
+        },
+        "environment_variables": {
+          "type": "array",
+          "description": "Specifies the list of environment variables associated with the process as a dictionary.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "opened_connection_refs": {
+          "type": "string",
+          "description": "Specifies the list of network connections opened by the process, as a reference to one or more Network Traffic Objects.",
+          "maxLength": 5555
+        },
+        "creator_user_ref": {
+          "type": "array",
+          "description": "Specifies the user that created the process, as a reference to a User Account Object.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "image_ref": {
+          "type": "string",
+          "description": "Specifies the executable binary that was executed as the process image, as a reference to a File Object.",
+          "maxLength": 5555
+        },
+        "parent_ref": {
+          "type": "string",
+          "description": "Specifies the other process that spawned (i.e. is the parent of) this one, as represented by a Process Object.",
+          "maxLength": 5555
+        },
+        "child_refs": {
+          "type": "array",
+          "description": "Specifies the other processes that were spawned by (i.e. children of) this process, as a reference to one or more other Process Objects.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "software": {
+      "title": "software",
+      "type": "object",
+      "description": "The Software Object represents high-level properties associated with software, including software products.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "name",
+        "swid",
+        "languages",
+        "vendor",
+        "version"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^software$"
+        },
+        "id": {
+          "type": "string",
+          "description": "%^software--",
+          "maxLength": 5555
+        },
+        "name": {
+          "type": "string",
+          "description": "Specifies the name of the software.",
+          "minLength": 1,
+          "maxLength": 5555
+        },
+        "cpe": {
+          "type": "string",
+          "description": "Specifies the Common Platform Enumeration (CPE) entry for the software, if available. The value for this property MUST be a CPE v2.3 entry from the official NVD CPE Dictionary.",
+          "maxLength": 5555,
+          "pattern": "cpe:2\\\\.3:[aho\\\\*\\\\-](:(((\\\\?*|\\\\*?)([a-zA-Z0-9\\\\-\\\\._]|(\\\\\\\\[\\\\\\\\\\\\*\\\\?!\\\"#$$%&'\\\\(\\\\)\\\\+,/:;<=>@\\\\[\\\\]\\\\^`\\\\{\\\\|}~]))+(\\\\?*|\\\\*?))|[\\\\*\\\\-])){5}(:(([a-zA-Z]{2,3}(-([a-zA-Z]{2}|[0-9]{3}))?)|[\\\\*\\\\-]))(:(((\\\\?*|\\\\*?)([a-zA-Z0-9\\\\-\\\\._]|(\\\\\\\\[\\\\\\\\\\\\*\\\\?!\\\"#$$%&'\\\\(\\\\)\\\\+,/:;<=>@\\\\[\\\\]\\\\^`\\\\{\\\\|}~]))+(\\\\?*|\\\\*?))|[\\\\*\\\\-])){4}"
+        },
+        "swid": {
+          "type": "string",
+          "description": "Specifies the Software Identification (SWID) Tags entry for the software, if available.",
+          "maxLength": 5555
+        },
+        "languages": {
+          "type": "array",
+          "description": "Specifies the languages supported by the software. The value of each list member MUST be an ISO 639-2 language code.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Specifies the name of the vendor of the software.",
+          "maxLength": 5555
+        },
+        "version": {
+          "type": "string",
+          "description": "Specifies the version of the software.",
+          "maxLength": 5555
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "user-account": {
+      "title": "user account",
+      "type": "object",
+      "description": "The Software Object represents high-level properties associated with software, including software products.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The value of this property MUST be `user-account`.",
+          "maxLength": 5555,
+          "pattern": "^user-account$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^user-account--"
+        },
+        "user_account_extensions": {
+          "$ref": "#/definitions/user_account_extensions_dictionary",
+          "description": "The User Account Object defines the following extensions. In addition to these, producers MAY create their own. Extensions: unix-account-ext."
+        },
+        "user_id": {
+          "type": "string",
+          "description": "Specifies the identifier of the account.",
+          "maxLength": 5555
+        },
+        "credential": {
+          "type": "string",
+          "description": "Specifies a cleartext credential. This is only intended to be used in capturing metadata from malware analysis (e.g., a hard-coded domain administrator password that the malware attempts to use for lateral movement) and SHOULD NOT be used for sharing of PII.",
+          "maxLength": 5555
+        },
+        "account_login": {
+          "type": "string",
+          "description": "Specifies the account login string, used in cases where the user_id property specifies something other than what a user would type when they login.",
+          "maxLength": 5555
+        },
+        "account_type": {
+          "type": "string",
+          "description": "Specifies the type of the account. This is an open vocabulary and values SHOULD come from the account-type-ov vocabulary.",
+          "maxLength": 5555
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Specifies the display name of the account, to be shown in user interfaces, if applicable.",
+          "maxLength": 5555
+        },
+        "is_service_account": {
+          "type": "boolean",
+          "description": "Indicates that the account is associated with a network service or system process (daemon), not a specific individual."
+        },
+        "is_privileged": {
+          "type": "boolean",
+          "description": "Specifies that the account has elevated privileges (i.e., in the case of root on Unix or the Windows Administrator account)."
+        },
+        "can_escalate_privs": {
+          "type": "boolean",
+          "description": "Specifies that the account has the ability to escalate privileges (i.e., in the case of sudo on Unix or a Windows Domain Admin account)."
+        },
+        "is_disabled": {
+          "type": "boolean",
+          "description": "Specifies if the account is disabled."
+        },
+        "account_created": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies when the account was created."
+        },
+        "account_expires": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the expiration date of the account."
+        },
+        "credential_last_changed": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies when the account credential was last changed."
+        },
+        "account_first_login": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies when the account was first accessed."
+        },
+        "account_last_login": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies when the account was last accessed."
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "url": {
+      "title": "url",
+      "type": "object",
+      "description": "The URL Object represents the properties of a uniform resource locator (URL).",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "url_value"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The value of this property MUST be `url`.",
+          "maxLength": 5555,
+          "pattern": "^url$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^url"
+        },
+        "url_value": {
+          "type": "string",
+          "description": "Specifies the value of the URL.",
+          "maxLength": 5555,
+          "pattern": "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "windows-registry-key": {
+      "title": "windows registry key",
+      "type": "object",
+      "description": "The Registry Key Object represents the properties of a Windows registry key.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "key"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The value of this property MUST be `windows-registry-key`.",
+          "maxLength": 5555,
+          "pattern": "^windows-registry-key$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^windows-registry-key--"
+        },
+        "key": {
+          "type": "string",
+          "description": "Specifies the full registry key including the hive.",
+          "maxLength": 5555,
+          "pattern": "^((?!((^|, )(HKLM|HKCC|HKCR|HKCU|HKU|hklm|hkcc|hkcr|hkcu|hku))+$).)*$"
+        },
+        "registry_values": {
+          "type": "array",
+          "description": "Specifies the values found under the registry key.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/windows_registry_value_type"
+          }
+        },
+        "modified_time": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the last date/time that the registry key was modified."
+        },
+        "creator_user_ref": {
+          "type": "string",
+          "description": "Specifies a reference to a user account, represented as a User Account Object, that created the registry key.",
+          "maxLength": 5555
+        },
+        "number_of_subkeys": {
+          "type": "integer",
+          "description": "Specifies the number of subkeys contained under the registry key."
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "x509-certificate": {
+      "title": "x509 certificate",
+      "type": "object",
+      "description": "The X509 Certificate Object represents the properties of an X.509 certificate.",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The value of this property MUST be `x509-certificate`.",
+          "maxLength": 5555,
+          "pattern": "^x509-certificate$"
+        },
+        "id": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^x509-certificate--"
+        },
+        "is_self_signed": {
+          "type": "boolean",
+          "description": "Specifies whether the certificate is self-signed, i.e., whether it is signed by the same entity whose identity it certifies."
+        },
+        "hashes": {
+          "type": "array",
+          "description": "Specifies any hashes that were calculated for the entire contents of the certificate.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/hashes"
+          }
+        },
+        "version": {
+          "type": "string",
+          "description": "Specifies the version of the encoded certificate.",
+          "maxLength": 5555
+        },
+        "serial_number": {
+          "type": "string",
+          "description": "Specifies the unique identifier for the certificate, as issued by a specific Certificate Authority.",
+          "maxLength": 5555
+        },
+        "signature_algorithm": {
+          "type": "string",
+          "description": "Specifies the name of the algorithm used to sign the certificate.",
+          "maxLength": 5555
+        },
+        "issuer": {
+          "type": "string",
+          "description": "Specifies the name of the Certificate Authority that issued the certificate.",
+          "maxLength": 5555
+        },
+        "validity_not_before": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date on which the certificate validity period begins."
+        },
+        "validity_not_after": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date on which the certificate validity period ends."
+        },
+        "subject": {
+          "$ref": "#/definitions/spec_version",
+          "description": "Specifies the name of the entity associated with the public key stored in the subject public key field of the certificate."
+        },
+        "subject_public_key_algorithm": {
+          "type": "string",
+          "description": "Specifies the name of the algorithm with which to encrypt data being sent to the subject.",
+          "maxLength": 5555
+        },
+        "subject_public_key_modulus": {
+          "type": "string",
+          "description": "Specifies the modulus portion of the subject\u2019s public RSA key.",
+          "maxLength": 5555
+        },
+        "subject_public_key_extensions": {
+          "type": "integer",
+          "description": "Specifies the exponent portion of the subject\u2019s public RSA key, as an integer."
+        },
+        "x509_v3_extensions": {
+          "type": "array",
+          "description": "Specifies any standard X.509 v3 extensions that may be used in the certificate.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/x509_v3_extensions_type"
+          }
+        },
+        "spec_version": {
+          "$ref": "#/definitions/spec_version",
+          "description": ""
+        },
+        "object_marking_refs": {
+          "$ref": "#/definitions/object_marking_refs",
+          "description": ""
+        },
+        "granular_markings": {
+          "$ref": "#/definitions/granular_markings",
+          "description": ""
+        },
+        "defanged": {
+          "$ref": "#/definitions/defanged",
+          "description": ""
+        },
+        "core_extensions": {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      }
+    },
+    "encryption_algorithm_enum": {
+      "title": "encryption algorithm enum",
+      "type": "string",
+      "enum": [
+        "AES-256-GCM",
+        "ChaCha20-Poly1305",
+        "mime-type-indicated"
+      ]
+    },
+    "mime-part-type": {
+      "title": "mime part type",
+      "type": "object",
+      "description": "Specifies a component of a multi-part email body.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "body": {
+          "type": "string",
+          "description": "Specifies the contents of the MIME part if the content_type is not provided OR starts with text/",
+          "maxLength": 5555
+        },
+        "body_raw_ref": {
+          "type": "string",
+          "description": "Specifies the contents of non-textual MIME parts, that is those whose content_type does not start with text/, as a reference to an Artifact Object or File Object.",
+          "maxLength": 5555
+        },
+        "content_type": {
+          "type": "string",
+          "description": "Specifies the value of the 'Content-Type' header field of the MIME part.",
+          "maxLength": 5555
+        },
+        "content_disposition": {
+          "type": "string",
+          "description": "Specifies the value of the 'Content-Disposition' header field of the MIME part.",
+          "maxLength": 5555
+        }
+      }
+    },
+    "email-additional-header-fields": {
+      "title": "email additional header fields",
+      "type": "array",
+      "description": "Specifies any other header fields (except for date, received_lines, content_type, from_ref, sender_ref, to_refs, cc_refs, bcc_refs, and subject) found in the email message, as a dictionary.",
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/email_additional_header_field"
+      }
+    },
+    "email_additional_header_field": {
+      "title": "email additional header field",
+      "type": "object",
+      "description": "Specifies any other header fields (except for date, received_lines, content_type, from_ref, sender_ref, to_refs, cc_refs, bcc_refs, and subject) found in the email message, as a dictionary.",
+      "additionalProperties": false,
+      "maxProperties": 555
+    },
+    "email_additional_header_fieldname": {
+      "title": "email additional header fieldname",
+      "type": "string",
+      "description": "Specifies any other header fields (except for date, received_lines, content_type, from_ref, sender_ref, to_refs, cc_refs, bcc_refs, and subject) found in the email message, as a dictionary.",
+      "maxLength": 5555,
+      "pattern": "^((?!((^|, )(date|received_lines|content_type|from_ref|sender_ref|to_refs|cc_refs|bcc_refs|subject))+$).)*$"
+    },
+    "email_additional_header_value": {
+      "title": "email additional header value",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "String_Value": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "[a-zA-Z0-9_-]{0,250}^$"
+        },
+        "String_Array": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "windows_registry_value_type": {
+      "title": "windows registry value type",
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Specifies the name of the registry value. For specifying the default value in a registry key, an empty string MUST be used.",
+          "maxLength": 5555
+        },
+        "data": {
+          "type": "string",
+          "description": "Specifies the data contained in the registry value.",
+          "maxLength": 5555
+        },
+        "registry_data_type": {
+          "$ref": "#/definitions/win_registry_data_type",
+          "description": "Specifies the registry (REG_*) data type used in the registry value."
+        }
+      }
+    },
+    "win_registry_data_type": {
+      "title": "win registry data type",
+      "type": "string",
+      "description": "Specifies the registry (REG_*) data type used in the registry value.",
+      "enum": [
+        "REG_NONE",
+        "REG_SZ",
+        "REG_EXPAND_SZ",
+        "REG_BINARY",
+        "REG_DWORD",
+        "REG_DWORD_BIG_ENDIAN",
+        "REG_DWORD_LITTLE_ENDIAN",
+        "REG_LINK",
+        "REG_MULTI_SZ",
+        "REG_RESOURCE_LIST",
+        "REG_FULL_RESOURCE_DESCRIPTION",
+        "REG_RESOURCE_REQUIREMENTS_LIST",
+        "REG_QWORD",
+        "REG_INVALID_TYPE"
+      ]
+    },
+    "x509_v3_extensions_type": {
+      "title": "x509 v3 extensions type",
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "basic_constraints": {
+          "type": "string",
+          "description": "Specifies a multi-valued extension which indicates whether a certificate is a CA certificate.",
+          "maxLength": 5555
+        },
+        "name_constraints": {
+          "type": "string",
+          "description": "Specifies a namespace within which all subject names in subsequent certificates in a certification path MUST be located.",
+          "maxLength": 5555
+        },
+        "policy_constraints": {
+          "type": "string",
+          "description": "Specifies any constraints on path validation for certificates issued to CAs.",
+          "maxLength": 5555
+        },
+        "key_usage": {
+          "type": "string",
+          "description": "Specifies a multi-valued extension consisting of a list of names of the permitted key usages.",
+          "maxLength": 5555
+        },
+        "extend_key_usage": {
+          "type": "string",
+          "description": "Specifies a list of usages indicating purposes for which the certificate public key can be used for.",
+          "maxLength": 5555
+        },
+        "subject_key_identifier": {
+          "type": "string",
+          "description": "Specifies the identifier that provides a means of identifying certificates that contain a particular public key.",
+          "maxLength": 5555
+        },
+        "authority_key_identifier": {
+          "type": "string",
+          "description": "Specifies the identifier that provides a means of identifying the public key corresponding to the private key used to sign a certificate.",
+          "maxLength": 5555
+        },
+        "subject_alternative_name": {
+          "type": "string",
+          "description": "Specifies the additional identities to be bound to the subject of the certificate.",
+          "maxLength": 5555
+        },
+        "issuer_alternative_name": {
+          "type": "string",
+          "description": "Specifies the additional identities to be bound to the issuer of the certificate.",
+          "maxLength": 5555
+        },
+        "subject_directory_attributes": {
+          "type": "string",
+          "description": "Specifies the identification attributes (e.g., nationality) of the subject.",
+          "maxLength": 5555
+        },
+        "crt_distribution_points": {
+          "type": "string",
+          "description": "Specifies how CRL information is obtained.",
+          "maxLength": 5555
+        },
+        "inhibit_any_policy": {
+          "type": "string",
+          "description": "Specifies the number of additional certificates that may appear in the path before anyPolicy is no longer permitted.",
+          "maxLength": 5555
+        },
+        "private_key_usage_period_not_before": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date on which the validity period begins for the private key, if it is different from the validity period of the certificate."
+        },
+        "private_key_usage_period_not_after": {
+          "$ref": "#/definitions/timestamp",
+          "description": "Specifies the date on which the validity period ends for the private key, if it is different from the validity period of the certificate."
+        },
+        "certificate_policies": {
+          "type": "string",
+          "description": "Specifies a sequence of one or more policy information terms, each of which consists of an object identifier (OID) and optional qualifiers.",
+          "maxLength": 5555
+        },
+        "policy_mappings": {
+          "type": "string",
+          "description": "Specifies one or more pairs of OIDs; each pair includes an issuerDomainPolicy and a subjectDomainPolicy",
+          "maxLength": 5555
+        }
+      }
+    },
+    "file_extensions_dictionary": {
+      "title": "file extensions dictionary",
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "ntfs_ext": {
+          "$ref": "#/definitions/ntfs_ext",
+          "description": "The NTFS file extension specifies a default extension for capturing properties specific to the storage of the file on the NTFS file system."
+        }
+      }
+    },
+    "ntfs_ext": {
+      "title": "ntfs ext",
+      "type": "object",
+      "description": "The NTFS file extension specifies a default extension for capturing properties specific to the storage of the file on the NTFS file system.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "sid": {
+          "type": "string",
+          "description": "Specifies the security ID (SID) value assigned to the file.",
+          "maxLength": 5555
+        },
+        "alternate_data_streams": {
+          "type": "array",
+          "description": "Specifies a list of NTFS alternate data streams that exist for the file.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/ntfs_atlternate_data_stream"
+          }
+        }
+      }
+    },
+    "ntfs_atlternate_data_stream": {
+      "title": "ntfs atlternate data stream",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Specifies the name of the alternate data stream.",
+          "maxLength": 5555
+        },
+        "hashes": {
+          "type": "array",
+          "description": "Specifies a dictionary of hashes for the data contained in the alternate data stream.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/hashes"
+          }
+        },
+        "size": {
+          "type": "integer",
+          "description": "Specifies the size of the alternate data stream, in bytes, as a non-negative integer.",
+          "minimum": 0
+        }
+      }
+    },
+    "ipfix_choice": {
+      "title": "ipfix choice",
+      "type": "object",
+      "description": "Specifies any IP Flow Information Export (IPFIX) data for the traffic.",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "ipfix_string": {
+          "type": "string",
+          "maxLength": 5555
+        },
+        "ipfix_integer": {
+          "type": "integer"
+        }
+      }
+    },
+    "hashes": {
+      "title": "hashes",
+      "type": "object",
+      "description": "The Hashes type represents one or more cryptographic hashes, as a special set of key/value pairs",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "MD5": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-fA-F0-9]{32}$"
+        },
+        "SHA-1": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-fA-F0-9]{40}$"
+        },
+        "SHA-256": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "SHA-512": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-fA-F0-9]{128}$"
+        },
+        "SHA3-256": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "SHA3-512": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-fA-F0-9]{128}$"
+        },
+        "SSDEEP": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-zA-Z0-9/+:.]{1,128}$"
+        },
+        "TLSH": {
+          "type": "string",
+          "description": "Specifies the MD5 message digest algorithm.",
+          "maxLength": 5555,
+          "pattern": "^[a-zA-Z0-9]{70}$"
+        }
+      }
+    },
+    "network_traffic_extensions_dictionary": {
+      "title": "network traffic extensions dictionary",
+      "type": "object",
+      "description": "The User Account Object defines the following extensions. In addition to these, producers MAY create their own.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "http_request_ext": {
+          "$ref": "#/definitions/http_request_ext",
+          "description": "The HTTP request extension specifies a default extension for capturing network traffic properties specific to HTTP requests."
+        },
+        "icmp_ext": {
+          "$ref": "#/definitions/icmp_ext",
+          "description": "The ICMP extension specifies a default extension for capturing network traffic properties specific to ICMP."
+        },
+        "socket_ext": {
+          "$ref": "#/definitions/socket_ext",
+          "description": "The Network Socket extension specifies a default extension for capturing network traffic properties associated with network sockets."
+        },
+        "tcp_ext": {
+          "$ref": "#/definitions/tcp_ext",
+          "description": "The TCP extension specifies a default extension for capturing network traffic properties specific to TCP."
+        }
+      }
+    },
+    "http_request_ext": {
+      "title": "http request ext",
+      "type": "object",
+      "description": "The HTTP request extension specifies a default extension for capturing network traffic properties specific to HTTP requests.",
+      "additionalProperties": false,
+      "required": [
+        "request_method",
+        "request_value"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "request_method": {
+          "type": "string",
+          "description": "Specifies the HTTP method portion of the HTTP request line, as a lowercase string.",
+          "maxLength": 5555
+        },
+        "request_value": {
+          "type": "string",
+          "description": "Specifies the value (typically a resource path) portion of the HTTP request line.",
+          "maxLength": 5555
+        },
+        "request_version": {
+          "type": "string",
+          "description": "Specifies the HTTP method portion of the HTTP request line, as a lowercase string.",
+          "maxLength": 5555
+        },
+        "request_header": {
+          "type": "array",
+          "description": "Specifies the value (typically a resource path) portion of the HTTP request line.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "message_body_length": {
+          "type": "string",
+          "description": "Specifies the HTTP method portion of the HTTP request line, as a lowercase string.",
+          "maxLength": 5555
+        },
+        "message_body_data_ref": {
+          "type": "string",
+          "description": "Specifies the value (typically a resource path) portion of the HTTP request line.",
+          "maxLength": 5555
+        }
+      }
+    },
+    "icmp_ext": {
+      "title": "icmp ext",
+      "type": "object",
+      "description": "The ICMP extension specifies a default extension for capturing network traffic properties specific to ICMP.",
+      "additionalProperties": false,
+      "required": [
+        "icmp_type_hex",
+        "icmp_code_hex"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "icmp_type_hex": {
+          "$ref": "#/definitions/Hex",
+          "description": "Specifies the ICMP type byte."
+        },
+        "icmp_code_hex": {
+          "$ref": "#/definitions/Hex",
+          "description": "Specifies the ICMP code byte."
+        }
+      }
+    },
+    "socket_ext": {
+      "title": "socket ext",
+      "type": "object",
+      "description": "The Network Socket extension specifies a default extension for capturing network traffic properties associated with network sockets.",
+      "additionalProperties": false,
+      "required": [
+        "address_family"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "address_family": {
+          "$ref": "#/definitions/address_family",
+          "description": "Specifies the address family (AF_*) that the socket is configured for."
+        },
+        "is_blocking": {
+          "type": "boolean",
+          "description": "Specifies whether the socket is in blocking mode."
+        },
+        "is_listening": {
+          "type": "string",
+          "description": "Specifies whether the socket is in listening mode.",
+          "maxLength": 5555
+        },
+        "options": {
+          "type": "array",
+          "description": "Specifies any options (SO_*) that may be used by the socket, as a dictionary.",
+          "maxItems": 555,
+          "items": {
+            "$ref": "#/definitions/socket_option"
+          }
+        },
+        "socket_type": {
+          "$ref": "#/definitions/socket_type",
+          "description": "Specifies the type of the socket."
+        },
+        "socket_descriptor": {
+          "type": "integer",
+          "description": "Specifies the socket file descriptor value associated with the socket, as a non-negative integer.",
+          "minimum": 0
+        },
+        "socket_handle": {
+          "type": "integer",
+          "description": "Specifies the handle or inode value associated with the socket."
+        }
+      }
+    },
+    "tcp_ext": {
+      "title": "tcp ext",
+      "type": "object",
+      "description": "The TCP extension specifies a default extension for capturing network traffic properties specific to TCP.",
+      "additionalProperties": false,
+      "required": [
+        "src_flags_hex",
+        "dst_flags_hex"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "src_flags_hex": {
+          "$ref": "#/definitions/Hex",
+          "description": "Specifies the source TCP flags, as the union of all TCP flags observed between the start of the traffic (as defined by the start property) and the end of the traffic (as defined by the end property)."
+        },
+        "dst_flags_hex": {
+          "$ref": "#/definitions/Hex",
+          "description": "Specifies the destination TCP flags, as the union of all TCP flags observed between the start of the traffic (as defined by the start property) and the end of the traffic (as defined by the end property)."
+        }
+      }
+    },
+    "address_family": {
+      "title": "address family",
+      "type": "string",
+      "description": "Specifies the current status of the service. windows-service-status-enum",
+      "enum": [
+        "AF_UNSPEC",
+        "AF_INET",
+        "AF_IPX",
+        "AF_APPLETALK",
+        "AF_NETBIOS",
+        "AF_INET6",
+        "AF_IRDA",
+        "AF_BTH"
+      ]
+    },
+    "socket_option": {
+      "title": "socket option",
+      "type": "object",
+      "description": "Specifies any options (SO_*) that may be used by the socket, as a dictionary.",
+      "additionalProperties": false,
+      "required": [
+        "socket_option",
+        "option_value"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "socket_option": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^(SO|ICMP|ICMP6|IP|IPV6|MCAST|TCP|IRLMP)(_[A-Z]+)+$"
+        },
+        "option_value": {
+          "type": "integer"
+        }
+      }
+    },
+    "socket_type": {
+      "title": "socket type",
+      "type": "string",
+      "description": "Specifies the type of the socket.",
+      "enum": [
+        "SOCK_STREAM",
+        "SOCK_DGRAM",
+        "SOCK_RAW",
+        "SOCK_RDM",
+        "SOCK_SEQPACKET"
+      ]
+    },
+    "user_account_extensions_dictionary": {
+      "title": "user account extensions dictionary",
+      "type": "object",
+      "description": "The User Account Object defines the following extensions. In addition to these, producers MAY create their own.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "unix_account_ext": {
+          "$ref": "#/definitions/unix_account_ext",
+          "description": "The User Account Object defines the following extensions. In addition to these, producers MAY create their own."
+        }
+      }
+    },
+    "unix_account_ext": {
+      "title": "unix account ext",
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "gid": {
+          "type": "number",
+          "description": "Specifies the primary group ID of the account."
+        }
+      }
+    },
+    "process_extensions_dictionary": {
+      "title": "process extensions dictionary",
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "windows_proccess_extension": {
+          "$ref": "#/definitions/windows_proccess_extension",
+          "description": "The Windows Process extension specifies a default extension for capturing properties specific to Windows processes."
+        },
+        "windows_service_ext": {
+          "$ref": "#/definitions/windows_service_ext",
+          "description": "The Windows Service extension specifies a default extension for capturing properties specific to Windows services."
+        }
+      }
+    },
+    "windows_proccess_extension": {
+      "title": "windows proccess extension",
+      "type": "object",
+      "description": "The Windows Process extension specifies a default extension for capturing properties specific to Windows processes.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "aslr_enabled": {
+          "type": "boolean",
+          "description": "Specifies whether Address Space Layout Randomization (ASLR) is enabled for the process."
+        },
+        "dep_enabled": {
+          "type": "boolean",
+          "description": "Specifies whether Data Execution Prevention (DEP) is enabled for the process."
+        },
+        "priority": {
+          "type": "string",
+          "description": "Specifies the current priority class of the process in Windows.",
+          "maxLength": 5555
+        },
+        "owner_sid": {
+          "type": "string",
+          "description": "Specifies the Security ID (SID) value of the owner of the process.",
+          "maxLength": 5555
+        },
+        "window_title": {
+          "type": "string",
+          "description": "Specifies the title of the main window of the process.",
+          "maxLength": 5555
+        },
+        "startup_info": {
+          "$ref": "#/definitions/startup_info_dictionary",
+          "description": "Specifies the STARTUP_INFO struct used by the process, as a dictionary."
+        },
+        "integrity_level": {
+          "$ref": "#/definitions/windows_integrity_level_enum",
+          "description": "Specifies the Windows integrity level, or trustworthiness, of the process."
+        }
+      }
+    },
+    "startup_info_dictionary": {
+      "title": "startup info dictionary",
+      "type": "array",
+      "additionalItems": false,
+      "maxItems": 555,
+      "items": [
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        },
+        {
+          "type": "string",
+          "maxLength": 0
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 0
+        }
+      ]
+    },
+    "windows_integrity_level_enum": {
+      "title": "windows integrity level enum",
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "system"
+      ]
+    },
+    "service_status": {
+      "title": "service status",
+      "type": "string",
+      "description": "Specifies the current status of the service. windows-service-status-enum",
+      "enum": [
+        "SERVICE_CONTINUE_PENDING",
+        "SERVICE_PAUSE_PENDING",
+        "SERVICE_PAUSED",
+        "SERVICE_RUNNING",
+        "SERVICE_START_PENDING",
+        "SERVICE_STOP_PENDING",
+        "SERVICE_STOPPED"
+      ]
+    },
+    "service_type": {
+      "title": "service type",
+      "type": "string",
+      "description": "Specifies the type of the service. windows-service-enum",
+      "enum": [
+        "SERVICE_KERNEL_DRIVER",
+        "SERVICE_FILE_SYSTEM_DRIVER",
+        "SERVICE_WIN32_OWN_PROCESS",
+        "SERVICE_WIN32_SHARE_PROCESS"
+      ]
+    },
+    "windows_service_ext": {
+      "title": "windows service ext",
+      "type": "object",
+      "description": "The Windows Service extension specifies a default extension for capturing properties specific to Windows services.",
+      "additionalProperties": false,
+      "maxProperties": 555,
+      "properties": {
+        "service_name": {
+          "type": "string",
+          "description": "Specifies the name of the service.",
+          "maxLength": 5555
+        },
+        "descriptions": {
+          "type": "array",
+          "description": "Specifies the descriptions defined for the service.",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Specifies the displayed name of the service in Windows GUI controls.",
+          "maxLength": 5555
+        },
+        "group_name": {
+          "type": "string",
+          "description": "Specifies the name of the load ordering group of which the service is a member.",
+          "maxLength": 5555
+        },
+        "start_type": {
+          "$ref": "#/definitions/start_type",
+          "description": "Specifies the start options defined for the service. windows-service-start-enum"
+        },
+        "service_dll_refs": {
+          "type": "array",
+          "description": "Specifies the DLLs loaded by the service, as a reference to one or more File Objects.",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "service_type": {
+          "$ref": "#/definitions/service_type",
+          "description": "Specifies the type of the service. windows-service-enum"
+        },
+        "service_status": {
+          "$ref": "#/definitions/service_status",
+          "description": "Specifies the current status of the service. windows-service-status-enum"
+        }
+      }
+    },
+    "start_type": {
+      "title": "start type",
+      "type": "string",
+      "description": "Specifies the start options defined for the service. windows-service-start-enum",
+      "enum": [
+        "SERVICE_AUTO_START",
+        "SERVICE_BOOT_START",
+        "SERVICE_DEMAND_START",
+        "SERVICE_DISABLED",
+        "SERVICE_SYSTEM_ALERT"
+      ]
+    },
+    "spec_version": {
+      "title": "spec version",
+      "type": "string",
+      "description": "The version of the STIX specification used to represent the content in this cyber-observable.",
+      "enum": [
+        "2.0",
+        "2.1"
+      ]
+    },
+    "object_marking_refs": {
+      "title": "object marking refs",
+      "type": "array",
+      "description": "The list of marking-definition objects to be applied to this object.",
+      "minItems": 1,
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/identifier"
+      }
+    },
+    "granular_marking": {
+      "title": "granular marking",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selectors",
+        "lang",
+        "pattern"
+      ],
+      "maxProperties": 555,
+      "properties": {
+        "selectors": {
+          "$ref": "#/definitions/identifier",
+          "description": "A list of selectors for content contained within the STIX object in which this property appears."
+        },
+        "lang": {
+          "type": "string",
+          "description": "Identifies the language of the text identified by this marking.",
+          "maxLength": 5555
+        },
+        "pattern": {
+          "$ref": "#/definitions/identifier",
+          "description": "The marking_ref property specifies the ID of the marking-definition object that describes the marking."
+        }
+      }
+    },
+    "granular_markings": {
+      "title": "granular markings",
+      "type": "array",
+      "description": "The set of granular markings that apply to this object.",
+      "minItems": 1,
+      "maxItems": 555,
+      "items": {
+        "$ref": "#/definitions/granular_marking"
+      }
+    },
+    "defanged": {
+      "title": "defanged",
+      "type": "boolean",
+      "description": "Defines whether or not the data contained within the object has been defanged."
+    },
+    "identifier": {
+      "title": "identifier",
+      "type": "string",
+      "description": "Represents identifiers across the CTI specifications. The format consists of the name of the top-level object being identified, followed by two dashes (--), followed by a UUIDv4.",
+      "maxLength": 5555,
+      "pattern": "^[a-z][a-z0-9-]+[a-z0-9]--[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "extensions": {
+      "title": "extensions",
+      "type": "object",
+      "description": "Specifies any extensions of the object, as a dictionary.",
+      "additionalProperties": false,
+      "required": [
+        "extension",
+        "extension_definition"
+      ],
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "extension": {
+          "type": "string",
+          "maxLength": 5555,
+          "pattern": "^([a-z][a-z0-9]*)+(-[a-z0-9]+)*\\\\-ext$"
+        },
+        "extension_definition": {
+          "$ref": "#/definitions/extension",
+          "description": ""
+        }
+      }
+    },
+    "properties": {
+      "title": "properties",
+      "type": "array",
+      "description": "Rules for custom properties",
+      "additionalItems": false,
+      "minItems": 1,
+      "maxItems": 555,
+      "items": [
+        {
+          "type": "string",
+          "contentEncoding": "base64url"
+        },
+        {
+          "$ref": "#/definitions/Hex",
+          "description": "The hex data type encodes an array of octets (8-bit bytes) as hexadecimal. The string MUST consist of an even number of hexadecimal characters, which are the digits '0' through '9' and the letters 'a' through 'f'.  In order to allow pattern matching on custom objects, all properties that use the hex type, the property name MUST end with '_hex'."
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "string",
+          "maxLength": 5555
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "$ref": "#/definitions/extensions",
+          "description": ""
+        }
+      ]
+    },
+    "extension": {
+      "title": "extension",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "extension_type",
+        "properties"
+      ],
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "extension_type": {
+          "$ref": "#/definitions/extension_type_enum",
+          "description": "The type of extension."
+        },
+        "properties": {
+          "$ref": "#/definitions/properties",
+          "description": ""
+        }
+      }
+    },
+    "extension_type_enum": {
+      "title": "extension type enum",
+      "type": "string",
+      "enum": [
+        "new-sdo",
+        "new-sco",
+        "new-sro",
+        "property-extension",
+        "toplevel-property-extension"
+      ]
+    },
+    "Hex": {
+      "title": "Hex",
+      "type": "string",
+      "maxLength": 5555,
+      "pattern": "^([a-fA-F0-9]{2})+$"
+    },
+    "timestamp": {
+      "title": "timestamp",
+      "type": "string",
+      "maxLength": 5555,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "Features": {
+      "title": "Features",
+      "type": "array",
+      "description": "An array of zero to ten names used to query a Consume for its supported capabilities.",
+      "uniqueItems": true,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/definitions/Feature"
+      }
+    },
+    "Date-Time": {
+      "title": "Date Time",
+      "type": "integer",
+      "description": "Date and Time",
+      "minimum": 0
+    },
+    "Duration": {
+      "title": "Duration",
+      "type": "integer",
+      "description": "A length of time",
+      "minimum": 0
+    },
+    "Feature": {
+      "title": "Feature",
+      "type": "string",
+      "description": "Specifies the results to be returned from a query features Command",
+      "enum": [
+        "versions",
+        "profiles",
+        "pairs",
+        "rate_limit"
+      ]
+    },
+    "L4-Protocol": {
+      "title": "L4 Protocol",
+      "type": "string",
+      "description": "Value of the protocol (IPv4) or next header (IPv6) field in an IP packet. Any IANA value, [RFC5237]",
+      "enum": [
+        "icmp",
+        "tcp",
+        "udp",
+        "sctp"
+      ]
+    },
+    "Payload": {
+      "title": "Payload",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "bin": {
+          "type": "string",
+          "description": "Specifies the data contained in the artifact",
+          "contentEncoding": "base64url"
+        },
+        "url": {
+          "$ref": "#/definitions/URI",
+          "description": "MUST be a valid URL that resolves to the un-encoded content"
+        }
+      }
+    },
+    "Nsid": {
+      "title": "Nsid",
+      "type": "string",
+      "description": "A short identifier that refers to a namespace.",
+      "minLength": 1,
+      "maxLength": 16
+    },
+    "Response-Type": {
+      "title": "Response Type",
+      "type": "string",
+      "enum": [
+        "none",
+        "ack",
+        "status",
+        "complete"
+      ]
+    },
+    "Status-Code": {
+      "title": "Status Code",
+      "type": "integer",
+      "enum": [
+        102,
+        200,
+        201,
+        400,
+        401,
+        403,
+        404,
+        500,
+        501,
+        503
+      ]
+    },
+    "Command-ID": {
+      "title": "Command ID",
+      "type": "string",
+      "description": "Command Identifier",
+      "maxLength": 5555,
+      "pattern": "^\\S{0,36}$"
+    },
+    "Version": {
+      "title": "Version",
+      "type": "string",
+      "description": "Major.Minor version number",
+      "maxLength": 5555
+    }
+  }
+}

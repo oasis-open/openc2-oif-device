@@ -1,7 +1,8 @@
 name = "OIF Device"
 client_id = "oif-device"
 schema_path = "./oc2/schemas"
-schema_file = "th_ap_vbeta.json"
+schema_file = "hunt_ap_v1.0.json"
+# schema_file = "th_ap_vbeta.json"
 # schema_file = "slpf_ap_v2.0.json"
 
 [HTTP]
