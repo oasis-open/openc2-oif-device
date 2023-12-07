@@ -35,7 +35,7 @@ resp_topics = ["oc2/rsp"]
 
 
 [KESTREL]
-is_enabled = false
-is_sample_data = false
+is_enabled = true
+is_sample_data = true
 datasources = ["elastic", "file", "uri"]
 huntbook_paths = ["./hunts/huntflow/"]

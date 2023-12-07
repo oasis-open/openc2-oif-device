@@ -1,11 +1,15 @@
-kestrel==0.0.1
-kestrel-lang==1.7.1
-kestrel-jupyter==1.0.9
+kestrel-core==1.8
+kestrel-datasource-stixbundle==1.8.0
+kestrel-datasource-stixshifter==1.8.0
+
+# kestrel-analytics-pytho==1.8.0 (need it if running any Python analytics in a huntflow)
+# kestrel-analytics-docke==1.8.0 (probably no need to install; need it if running any analytics in Docker)
+# kestrel-jupyter (installs everything with Jupyter)
 
 Jinja2==3.1.2
 
-stix-shifter==5.3.1
-stix-shifter-utils==5.3.1
+stix-shifter==6.2.2
+stix-shifter-utils==6.2.2
 stix2-matcher
 stix2-patterns
 stix2-validator
@@ -17,10 +21,9 @@ python-benedict==0.31.0
 fastapi==0.100.0
 uvicorn==0.22.0
 
-pyopenssl==23.1.1
+pyopenssl
 
 setuptools==68.0.0
-SB-Utils@git+https://github.com/ScreamBun/SB_Utils.git#subdirectory=root
 
 # You may need to run these separately 
 # pip install --upgrade pip

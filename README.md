@@ -1,5 +1,7 @@
 <a id="openc2-logo" href="https://openc2.org/" target="_blank">![OpenC2](https://github.com/ScreamBun/SB_Utils/blob/master/assets/images/openc2.png?raw=true)</a>
+
 # <a name="oasis-tc-open-repository:-openc2-oif-device"></a> OASIS TC Open Repository: openc2-oif-device
+
 ### <a name="openc2-integration-framework-(oif)-device"></a> <i>OpenC2 Integration Framework (OIF) Device</i>
 
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-yellow)](https://www.python.org/downloads/release/python-3100/)
@@ -56,8 +58,8 @@ This particular repository contains the code required to set up an OpenC2 Device
 The OIF Device was created with the intent of being an easy-to-configure OpenC2 consumer that can be used in the creation of reference implementations. To that end it allows for the addition of multiple actuators, serializations, and transportation types.
 
 ## <a name="overview"></a> Overview
-![GUI snippet](assets/oif_overview.png)
 
+![GUI snippet](assets/oif_overview.png)
 
 ## General Setup & Start
 
@@ -69,8 +71,6 @@ The OIF Device was created with the intent of being an easy-to-configure OpenC2 
 - See the config.toml file for MQTT Topics and to enable features
 
 ***Note:** See below to setup more advanced capabilities, such as Kestrel STIX Shifter and Elastic.***
-
-***Note:** If no huntbooks available, config.toml may need to be adjusted to the correct file path - **schema_path** and **huntbook_path***
 
 ## Kestrel Elasticsearch and Kibana Setup
 
@@ -179,8 +179,6 @@ Then, run:
 ./scripts/load-elastic-data.sh 
 ```
 
-***Note:** If file is not found, the script (load-elastic-data.sh) may need to be adjusted to the correct file path - **DATA_DIR**.*
-
 **Output**
 
 ```bash
@@ -229,7 +227,7 @@ curl --cacert ./http_ca.crt  "https://elastic:elastic@localhost:9200/linux-91-sy
   alias pp='python -mjson.tool'
   `
 - `source ~/.bashrc`
-- Add `| pp ` to the end of your cmdl query
+- Add `| pp` to the end of your cmdl query
 
 ```bash
 curl --cacert ./http_ca.crt -XGET "https://elastic:elastic@localhost:9200/linux-91-sysflow-bh22-20220727/_search?size=1" -H "kbn-xsrf: reporting" -H "Content-Type: application/json" -d'
@@ -285,8 +283,6 @@ To setup the configuration file, see: [STIX-shifter Data Source Interface](https
 kestrel ./hunts/huntflow/query_data_via_stixshifter.hf
 ```
 
-***Note:** If profile is not found, kestrel / config.py (python3.10 site package inside the virtualenv) may need to be adjusted to the correct file path - **CONFIG_DIR_DEFAULT***
-
 ### Run STIX Bundle Hunts on JSON files
 
 <sup>STIX formatted data</sup>
@@ -305,10 +301,6 @@ kestrel ./hunts/huntflow/query_local_stixdata.hf
 
 ```bash
 kestrel ./hunts/huntflow/query_net_traffic_stixdata.hf
-```
-
-```bash
-kestrel ./hunts/huntflow/query_web_stixdata.hf
 ```
 
 ## References
