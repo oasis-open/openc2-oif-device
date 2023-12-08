@@ -1,7 +1,7 @@
 name = "OIF Device"
 client_id = "oif-device"
 schema_path = "./oc2/schemas"
-schema_file = "hunt_ap_v1.0.json"
+schema_file = "hunt-ap-12-02-2023.json"
 # schema_file = "th_ap_vbeta.json"
 # schema_file = "slpf_ap_v2.0.json"
 
@@ -22,16 +22,17 @@ transport = "tcp"
 
 # broker = "localhost"
 # broker="mosquitto.olympus.mtn" 
-broker = "test.mosquitto.org" 
+broker="3271a3ddd2eb43caa7c4b195c7d6cabd.s2.eu.hivemq.cloud"
+# broker = "test.mosquitto.org" 
 
-# port = 8883
-port = 1883
+port = 8883
+# port = 1883
 
 username = 'Cav01'
 password = 'Tango01Village'
 
-listen_topics = ["oc2/cmd", "oc2/cmd/all"]
-# listen_topics = ["oc2/cmd/device/th"]
+# listen_topics = ["oc2/cmd", "oc2/cmd/all"]
+listen_topics = ["oc2/cmd/device/th"]
 resp_topics = ["oc2/rsp"]
 
 

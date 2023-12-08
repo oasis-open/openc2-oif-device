@@ -168,41 +168,113 @@
     },
     "Target": {
       "title": "Target",
-      "type": "string",
-      "enum": [
-        "features",
-        "th"
-      ]
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "features": {
+          "$ref": "#/definitions/Features",
+          "description": "A set of items used with the query Action to determine an Actuator's capabilities."
+        },
+        "th": {
+          "$ref": "#/definitions/AP-Target",
+          "description": "Threat Hunting Profile-defined targets"
+        }
+      }
     },
     "Args": {
       "title": "Args",
-      "type": "string",
-      "enum": [
-        "start_time",
-        "stop_time",
-        "duration",
-        "response_requested",
-        "th"
-      ]
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "start_time": {
+          "$ref": "#/definitions/Date-Time",
+          "description": ""
+        },
+        "stop_time": {
+          "$ref": "#/definitions/Date-Time",
+          "description": ""
+        },
+        "duration": {
+          "$ref": "#/definitions/Duration",
+          "description": ""
+        },
+        "response_requested": {
+          "$ref": "#/definitions/Response-Type",
+          "description": ""
+        },
+        "th": {
+          "$ref": "#/definitions/AP-Args",
+          "description": ""
+        }
+      }
     },
     "Actuator": {
       "title": "Actuator",
-      "type": "string",
-      "enum": [
-        "th"
-      ]
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "th": {
+          "$ref": "#/definitions/AP-Specifiers",
+          "description": "TH-defined actuator specifiers"
+        }
+      }
     },
     "Results": {
       "title": "Results",
-      "type": "string",
-      "enum": [
-        "versions",
-        "profiles",
-        "pairs",
-        "rate_limit",
-        "args",
-        "th"
-      ]
+      "type": "object",
+      "description": "Response Results",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 555,
+      "properties": {
+        "versions": {
+          "type": "array",
+          "description": "List of OpenC2 language versions supported by this Actuator",
+          "uniqueItems": true,
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/definitions/Version",
+            "description": "List of OpenC2 language versions supported by this Actuator"
+          }
+        },
+        "profiles": {
+          "type": "array",
+          "description": "List of profiles supported by this Actuator",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Nsid",
+            "description": "List of profiles supported by this Actuator"
+          }
+        },
+        "pairs": {
+          "$ref": "#/definitions/Pairs",
+          "description": "Targets applicable to each supported Action"
+        },
+        "rate_limit": {
+          "type": "number",
+          "description": "Maximum number of requests per minute supported by design or policy",
+          "minimum": 0.0
+        },
+        "args": {
+          "type": "array",
+          "maxItems": 555,
+          "items": {
+            "type": "string"
+          }
+        },
+        "th": {
+          "$ref": "#/definitions/AP-Results",
+          "description": "TH-defined results"
+        }
+      }
     },
     "Pairs": {
       "title": "Pairs",
@@ -2109,8 +2181,8 @@
         },
         "id": {
           "type": "string",
-          "description": "%^software--",
-          "maxLength": 5555
+          "maxLength": 5555,
+          "pattern": "^software--"
         },
         "name": {
           "type": "string",
