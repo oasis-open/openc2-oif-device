@@ -14,19 +14,19 @@ log_Level="info"
 
 [MQTT]
 is_enabled = true
-protocol = "MQTTv5"
-# protocol = "MQTTv311"
+# protocol = "MQTTv5"
+protocol = "MQTTv311"
 
 transport = "tcp"
 # transport = "websockets"
 
 # broker = "localhost"
 # broker="mosquitto.olympus.mtn" 
-broker="3271a3ddd2eb43caa7c4b195c7d6cabd.s2.eu.hivemq.cloud"
-# broker = "test.mosquitto.org" 
+# broker="3271a3ddd2eb43caa7c4b195c7d6cabd.s2.eu.hivemq.cloud"
+broker = "test.mosquitto.org" 
 
-port = 8883
-# port = 1883
+# port = 8883
+port = 1883
 
 username = 'Cav01'
 password = 'Tango01Village'

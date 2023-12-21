@@ -150,12 +150,13 @@ default_rsp_topics = config_data["MQTT"]["resp_topics"]
 default_username = config_data["MQTT"]['username']  
 default_password = config_data["MQTT"]['password'] 
 
+client = mqtt.Client()
 if default_protocol == "MQTTv5":
     client = mqtt.Client(client_id, None, userdata=True, protocol=mqtt.MQTTv5, transport="tcp") 
 else:
     client = mqtt.Client(client_id, None, userdata=True, protocol=mqtt.MQTTv311, transport="tcp") 
 
-client = mqtt.Client()
+
 client.on_connect = on_connect
 client.on_message = on_message
 client.on_log = on_log
