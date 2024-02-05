@@ -14,7 +14,7 @@ paho-mqtt==1.6.1
 toml==0.10.2
 jsonschema
 python-benedict==0.31.0
-fastapi==0.100.0
+fastapi==0.109.1
 uvicorn==0.22.0
 
 pyopenssl==23.1.1
