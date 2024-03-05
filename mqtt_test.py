@@ -55,6 +55,28 @@ TOPIC_RESPONSE = 'oc2/rsp'
 # TOPIC_P = 'oc2/rsp/p01'                 # This producer's topic
 # TOPIC_C01 = 'oc2/cmd/device/c01'        # OpenC2 consumer's topic
 
+COMMAND_00 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000),
+        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/huntflow/query_web_stixdata.hf'
+                    }
+                }
+            }
+        }
+    }
+})
+
 
 COMMAND_01 = json.dumps({
     'headers': {
@@ -70,7 +92,7 @@ COMMAND_01 = json.dumps({
                 'action': 'investigate',
                 'target': {
                     'th': {
-                    'hunt': './hunts/find_data_via_stixshifter.hf'
+                    'hunt': './hunts/huntflow/find_data_via_stixshifter.hf'
                     }
                 }
             }
@@ -156,6 +178,7 @@ COMMAND_07 = json.dumps(
     }
 
 )
+
 
 # catch ctrl-c
 def signal_handler(signum, frame):
@@ -303,7 +326,7 @@ if __name__ == '__main__':
         connect_to_broker()
         subscribe_to_topics()
         signal.signal(signal.SIGINT, signal_handler)
-        publish(TOPIC_REQUEST, COMMAND_01)
+        publish(TOPIC_REQUEST, COMMAND_00)
         client.loop_forever()
     else:
         print("MQTT is not enabled")    

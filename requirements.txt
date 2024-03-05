@@ -14,7 +14,7 @@ stix2-matcher
 stix2-patterns
 stix2-validator
 
-paho-mqtt==1.6.1
+paho-mqtt==2.0.0
 toml==0.10.2
 jsonschema
 python-benedict==0.31.0

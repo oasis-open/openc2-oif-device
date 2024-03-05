@@ -11,6 +11,14 @@
             "console": "integratedTerminal",
             "program": "${workspaceFolder}/main.py",
             "justMyCode": false
-        }
+        },
+        {
+            "name": "Python: Device Test",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/mqtt_test.py",
+            "justMyCode": false
+        }        
     ]    
 }
