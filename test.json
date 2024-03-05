@@ -1,0 +1,52 @@
+{
+  "headers": {
+    "request_id": "40eac796-43c2-4f3e-8ab1-a51e37380e0e",
+    "created": 1709671082933,
+    "from": "oif-device-9baf5863-fe55-4bc5-9537-eb9282a08a50",
+    "actuator_id": "8144acd3-f5d6-4bda-b1bd-a964f4a19677"
+  },
+  "body": {
+    "openc2": {
+      "response": {
+        "status": 200,
+        "results": {
+          "x_unique_id": "MYORGIDX-01aac66c-00000820-00000000-1d70c280e79cd04",
+          "name": "compattelrunner.exe",
+          "pid": 2080,
+          "id": "process--69e78267-5a16-513a-b4e5-ecd8577dae1b",
+          "command_line": null,
+          "created": null,
+          "binary_ref.name": "compattelrunner.exe",
+          "binary_ref.hashes.'SHA-256'": "c0a5986a4dd6d7cacf09c5a980df634c44ff73028206d99cb561e64a74a0958a",
+          "binary_ref.id": "file--c300a43f-7a06-5e99-9a2b-969c94cea375",
+          "binary_ref.hashes.MD5": null,
+          "binary_ref.parent_directory_ref.path": "c:windowssystem32",
+          "binary_ref.parent_directory_ref.id": "directory--13adb857-abec-5c8f-847b-bb6899c74d12",
+          "parent_ref.x_unique_id": null,
+          "parent_ref.name": null,
+          "parent_ref.pid": null,
+          "parent_ref.id": null,
+          "parent_ref.command_line": null,
+          "parent_ref.created": null,
+          "parent_ref.parent_ref.x_unique_id": null,
+          "parent_ref.parent_ref.name": null,
+          "parent_ref.parent_ref.pid": null,
+          "parent_ref.parent_ref.id": null,
+          "parent_ref.parent_ref.command_line": null,
+          "parent_ref.parent_ref.created": null,
+          "parent_ref.binary_ref.name": null,
+          "parent_ref.binary_ref.hashes.'SHA-256'": null,
+          "parent_ref.binary_ref.id": null,
+          "parent_ref.binary_ref.hashes.MD5": null,
+          "parent_ref.binary_ref.parent_directory_ref.path": null,
+          "parent_ref.binary_ref.parent_directory_ref.id": null,
+          "parent_ref.creator_user_ref.user_id": null,
+          "parent_ref.creator_user_ref.id": null,
+          "creator_user_ref.user_id": null,
+          "creator_user_ref.id": null,
+          "type": "process"
+        }
+      }
+    }
+  }
+}
