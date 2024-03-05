@@ -6,7 +6,7 @@ schema_file = "hunt-ap-12-02-2023.json"
 # schema_file = "slpf_ap_v2.0.json"
 
 [HTTP]
-is_enabled = false
+is_enabled = true
 host = "127.0.0.1"
 port = 5000
 log_Level="info"
