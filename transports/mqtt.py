@@ -11,6 +11,13 @@ from oc2.message_manager import HEADERS_ACTUATOR_ID_PATH, HEADERS_REQUEST_ID_PAT
 from utils.utils import convert_to_dict, find_file_names_by_extension, load_file
 from main import client_id
 
+
+def on_connect5(client, userdata, flags, rc, properties):
+    print("mqtt: New mqtt instance connected")
+    # client.subscribe("$SYS/#")
+    client.connected_flag=True    
+
+
 def on_connect(client, userdata, flags, rc):
     print("mqtt: New mqtt instance connected")
     # client.subscribe("$SYS/#")
@@ -152,12 +159,12 @@ default_password = config_data["MQTT"]['password']
 
 client = mqtt.Client()
 if default_protocol == "MQTTv5":
+    client.on_connect = on_connect5
     client = mqtt.Client(client_id, None, userdata=True, protocol=mqtt.MQTTv5, transport="tcp") 
 else:
+    client.on_connect = on_connect
     client = mqtt.Client(client_id, None, userdata=True, protocol=mqtt.MQTTv311, transport="tcp") 
 
-
-client.on_connect = on_connect
 client.on_message = on_message
 client.on_log = on_log
 

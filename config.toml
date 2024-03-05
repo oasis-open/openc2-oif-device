@@ -6,7 +6,7 @@ schema_file = "hunt-ap-12-02-2023.json"
 # schema_file = "slpf_ap_v2.0.json"
 
 [HTTP]
-is_enabled = true
+is_enabled = false
 host = "127.0.0.1"
 port = 5000
 log_Level="info"
@@ -14,8 +14,8 @@ log_Level="info"
 
 [MQTT]
 is_enabled = true
-# protocol = "MQTTv5"
-protocol = "MQTTv311"
+protocol = "MQTTv5"
+# protocol = "MQTTv311"
 
 transport = "tcp"
 # transport = "websockets"
