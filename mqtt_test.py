@@ -28,7 +28,11 @@ default_cmd_topics = config_data["MQTT"]["listen_topics"]
 default_rsp_topics = config_data["MQTT"]["resp_topics"]        
 
 default_username = config_data["MQTT"]['username']  
-default_password = config_data["MQTT"]['password'] 
+default_password = config_data["MQTT"]['password']
+
+# TODO: Add / pull client id from file to retain longer than just session time
+device_topic = "oc2/cmd/device/" + client_id
+default_cmd_topics.append(device_topic)
 
 
 # BROKER, BROKER_PORT = os.getenv('CAVBROKER').rsplit(':')
@@ -43,7 +47,7 @@ default_password = config_data["MQTT"]['password']
 # PASSWORD = 'Tango01Village'
   
 # TOPIC_REQUEST = 'oc2/cmd/device/oif'      
-TOPIC_REQUEST = 'oc2/cmd/device/th'      
+TOPIC_REQUEST = 'oc2/cmd/ap/hunt'      
 # TOPIC_REQUEST = 'oc2/cmd/device/t01'      
 # TOPIC_REQUEST = 'sfractal/command'      
 # TOPIC_REQUEST = 'oc2/cmd/ap/er'      

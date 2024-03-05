@@ -31,8 +31,9 @@ port = 1883
 username = 'Cav01'
 password = 'Tango01Village'
 
-# listen_topics = ["oc2/cmd", "oc2/cmd/all"]
-listen_topics = ["oc2/cmd/device/th"]
+# oc2/cmd/device/<ownDeviceID>
+# oc2/cmd/ap/<topic for every profile the consumer supports>
+listen_topics = ["oc2/cmd/all","oc2/cmd/ap/hunt","oc2/cmd/ap/slpf"]
 resp_topics = ["oc2/rsp"]
 
 
