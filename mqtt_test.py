@@ -47,7 +47,7 @@ default_cmd_topics.append(device_topic)
 # PASSWORD = 'Tango01Village'
   
 # TOPIC_REQUEST = 'oc2/cmd/device/oif'      
-TOPIC_REQUEST = 'oc2/cmd/ap/hunt'      
+TOPIC_REQUEST = 'oc2/cmd/device/th'      
 # TOPIC_REQUEST = 'oc2/cmd/device/t01'      
 # TOPIC_REQUEST = 'sfractal/command'      
 # TOPIC_REQUEST = 'oc2/cmd/ap/er'      
@@ -334,7 +334,7 @@ if __name__ == '__main__':
     is_mqtt_enabled = config_data["MQTT"]["is_enabled"]
 
     if is_mqtt_enabled:
-        # set_user_pw()  # Needed for AWS and MQHIV Brokers
+        set_user_pw()  # Needed for AWS and MQHIV Brokers
         connect_to_broker()
         subscribe_to_topics()
         signal.signal(signal.SIGINT, signal_handler)

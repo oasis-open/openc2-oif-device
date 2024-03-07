@@ -22,18 +22,19 @@ transport = "tcp"
 
 # broker = "localhost"
 # broker="mosquitto.olympus.mtn" 
-# broker="3271a3ddd2eb43caa7c4b195c7d6cabd.s2.eu.hivemq.cloud"
-broker = "test.mosquitto.org" 
+broker="3271a3ddd2eb43caa7c4b195c7d6cabd.s2.eu.hivemq.cloud"
+# broker = "test.mosquitto.org" 
 
-# port = 8883
-port = 1883
+port = 8883
+# port = 1883
 
 username = 'Cav01'
 password = 'Tango01Village'
 
 # oc2/cmd/device/<ownDeviceID>
 # oc2/cmd/ap/<topic for every profile the consumer supports>
-listen_topics = ["oc2/cmd/all","oc2/cmd/ap/hunt","oc2/cmd/ap/slpf"]
+# listen_topics = ["oc2/cmd/all","oc2/cmd/ap/hunt","oc2/cmd/ap/slpf", "oc2/cmd/device/th"]
+listen_topics = ["oc2/cmd/device/th"]
 resp_topics = ["oc2/rsp"]
 
 
