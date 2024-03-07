@@ -47,7 +47,7 @@ default_cmd_topics.append(device_topic)
 # PASSWORD = 'Tango01Village'
   
 # TOPIC_REQUEST = 'oc2/cmd/device/oif'      
-TOPIC_REQUEST = 'oc2/cmd/device/th'      
+TOPIC_REQUEST = 'oc2/cmd/ap/hunt'      
 # TOPIC_REQUEST = 'oc2/cmd/device/t01'      
 # TOPIC_REQUEST = 'sfractal/command'      
 # TOPIC_REQUEST = 'oc2/cmd/ap/er'      
