@@ -1,7 +1,7 @@
 name = "OIF Device"
 client_id = "oif-device"
 schema_path = "./oc2/schemas"
-schema_file = "hunt-ap-12-02-2023.json"
+schema_file = "resolved-hunt-03-12-2024.json"
 # schema_file = "th_ap_vbeta.json"
 # schema_file = "slpf_ap_v2.0.json"
 
