@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Device",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
             "program": "${workspaceFolder}/main.py",
@@ -14,7 +14,7 @@
         },
         {
             "name": "Python: Device Test",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
             "program": "${workspaceFolder}/mqtt_test.py",
