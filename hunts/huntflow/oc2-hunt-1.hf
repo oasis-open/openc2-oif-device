@@ -6,7 +6,7 @@
 #   - disablefw (process) (alias: results)
 #   - hosts (x-oca-asset)
 
-results = GET process FROM stixshifter://winlogbeat
+results = GET process FROM stixshifter://casp2024-edr
             WHERE (name = 'ufw' AND command_line LIKE '%disable%')
                OR (name = 'sudo' AND command_line LIKE '%ufw disable%')
                OR (name IN ('netsh', 'netsh.exe') AND command_line LIKE '%advfirewall%off%')

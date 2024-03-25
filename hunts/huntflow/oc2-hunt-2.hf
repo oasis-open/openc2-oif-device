@@ -10,7 +10,7 @@
 psc = LOAD "./hunts/results/disablefw.json" AS process
 hosts = LOAD "./hunts/results/hosts.json" AS x-oca-asset
 
-ps = GET process FROM stixshifter://winlogbeat
+ps = GET process FROM stixshifter://casp2024-edr
      WHERE x_unique_id = psc.x_unique_id
        AND x-oca-asset:device_id = hosts.device_id
      LAST 30 DAYS

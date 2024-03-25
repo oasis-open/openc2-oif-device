@@ -1,5 +1,5 @@
 profiles:
-    winlogbeat:
+    casp2024-edr:
         connector: elastic_ecs
         connection:
             host: localhost
