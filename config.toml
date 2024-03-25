@@ -34,12 +34,14 @@ password = 'Tango01Village'
 # oc2/cmd/device/<ownDeviceID>
 # oc2/cmd/ap/<topic for every profile the consumer supports>
 # listen_topics = ["oc2/cmd/all","oc2/cmd/ap/hunt","oc2/cmd/ap/slpf", "oc2/cmd/device/th"]
-listen_topics = ["oc2/cmd/ap/hunt"]
+listen_topics = ["oc2/cmd/all"]
 resp_topics = ["oc2/rsp"]
 
 
 [KESTREL]
 is_enabled = true
 is_sample_data = true
+is_file_results = true
+results_path = "./hunts/results/"
 datasources = ["elastic", "file", "uri"]
 huntbook_paths = ["./hunts/huntflow/"]

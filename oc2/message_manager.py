@@ -7,7 +7,7 @@ import toml
 
 from hunts.py.find_data_via_huntflow import hunt_via_file
 from hunts.py.find_data_via_variables import hunt_via_variables
-from utils.utils import current_milli_time, find_file_names_by_extension
+from utils import utils
 from jsonschema import Validator, validate
 
 HEADERS_REQUEST_ID_PATH = "headers.request_id"
@@ -41,7 +41,7 @@ def build_response_msg_bytes(request_id: str, from_str: str, status_int: int, ac
     response_msg = {
         "headers": {
             "request_id": request_id,
-            "created": current_milli_time(),
+            "created": utils.current_milli_time(),
             "from": from_str,
             "actuator_id" : actuator
         },
@@ -132,7 +132,7 @@ def process_oc2_msg(msg_benedict: benedict):
         if is_kestrel_enabled:
             if TH_HUNTBOOKS_PATH in msg_benedict: 
                 huntbooks_path = msg_benedict[TH_HUNTBOOKS_PATH]
-                work_result = find_file_names_by_extension(".hf", huntbooks_path)
+                work_result = utils.find_file_names_by_extension(".hf", huntbooks_path)
 
             elif TH_DATASOURCES_PATH in msg_benedict:
                 work_result = config_data["KESTREL"]["datasources"]
@@ -146,7 +146,26 @@ def process_oc2_msg(msg_benedict: benedict):
 
             elif TH_HUNT_PATH in msg_benedict:
                 hunt_path = msg_benedict[TH_HUNT_PATH] 
-                work_result = hunt_via_file(hunt_path)
+                # work_result = hunt_via_file(hunt_path)
+                
+                if config_data["KESTREL"]["is_file_results"]:
+                    """_summary_
+                        Find files
+                        Read data from each
+                        Add data to dict
+                        Convet dict to json
+                        Add json to work_result
+                    """
+                    path = config_data["KESTREL"]["results_path"]
+                    result_filenames = utils.find_file_names_by_extension(".json", path)
+                    results_dict = {}
+                    for filename in result_filenames:
+                        name = filename['filename']
+                        results_dict[name] = utils.load_file(path, filename['filename'])
+                        
+                    # TODO: Convert to json??
+                    # result_str = json.dumps(results_dict)
+                    work_result = json.dumps(results_dict)
 
     # TODO: Add other interactions here ...
 
