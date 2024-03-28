@@ -111,10 +111,11 @@ def set_user_pw(user: str = None, pw: str = None):
     if pw is None:
         pw = default_password
 
-    client.username_pw_set(user, pw)
-    client.tls_set(certfile=None,
-                    keyfile=None,
-                    cert_reqs=ssl.CERT_REQUIRED)  
+    if user and pw:
+        client.username_pw_set(user, pw)
+        client.tls_set(certfile=None,
+                        keyfile=None,
+                        cert_reqs=ssl.CERT_REQUIRED)    
 
 
 def connect_to_broker(broker: str = None, port: str = None):
