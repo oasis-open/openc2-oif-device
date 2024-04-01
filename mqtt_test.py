@@ -335,7 +335,7 @@ if __name__ == '__main__':
     is_mqtt_enabled = config_data["MQTT"]["is_enabled"]
 
     if is_mqtt_enabled:
-        # set_user_pw()  # Needed for AWS and MQHIV Brokers
+        set_user_pw()  # Needed for AWS and MQHIV Brokers
         connect_to_broker()
         subscribe_to_topics()
         signal.signal(signal.SIGINT, signal_handler)
