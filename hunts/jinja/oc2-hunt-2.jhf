@@ -22,4 +22,4 @@ p5s = FIND process CREATED p4s LAST 30 DAYS
 
 ancestors = p2s + p3s + p4s + p5s
 
-SAVE ancestors TO ancestors.json
+SAVE ancestors TO ./hunts/results/ancestors.json

@@ -1,5 +1,4 @@
 import ssl
-import time
 import traceback
 import paho.mqtt.client as mqtt
 

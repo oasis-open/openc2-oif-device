@@ -26,5 +26,5 @@ ancestors = p2s + p3s + p4s + p5s
 siblings = FIND process CREATED BY ancestors LAST 30 DAYS
 binaries = FIND file LOADED BY siblings
 
-SAVE siblings TO siblings.json
-SAVE binaries TO binaries.json
+SAVE siblings TO ./hunts/results/siblings.json
+SAVE binaries TO ./hunts/results/binaries.json

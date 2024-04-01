@@ -1,4 +1,3 @@
-import socket
 import ssl
 import sys
 import traceback
@@ -17,9 +16,7 @@ import toml
 Publish an OpenC2 command to MQTT Broker
 '''
 
-client_id = "mqtt_tester"
-curr_millis = utils.current_milli_time()
-client_id = client_id + "-" + socket.gethostname() + "-" + str(curr_millis)
+client_id = utils.build_client_id("mqtt_tester")
 to = "test_receiver"
 
 config_data = toml.load("config.toml")
@@ -486,7 +483,7 @@ if __name__ == '__main__':
         client.connect(default_broker, default_port)
         client.subscribe(default_rsp_topics[0])
         # signal.signal(signal.SIGINT, signal_handler)
-        publish(client, default_cmd_topics[0], COMMAND_CASP_01)
+        publish(client, default_cmd_topics[0], COMMAND_CASP_00)
         client.loop_forever()
     else:
         print("MQTT is not enabled")    

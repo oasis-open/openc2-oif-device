@@ -23,4 +23,4 @@ nt_fw = GET network-traffic
 
 remoteip = FIND ipv4-addr ACCEPTED nt_fw
 
-SAVE remoteip TO remoteip.json
+SAVE remoteip TO ./hunts/results/remoteip.json

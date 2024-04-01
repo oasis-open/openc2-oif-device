@@ -1,14 +1,14 @@
 
 
-import uuid
 import toml
 import uvicorn
 
 from transports import mqtt
+from utils import utils
 
 
 config_data = toml.load("config.toml")
-client_id = config_data["client_id"] + "-" + str(uuid.uuid4())
+client_id = utils.build_client_id()
 
 
 if __name__ == "__main__":
