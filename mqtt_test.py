@@ -47,20 +47,83 @@ default_cmd_topics.append(device_topic)
 # PASSWORD = 'Tango01Village'
   
 # TOPIC_REQUEST = 'oc2/cmd/device/oif'      
-# TOPIC_REQUEST = 'oc2/cmd/ap/hunt'      
+TOPIC_REQUEST = 'oc2/cmd/ap/hunt'      
 # TOPIC_REQUEST = 'oc2/cmd/device/t01'      
 # TOPIC_REQUEST = 'sfractal/command'      
 # TOPIC_REQUEST = 'oc2/cmd/ap/er'      
 # TOPIC_REQUEST = 'sfractal/command'      
 # TOPIC_REQUEST = 'oc2/cmd/device/yuuki_kevin'      
-TOPIC_REQUEST = 'oc2/cmd/all'      
 
 TOPIC_RESPONSE = 'oc2/rsp'
 # TOPIC_RESPONSE = 'oc2/rsp/t01'
 # TOPIC_P = 'oc2/rsp/p01'                 # This producer's topic
 # TOPIC_C01 = 'oc2/cmd/device/c01'        # OpenC2 consumer's topic
 
-COMMAND_00 = json.dumps({
+COMMAND_Q0 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000),
+        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'query',
+                'target': {
+                    'features': ["versions", "profiles"]
+                }
+            }
+        }
+    }
+})
+
+COMMAND_Q1 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000),
+        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'query',
+                'target': {
+                    'th': {
+                        'huntflows': 'hunts/huntflow'
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_Q2 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000),
+        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'query',
+                'target': {
+                    'th': {
+                        'datasources': 'hunts/huntflow'
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_CASP_00 = json.dumps({
     'headers': {
         'request_id': str(uuid.uuid4()),
         'from': client_id,
@@ -74,7 +137,7 @@ COMMAND_00 = json.dumps({
                 'action': 'investigate',
                 'target': {
                     'th': {
-                    'hunt': './hunts/huntflow/query_web_stixdata.hf'
+                    'hunt': './hunts/jinja/oc2-hunt-1.jhf'
                     }
                 }
             }
@@ -82,6 +145,92 @@ COMMAND_00 = json.dumps({
     }
 })
 
+COMMAND_CASP_01 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000),
+        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/jinja/oc2-hunt-2.jhf'
+                    }
+                },
+                'args': {
+                    'th': {
+                    'huntargs': {
+                        "string_args": ["filename_1:disablefw.json", "filename_2:hosts.json"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_CASP_02 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000),
+        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/jinja/oc2-hunt-3.jhf'
+                    }
+                },
+                'args': {
+                    'th': {
+                    'huntargs': {
+                        "string_args": ["filename_1:disablefw.json", "filename_2:hosts.json"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_CASP_03 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000),
+        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/jinja/oc2-hunt-4.jhf'
+                    }
+                },
+                'args': {
+                    'th': {
+                    'huntargs': {
+                        "string_args": ["filename_1:siblings.json", "filename_2:hosts.json"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
 
 COMMAND_01 = json.dumps({
     'headers': {
@@ -339,7 +488,7 @@ if __name__ == '__main__':
         connect_to_broker()
         subscribe_to_topics()
         signal.signal(signal.SIGINT, signal_handler)
-        publish(TOPIC_REQUEST, COMMAND_00)
+        publish(TOPIC_REQUEST, COMMAND_CASP_03)
         client.loop_forever()
     else:
         print("MQTT is not enabled")    
