@@ -1,4 +1,5 @@
 import ssl
+import time
 import traceback
 import paho.mqtt.client as mqtt
 
@@ -54,6 +55,8 @@ def publish(topic = None, msg = "test"):
 
 def on_message(client, userdata, message):
     try:
+        # time.sleep(4) # Waiting 2 secs (remove) once producer has redis
+        
         msg_str = str(message.payload.decode("utf-8"))
         print("MQTT Message Received *")
         print("\t Message \t=" ,msg_str)
