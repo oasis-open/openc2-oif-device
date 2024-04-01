@@ -14,5 +14,5 @@ disablefw = GET process FROM stixshifter://casp2024-edr
             
 hosts = FIND x-oca-asset LINKED disablefw LAST 30 DAYS
 
-SAVE disablefw TO disablefw.json
-SAVE hosts TO hosts.json
+SAVE disablefw TO ./hunts/results/disablefw.json
+SAVE hosts TO ./hunts/results/hosts.json
