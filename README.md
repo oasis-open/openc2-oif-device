@@ -114,7 +114,7 @@ To see if Elastic's CA Cert was obtained successfully:
 curl --cacert http_ca.crt https://elastic:elastic@localhost:9200
 ```
 
-**Output** <sub>should be similar</sub>
+Should be similar:
 
 ```json
 {
@@ -146,7 +146,7 @@ docker run \
     docker.elastic.co/kibana/kibana:8.2.2
 ```
 
-**Output** <sub>should be similar</sub>
+Should be similar (code may be different):
 
 ```bash
 Login to Kibana with security token by opening the given link in a web browser:
@@ -179,7 +179,7 @@ Then, run:
 ./scripts/load-elastic-data.sh 
 ```
 
-**Output**
+Output:
 
 ```bash
 Mon, 05 Jun 2023 13:46:55 GMT | dump complete
