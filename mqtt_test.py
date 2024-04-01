@@ -316,8 +316,6 @@ def signal_handler(signum, frame):
     
 def graceful_shutdown(client: mqtt.Client):
     print()
-    # the will_set is not sent on graceful shutdown by design
-    # we need to wait until the message has been sent, else it will not appear in the broker
     publish_result = client.publish(default_rsp_topics[0], payload = "offline", qos = 0, retain = True)
     publish_result.wait_for_publish() 
     
@@ -329,24 +327,14 @@ def shutdown(client: mqtt.Client):
     print("Shutting down MQTT Instance: ", client_id)
     client.disconnect()
     client.loop_stop()    
-
-
-# def on_connect5(client, userdata, flags, rc, properties):
-#     print("mqtt: New mqtt instance connected")
-#     # client.subscribe("$SYS/#")
-#     client.connected_flag=True    
+ 
 
 def on_connect5(client: mqtt.Client, userdata, flags, rc, properties):
     print("Connected with result code "+str(rc))
     client.connected_flag=True   
     client.is_connected
     client.subscribe(default_rsp_topics)
-
-
-# def on_connect(client, userdata, flags, rc):
-#     print("mqtt: New mqtt instance connected")
-#     # client.subscribe("$SYS/#")
-#     client.connected_flag=True    
+    
 
 def on_connect(client: mqtt.Client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -396,21 +384,6 @@ def publish(client: mqtt.Client, topic = None, msg = "test"):
     retain = False
 
     return client.publish(topic, b_msg, qos, retain, openc2_properties)  
-
-
-# def set_user_pw(user: str = None, pw: str = None):
-
-#     if user is None:
-#         user = default_username
-
-#     if pw is None:
-#         pw = default_password
-
-#     global client
-#     client.username_pw_set(user, pw)
-#     client.tls_set(certfile=None,
-#                     keyfile=None,
-#                     cert_reqs=ssl.CERT_REQUIRED)  
 
 
 def set_user_pw(client: mqtt.Client, user: str = None, pw: str = None):
@@ -482,7 +455,6 @@ if __name__ == '__main__':
         set_user_pw(client)  # Needed for AWS and MQHIV Brokers
         client.connect(default_broker, default_port)
         client.subscribe(default_rsp_topics[0])
-        # signal.signal(signal.SIGINT, signal_handler)
         publish(client, default_cmd_topics[0], COMMAND_CASP_00)
         client.loop_forever()
     else:
