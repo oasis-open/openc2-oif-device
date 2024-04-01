@@ -455,7 +455,7 @@ if __name__ == '__main__':
         set_user_pw(client)  # Needed for AWS and MQHIV Brokers
         client.connect(default_broker, default_port)
         client.subscribe(default_rsp_topics[0])
-        publish(client, default_cmd_topics[0], COMMAND_CASP_00)
+        publish(client, default_cmd_topics[0], COMMAND_CASP_03)
         client.loop_forever()
     else:
         print("MQTT is not enabled")    
