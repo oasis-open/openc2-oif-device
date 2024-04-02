@@ -15,8 +15,7 @@ from utils.utils import current_milli_time
 #             "headers": {
 #                 "request_id": request_id,
 #                 "created": current_milli_time(),
-#                 "from": from_str,
-#                 "actuator_id" : actuator
+#                 "from": from_str
 #             },
 #             "body": {
 #                 "openc2": {

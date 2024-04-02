@@ -6,7 +6,7 @@ from benedict import benedict
 from paho.mqtt.packettypes import PacketTypes
 from paho.mqtt.properties import Properties
 import toml
-from oc2.message_manager import HEADERS_ACTUATOR_ID_PATH, HEADERS_REQUEST_ID_PATH, build_response_msg_bytes, process_oc2_msg, validate_msg_required_properties, validate_schema
+from oc2.message_manager import HEADERS_REQUEST_ID_PATH, build_response_msg_bytes, process_oc2_msg, validate_msg_required_properties, validate_schema
 
 from utils.utils import convert_to_dict, find_file_names_by_extension, load_file
 from main import client_id, devicelogger
@@ -104,7 +104,6 @@ def on_message(client, userdata, message):
     response_msg = build_response_msg_bytes(msg_benedict[HEADERS_REQUEST_ID_PATH],
                                     client_id,
                                     status,
-                                    msg_benedict[HEADERS_ACTUATOR_ID_PATH],
                                     work_result)   
 
     publish(default_rsp_topics[0], response_msg)

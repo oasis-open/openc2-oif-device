@@ -13,8 +13,6 @@ from utils.utils import current_milli_time, find_file_names_by_extension
 from jsonschema import Validator, validate
 
 HEADERS_REQUEST_ID_PATH = "headers.request_id"
-HEADERS_ACTUATOR_ID_PATH = "headers.actuator_id"
-
 ACTION_PATH = "body.openc2.request.action"
 TARGET_PATH = "body.openc2.request.target"
 QUERY_FEATURES_PATH = "body.openc2.request.target.features"
@@ -38,13 +36,12 @@ def build_response_msg(status_int: int, status_text: str = None, results: any = 
     return response_msg
 
 
-def build_response_msg_bytes(request_id: str, from_str: str, status_int: int, actuator: str = None, results: any = None):
+def build_response_msg_bytes(request_id: str, from_str: str, status_int: int, results: any = None):
     response_msg = {
         "headers": {
             "request_id": request_id,
             "created": current_milli_time(),
-            "from": from_str,
-            "actuator_id" : actuator
+            "from": from_str
         },
         "body": {
             "openc2": {

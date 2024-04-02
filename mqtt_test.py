@@ -40,8 +40,7 @@ COMMAND_Q0 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -60,8 +59,7 @@ COMMAND_Q1 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -82,8 +80,7 @@ COMMAND_Q2 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -104,8 +101,7 @@ COMMAND_CASP_00 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -126,8 +122,7 @@ COMMAND_CASP_01 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -155,8 +150,7 @@ COMMAND_CASP_02 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -184,8 +178,7 @@ COMMAND_CASP_03 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -213,8 +206,7 @@ COMMAND_01 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -235,8 +227,7 @@ COMMAND_02 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'        
+        'created' : round(time.time() * 1000)       
     },
     'body': {
         'openc2': {
