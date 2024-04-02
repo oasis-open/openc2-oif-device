@@ -19,7 +19,7 @@ ACTION_PATH = "body.openc2.request.action"
 TARGET_PATH = "body.openc2.request.target"
 QUERY_FEATURES_PATH = "body.openc2.request.target.features"
 TH_HUNT_PATH = "body.openc2.request.target.th.hunt"
-TH_HUNTBOOKS_PATH = "body.openc2.request.target.th.huntflows"
+TH_HUNTBOOKS_PATH = "body.openc2.request.target.th.huntflows.path"
 TH_DATASOURCES_PATH = "body.openc2.request.target.th.datasources"
 TH_HUNTARGS_STRING_ARGS_PATH = "body.openc2.request.args.th.huntargs.string_args"
 
