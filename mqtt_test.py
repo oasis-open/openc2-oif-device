@@ -421,7 +421,7 @@ if __name__ == '__main__':
     
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     print("MQTT Instance Started")
-    print("\t Client ID \t\t= ", client_id)
+    print("\t Client ID \t= ", client_id)
     print("\t Broker \t= ", default_broker)
     print("\t Port \t\t= ", default_port)
     print("\t Protocol \t= ", default_protocol)
