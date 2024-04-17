@@ -79,8 +79,6 @@ async def openc2_command(command: Request, response: Response):
         response.headers["request_id"] = msg_benedict.headers.request_id
     response.headers["created"] = str(current_milli_time())
     response.headers["from"] = client_id
-    if msg_benedict.headers.actuator_id is not None:
-        response.headers["actuator_id"] = msg_benedict.headers.actuator_id
 
     return resp_body
 
