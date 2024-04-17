@@ -1,6 +1,6 @@
 # OpenC2 Device Release Notes
 
-## v2.0.0
+## v2.1.0
 
 * Revamped MQTT connection logic
 * Updated HTTP logic
@@ -12,3 +12,12 @@
 * Bumped express from 4.18.2 to 4.19.2 in /node_utils
 * Bumped fastapi from 0.100.0 to 0.110.0
 * Bumped jinja2 from 3.1.2 to 3.1.3
+
+## v2.0.0
+
+* Major improvements to the http and mqtt transports
+* Includes the beta threat hunting actuator profile for message validation
+* Streamlined startup
+* Introduction of configurable features via the config.toml
+* Basic kestrel integration examples
+* Updated readme documentation with clearer instructions, examples and OpenC2 goals
