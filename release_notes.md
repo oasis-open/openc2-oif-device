@@ -4,7 +4,7 @@
 
 * Revamped MQTT connection logic
 * Updated HTTP logic
-* Introduced Feature Flags
+* Introduced Feature Flags, to allow extra features to be easily enabled or disabled from the config.toml file
 * Kestrel logic is included but Feature Flagged Off
 * Improved device client id generation
 * Improved OpenC2 command validation
