@@ -1,15 +1,27 @@
 profiles:
-    bh22-linux:
+    casp2024-edr:
         connector: elastic_ecs
         connection:
             host: localhost
             port: 9200
             selfSignedCert: false
-            indices: linux-91-sysflow-bh22-20220727
-            options:
-                dialects:
-                  - beats
+        indices: winlogbeat-8.12.0
+        options:
+            retrieval_batch_size: 10000
         config:
             auth:
                 username: elastic
                 password: elastic
+    casp2024-netflow:
+        connector: elastic_ecs
+        connection:
+            host: localhost
+            port: 9200
+            selfSignedCert: false
+        indices: filebeat-8.12.2
+        options:
+            retrieval_batch_size: 10000
+        config:
+            auth:
+                username: elastic
+                password: elastic                

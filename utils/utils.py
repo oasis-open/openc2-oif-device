@@ -1,8 +1,24 @@
 import json
 import logging
 import os
+import socket
 import time
 import traceback
+
+import toml
+
+
+def build_client_id(custom_name: str = None):
+    config_data = toml.load("config.toml")
+    
+    client_id = config_data["client_id"]
+    if custom_name != None:
+        client_id = custom_name
+        
+    curr_millis = current_milli_time()
+    client_id = client_id + "-" + socket.gethostname() + "-" + str(curr_millis)
+    
+    return client_id
 
 
 def increment(x):

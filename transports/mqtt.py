@@ -6,10 +6,17 @@ from benedict import benedict
 from paho.mqtt.packettypes import PacketTypes
 from paho.mqtt.properties import Properties
 import toml
-from oc2.message_manager import HEADERS_ACTUATOR_ID_PATH, HEADERS_REQUEST_ID_PATH, build_response_msg_bytes, process_oc2_msg, validate_msg_required_properties, validate_schema
+from oc2.message_manager import HEADERS_REQUEST_ID_PATH, build_response_msg_bytes, process_oc2_msg, validate_msg_required_properties, validate_schema
 
 from utils.utils import convert_to_dict, find_file_names_by_extension, load_file
-from main import client_id
+from main import client_id, devicelogger
+
+
+def on_connect5(client, userdata, flags, rc, properties):
+    print("mqtt: New mqtt instance connected")
+    # client.subscribe("$SYS/#")
+    client.connected_flag=True    
+
 
 def on_connect(client, userdata, flags, rc):
     print("mqtt: New mqtt instance connected")
@@ -29,7 +36,7 @@ def publish(topic = None, msg = "test"):
     print("mqtt: Publishing ->")
     print("\t Topic \t\t=" ,topic)        
     print("\t Message \t=" ,msg)        
-    b_msg = msg.encode('utf-8').strip()     
+    b_msg = msg.encode('utf-8').strip()   
 
     openc2_properties = Properties(PacketTypes.PUBLISH)
     if "v3" in default_protocol:
@@ -41,18 +48,28 @@ def publish(topic = None, msg = "test"):
 
     qos = 0
     retain = False
+    
+    devicelogger().debug("mqtt -- publishing msg ***")
+    devicelogger().debug("mqtt -- topic: %s", topic)
+    devicelogger().debug("mqtt -- rsp msg: %s", msg)    
 
     return client.publish(topic, b_msg, qos, retain, openc2_properties)
 
 
 def on_message(client, userdata, message):
     try:
+        # time.sleep(4) # Waiting 2 secs (remove) once producer has redis
+        
         msg_str = str(message.payload.decode("utf-8"))
-        print("MQTT Message Received *")
-        print("\t Message \t=" ,msg_str)
-        print("\t Topic \t\t=",message.topic)
-        print("\t QOS \t\t=",message.qos)
-        print("\t Retain flag \t=",message.retain)  
+        # print("MQTT Message Received *")
+        # print("\t Message \t=" ,msg_str)
+        # print("\t Topic \t\t=",message.topic)
+        # print("\t QOS \t\t=",message.qos)
+        # print("\t Retain flag \t=",message.retain)  
+        
+        devicelogger().debug("mqtt -- msg received ***")
+        devicelogger().debug("mqtt -- topic: %s", message.topic)
+        devicelogger().debug("mqtt -- msg: %s", msg_str) 
 
         message_dict = convert_to_dict(msg_str)
         msg_benedict = benedict(message_dict)
@@ -87,7 +104,6 @@ def on_message(client, userdata, message):
     response_msg = build_response_msg_bytes(msg_benedict[HEADERS_REQUEST_ID_PATH],
                                     client_id,
                                     status,
-                                    msg_benedict[HEADERS_ACTUATOR_ID_PATH],
                                     work_result)   
 
     publish(default_rsp_topics[0], response_msg)
@@ -101,10 +117,11 @@ def set_user_pw(user: str = None, pw: str = None):
     if pw is None:
         pw = default_password
 
-    client.username_pw_set(user, pw)
-    client.tls_set(certfile=None,
-                    keyfile=None,
-                    cert_reqs=ssl.CERT_REQUIRED)  
+    if user and pw:
+        client.username_pw_set(user, pw)
+        client.tls_set(certfile=None,
+                        keyfile=None,
+                        cert_reqs=ssl.CERT_REQUIRED)    
 
 
 def connect_to_broker(broker: str = None, port: str = None):
@@ -150,13 +167,14 @@ default_rsp_topics = config_data["MQTT"]["resp_topics"]
 default_username = config_data["MQTT"]['username']  
 default_password = config_data["MQTT"]['password'] 
 
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 if default_protocol == "MQTTv5":
-    client = mqtt.Client(client_id, None, userdata=True, protocol=mqtt.MQTTv5, transport="tcp") 
+    client.on_connect = on_connect5
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id, None, userdata=True, protocol=mqtt.MQTTv5, transport="tcp") 
 else:
-    client = mqtt.Client(client_id, None, userdata=True, protocol=mqtt.MQTTv311, transport="tcp") 
+    client.on_connect = on_connect
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id, None, userdata=True, protocol=mqtt.MQTTv311, transport="tcp") 
 
-client = mqtt.Client()
-client.on_connect = on_connect
 client.on_message = on_message
 client.on_log = on_log
 
