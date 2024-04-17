@@ -1,0 +1,493 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://github.com/oasis-tcs/openc2-ap-hunt",
+	"title": "Threat Hunting Profile",
+	"version": "0-wd01",
+	"description": "Data definitions for Threat Hunting (TH) functions",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"ap_target": {
+			"$ref": "#/definitions/AP-Target"
+		},
+		"ap_args": {
+			"$ref": "#/definitions/AP-Args"
+		},
+		"ap_specifiers": {
+			"$ref": "#/definitions/AP-Specifiers"
+		},
+		"ap_results": {
+			"$ref": "#/definitions/AP-Results"
+		}
+	},
+	"definitions": {
+		"AP-Target": {
+			"title": "AP Target",
+			"type": "object",
+			"description": "TH targets defined in this profile.",
+			"additionalProperties": false,
+			"minProperties": 1,
+			"maxProperties": 1,
+			"properties": {
+				"hunt": {
+					"type": "string",
+					"description": "A procedure to find a set of entities in the monitored environment that associates with a cyberthreat.",
+					"maxLength": 5555
+				},
+				"huntbooks": {
+					"$ref": "#/definitions/Huntbook-Specifiers",
+					"description": "TH Huntbook specifiers."
+				},
+				"datasources": {
+					"type": "string",
+					"maxLength": 5555
+				}
+			}
+		},
+		"AP-Args": {
+			"title": "AP Args",
+			"type": "object",
+			"description": "TH command arguments defined in this profile.",
+			"additionalProperties": false,
+			"required": [
+				"huntargs"
+			],
+			"maxProperties": 555,
+			"properties": {
+				"huntargs": {
+					"$ref": "#/definitions/Huntargs",
+					"description": "Arguments for use in conjunction with huntbook implementation."
+				}
+			}
+		},
+		"AP-Specifiers": {
+			"title": "AP Specifiers",
+			"type": "object",
+			"description": "TH actuator specifiers (may be empty).",
+			"additionalProperties": false,
+			"minProperties": 1,
+			"maxProperties": 555,
+			"properties": {}
+		},
+		"AP-Results": {
+			"title": "AP Results",
+			"type": "object",
+			"description": "TH results defined in this profile.",
+			"additionalProperties": false,
+			"minProperties": 1,
+			"maxProperties": 555,
+			"properties": {
+				"huntbook_info": {
+					"$ref": "#/definitions/Huntbook-Info",
+					"description": "Structured data returned by Query: Huntbooks."
+				},
+				"datasources": {
+					"$ref": "#/definitions/Datasource-Array",
+					"description": "Datasource names and info returned by Query Datasources."
+				}
+			}
+		},
+		"Action": {
+			"title": "Action",
+			"type": "string",
+			"enum": [
+				"query",
+				"investigate"
+			]
+		},
+		"Target": {
+			"title": "Target",
+			"type": "string",
+			"enum": [
+				"features",
+				"th"
+			]
+		},
+		"Args": {
+			"title": "Args",
+			"type": "string",
+			"enum": [
+				"start_time",
+				"stop_time",
+				"duration",
+				"response_requested",
+				"th"
+			]
+		},
+		"Actuator": {
+			"title": "Actuator",
+			"type": "string",
+			"enum": [
+				"th"
+			]
+		},
+		"Results": {
+			"title": "Results",
+			"type": "string",
+			"enum": [
+				"versions",
+				"profiles",
+				"pairs",
+				"rate_limit",
+				"args",
+				"th"
+			]
+		},
+		"Pairs": {
+			"title": "Pairs",
+			"type": "string",
+			"enum": [
+				"query: features, /huntbooks, /datasources",
+				"investigate: /hunt"
+			]
+		},
+		"Huntargs": {
+			"title": "Huntargs",
+			"type": "object",
+			"description": "TH command arguments defined in this profile.",
+			"additionalProperties": false,
+			"minProperties": 1,
+			"maxProperties": 555,
+			"properties": {
+				"string_arg": {
+					"type": "string",
+					"description": "string arguments supplied as huntargs.",
+					"maxLength": 5555
+				},
+				"integer_arg": {
+					"type": "integer",
+					"description": "integer arguments supplied as huntargs."
+				},
+				"stix": {
+					"$ref": "#/definitions/STIX-Cybersecurity-Observables",
+					"description": "STIX arguments supplied as huntargs."
+				},
+				"timeranges": {
+					"$ref": "#/definitions/Timeranges",
+					"description": "Timeranges used in the execution of a hunt."
+				},
+				"datasources": {
+					"$ref": "#/definitions/Datasource-Array",
+					"description": "Available data sources for hunting. These may be a host monitor, an EDR, a SIEM, a firewall, etc."
+				}
+			}
+		},
+		"Huntbook-Specifiers": {
+			"title": "Huntbook Specifiers",
+			"type": "object",
+			"description": "TH Huntbook specifiers.",
+			"additionalProperties": false,
+			"maxProperties": 555,
+			"properties": {
+				"path": {
+					"type": "string",
+					"description": "Return huntbooks at and below this filesystem location (absolute path).",
+					"maxLength": 5555
+				},
+				"tags": {
+					"$ref": "#/definitions/Tags",
+					"description": "Return huntbooks with these keywords."
+				},
+				"arg_types": {
+					"$ref": "#/definitions/Specified-Arg-Types",
+					"description": "Return huntbooks that take these argument types."
+				},
+				"arg_names": {
+					"$ref": "#/definitions/Specified-Arg-Names",
+					"description": "Return huntbooks that take these argument types."
+				},
+				"format_types": {
+					"$ref": "#/definitions/Return-Type",
+					"description": "Return huntbooks that produce these output types."
+				},
+				"return_format": {
+					"$ref": "#/definitions/Huntbook-Sections",
+					"description": "For each huntbook returned, include these data items."
+				}
+			}
+		},
+		"Specified-Arg-Types": {
+			"title": "Specified Arg Types",
+			"type": "array",
+			"description": "Return huntbooks that take these argument types.",
+			"maxItems": 555,
+			"items": {
+				"$ref": "#/definitions/Arg-Type"
+			}
+		},
+		"Specified-Arg-Names": {
+			"title": "Specified Arg Names",
+			"type": "array",
+			"description": "Return huntbooks that take arguments with these names.",
+			"maxItems": 555,
+			"items": {
+				"$ref": "#/definitions/Arg-Name"
+			}
+		},
+		"Timeranges": {
+			"title": "Timeranges",
+			"type": "array",
+			"description": "a timerange used in the execution of a hunt.",
+			"maxItems": 555,
+			"items": {
+				"$ref": "#/definitions/Timerange"
+			}
+		},
+		"Timerange": {
+			"title": "Timerange",
+			"type": "object",
+			"description": "Identification of process to be targeted by Threat Hunting activity.",
+			"additionalProperties": false,
+			"minProperties": 1,
+			"maxProperties": 1,
+			"properties": {
+				"timerange_absolute": {
+					"$ref": "#/definitions/Timerange-Abs",
+					"description": "Absolute timerange, defined by a start and end time in ISO 8601 format."
+				},
+				"timerange_relative": {
+					"$ref": "#/definitions/Timerange-Rel",
+					"description": "Relative timerange, example '3, Days' for last 3 days."
+				}
+			}
+		},
+		"Time-Unit": {
+			"title": "Time Unit",
+			"type": "string",
+			"description": "Time Unit Keywords.",
+			"enum": [
+				"Days",
+				"Hours",
+				"Minutes",
+				"Seconds"
+			]
+		},
+		"Timerange-Abs": {
+			"title": "Timerange Abs",
+			"type": "object",
+			"description": "Absolute timerange, defined by a start and end time in ISO 8601 format.",
+			"additionalProperties": false,
+			"required": [
+				"hunt_start_time",
+				"hunt_stop_time"
+			],
+			"minProperties": 2,
+			"maxProperties": 555,
+			"properties": {
+				"hunt_start_time": {
+					"$ref": "#/definitions/STIX-Time",
+					"description": "Start time, as a STIX time string."
+				},
+				"hunt_stop_time": {
+					"$ref": "#/definitions/STIX-Time",
+					"description": "Stop time, as a STIX time string."
+				}
+			}
+		},
+		"STIX-Time": {
+			"title": "STIX Time",
+			"type": "string",
+			"description": "string representation of ISO 8601 time.",
+			"maxLength": 5555,
+			"pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+		},
+		"Timerange-Rel": {
+			"title": "Timerange Rel",
+			"type": "object",
+			"description": "Relative timerange, example '3, Days' for last 3 days.",
+			"additionalProperties": false,
+			"required": [
+				"number",
+				"time_unit"
+			],
+			"minProperties": 2,
+			"maxProperties": 555,
+			"properties": {
+				"number": {
+					"type": "integer",
+					"description": "Number of specified Time Units used in Relative Timerange."
+				},
+				"time_unit": {
+					"$ref": "#/definitions/Time-Unit",
+					"description": "Time Unit Keywords."
+				}
+			}
+		},
+		"Arg-Type": {
+			"title": "Arg Type",
+			"type": "string",
+			"description": "Argument types used by a Huntbook. Follow STIX naming conventions, with lowercase characters and hyphens replacing spaces. Common types include process, file, and network-traffic.",
+			"maxLength": 5555
+		},
+		"Arg-Name": {
+			"title": "Arg Name",
+			"type": "string",
+			"description": "Argument names used by a Huntbook. Follow C variable naming conventions. Examples include name, src_port, and x_unique_id.",
+			"maxLength": 5555
+		},
+		"Return-Type": {
+			"title": "Return Type",
+			"type": "object",
+			"description": "Variable names and types expected as returns when using a Huntbook.",
+			"additionalProperties": false,
+			"required": [
+				"var_name",
+				"var_type"
+			],
+			"minProperties": 2,
+			"maxProperties": 555,
+			"properties": {
+				"var_name": {
+					"$ref": "#/definitions/Arg-Name",
+					"description": "Variable name to be returned by use of Huntbook."
+				},
+				"var_type": {
+					"$ref": "#/definitions/Arg-Type",
+					"description": "Type of data to be returned by use of Huntbook."
+				}
+			}
+		},
+		"Datasource": {
+			"title": "Datasource",
+			"type": "object",
+			"description": "Datasource names and tags required for use with a particular Huntbook.",
+			"additionalProperties": false,
+			"required": [
+				"ds_name"
+			],
+			"minProperties": 1,
+			"maxProperties": 555,
+			"properties": {
+				"ds_name": {
+					"type": "string",
+					"description": "Name of a Datasource used by a Huntbook in Kestrel runtime.",
+					"maxLength": 5555
+				},
+				"ds_tags": {
+					"$ref": "#/definitions/Tags",
+					"description": "Tags applied to a Datasource for search or filter purposes."
+				}
+			}
+		},
+		"Huntbook-Sections": {
+			"title": "Huntbook Sections",
+			"type": "array",
+			"description": "For each huntbook returned, include these data items.",
+			"maxItems": 555,
+			"items": {
+				"$ref": "#/definitions/Huntbook-Section"
+			}
+		},
+		"Huntbook-Section": {
+			"title": "Huntbook Section",
+			"type": "string",
+			"description": "Data format to be returned by Query Huntbooks. If none specified, return all.",
+			"enum": [
+				"path",
+				"uniqueId",
+				"version",
+				"args_required",
+				"expected_returns",
+				"script"
+			]
+		},
+		"Huntbook-Info": {
+			"title": "Huntbook Info",
+			"type": "object",
+			"description": "Structured data returned by Query: Huntbooks with specifiers for specific info.",
+			"additionalProperties": false,
+			"minProperties": 1,
+			"maxProperties": 555,
+			"properties": {
+				"path": {
+					"type": "string",
+					"description": "Path used to identify a Huntbook in place of a name.",
+					"maxLength": 5555
+				},
+				"uniqueId": {
+					"type": "integer",
+					"description": "Unique ID associated with a specified Huntbook."
+				},
+				"version": {
+					"type": "string",
+					"description": "Unique ID associated with a specified Huntbook.",
+					"maxLength": 5555
+				},
+				"args_required": {
+					"$ref": "#/definitions/Typed-Arguments",
+					"description": "List of arguments used in the specified Huntflow."
+				},
+				"expected_returns": {
+					"$ref": "#/definitions/Typed-Arguments",
+					"description": "Data returned by the specified Huntbooks."
+				},
+				"script": {
+					"type": "string",
+					"description": "Text of Hunt logic imlemented by specified Huntbook.",
+					"maxLength": 5555
+				}
+			}
+		},
+		"STIX-Array": {
+			"title": "STIX Array",
+			"type": "array",
+			"description": "STIX arguments supplied as huntargs.",
+			"maxItems": 555,
+			"items": {
+				"$ref": "#/definitions/STIX-Object"
+			}
+		},
+		"STIX-Object": {
+			"title": "STIX Object",
+			"type": "array",
+			"description": "STIX cyber observables used in threat hunting. link to STIX table HERE.",
+			"maxItems": 555,
+			"items": {
+				"type": "string"
+			}
+		},
+		"Datasource-Array": {
+			"title": "Datasource Array",
+			"type": "array",
+			"description": "An Array of Datasources, with multiple uses in Threathunting",
+			"maxItems": 555,
+			"items": {
+				"$ref": "#/definitions/Datasource"
+			}
+		},
+		"Tags": {
+			"title": "Tags",
+			"type": "array",
+			"description": "Tags applied for search or filter purposes.",
+			"maxItems": 555,
+			"items": {
+				"type": "string"
+			}
+		},
+		"Typed-Arguments": {
+			"title": "Typed Arguments",
+			"type": "object",
+			"description": "Argument names and types tied to a specific Huntbook.",
+			"additionalProperties": false,
+			"maxProperties": 555
+		},
+		"STIX-Cybersecurity-Observables": {
+			"title": "STIX Cybersecurity Observables",
+			"type": "array",
+			"description": "An Array of Cybersecurity Observables in STIX formatting",
+			"maxItems": 555,
+			"items": {
+				"$ref": "#/definitions/SCO"
+			}
+		},
+		"SCO": {
+			"title": "SCO",
+			"type": "object",
+			"description": "Availiable Cybersecurity Observables in the STIX language",
+			"additionalProperties": false
+		}
+	},
+	"imports": {
+		"ls": {}
+	}
+}
