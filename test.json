@@ -2,8 +2,7 @@
   "headers": {
     "request_id": "40eac796-43c2-4f3e-8ab1-a51e37380e0e",
     "created": 1709671082933,
-    "from": "oif-device-9baf5863-fe55-4bc5-9537-eb9282a08a50",
-    "actuator_id": "8144acd3-f5d6-4bda-b1bd-a964f4a19677"
+    "from": "oif-device-9baf5863-fe55-4bc5-9537-eb9282a08a50"
   },
   "body": {
     "openc2": {

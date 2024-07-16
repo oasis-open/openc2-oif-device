@@ -1,17 +1,31 @@
 
 
-import uuid
 import toml
 import uvicorn
+import logging, logging.config, yaml
 
 from transports import mqtt
-
+from utils import utils
 
 config_data = toml.load("config.toml")
-client_id = config_data["client_id"] + "-" + str(uuid.uuid4())
+client_id = utils.build_client_id()
 
+def devicelogger():
+    return logging.getLogger('file')
+
+def get_logconsole():
+    return logging.getLogger('console')
 
 if __name__ == "__main__":
+
+    # logging.basicConfig(filename='error.log',level=logging.DEBUG)
+    loader = yaml.safe_load(open('logging.conf'))
+    logging.config.dictConfig(loader)
+    logfile    = devicelogger()
+    logconsole = get_logconsole()
+    
+    logfile.debug("Debug FILE -- App Started")
+    logconsole.debug("Debug CONSOLE -- App Started")    
 
     config_data = toml.load("config.toml")
     is_http_enabled = config_data["HTTP"]["is_enabled"]

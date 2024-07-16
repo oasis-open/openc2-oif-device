@@ -1,4 +1,3 @@
-import signal
 import ssl
 import sys
 import traceback
@@ -9,6 +8,7 @@ import time
 from base64 import b16encode
 from paho.mqtt.properties import Properties
 from paho.mqtt.packettypes import PacketTypes
+from utils import utils
 
 import toml
 
@@ -16,7 +16,7 @@ import toml
 Publish an OpenC2 command to MQTT Broker
 '''
 
-client_id = "mqtt_tester_" + str(uuid.uuid4())
+client_id = utils.build_client_id("mqtt_tester")
 to = "test_receiver"
 
 config_data = toml.load("config.toml")
@@ -31,50 +31,43 @@ default_username = config_data["MQTT"]['username']
 default_password = config_data["MQTT"]['password']
 
 # TODO: Add / pull client id from file to retain longer than just session time
-device_topic = "oc2/cmd/device/" + client_id
-default_cmd_topics.append(device_topic)
+# device_topic = "oc2/cmd/device/" + client_id
+# default_cmd_topics.append(device_topic)
 
-
-# BROKER, BROKER_PORT = os.getenv('CAVBROKER').rsplit(':')
-# USERNAME, PASSWORD = os.getenv('CAVUSER').split(',')
-
-# BROKER = '3271a3ddd2eb43caa7c4b195c7d6cabd.s2.eu.hivemq.cloud'
-# BROKER = 'test.mosquitto.org'
-# PORT = 1883
-# PORT = 8883
-
-# USERNAME = 'Cav01'
-# PASSWORD = 'Tango01Village'
-  
-# TOPIC_REQUEST = 'oc2/cmd/device/oif'      
-# TOPIC_REQUEST = 'oc2/cmd/ap/hunt'      
-# TOPIC_REQUEST = 'oc2/cmd/device/t01'      
-# TOPIC_REQUEST = 'sfractal/command'      
-# TOPIC_REQUEST = 'oc2/cmd/ap/er'      
-# TOPIC_REQUEST = 'sfractal/command'      
-# TOPIC_REQUEST = 'oc2/cmd/device/yuuki_kevin'   
-TOPIC_REQUEST = 'oc2/cmd/all'           
-
-TOPIC_RESPONSE = 'oc2/rsp'
-# TOPIC_RESPONSE = 'oc2/rsp/t01'
-# TOPIC_P = 'oc2/rsp/p01'                 # This producer's topic
-# TOPIC_C01 = 'oc2/cmd/device/c01'        # OpenC2 consumer's topic
-
-COMMAND_00 = json.dumps({
+# TODO: Move Test Commands to another file
+COMMAND_Q0 = json.dumps({
     'headers': {
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
             'request': {
-                'action': 'investigate',
+                'action': 'query',
+                'target': {
+                    'features': ["versions", "profiles"]
+                }
+            }
+        }
+    }
+})
+
+COMMAND_Q1 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000)
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'query',
                 'target': {
                     'th': {
-                    'hunt': './hunts/huntflow/query_web_stixdata.hf'
+                        'huntflows': 'hunts/huntflow'
                     }
                 }
             }
@@ -82,14 +75,138 @@ COMMAND_00 = json.dumps({
     }
 })
 
+COMMAND_Q2 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000)
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'query',
+                'target': {
+                    'th': {
+                        'datasources': 'hunts/huntflow'
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_CASP_00 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000)
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/jinja/oc2-hunt-1.jhf'
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_CASP_01 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000)
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/jinja/oc2-hunt-2.jhf'
+                    }
+                },
+                'args': {
+                    'th': {
+                    'huntargs': {
+                        "string_args": ["filename_1:disablefw.json", "filename_2:hosts.json"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_CASP_02 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000)
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/jinja/oc2-hunt-3.jhf'
+                    }
+                },
+                'args': {
+                    'th': {
+                    'huntargs': {
+                        "string_args": ["filename_1:disablefw.json", "filename_2:hosts.json"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+
+COMMAND_CASP_03 = json.dumps({
+    'headers': {
+        'request_id': str(uuid.uuid4()),
+        'from': client_id,
+        'to': to,
+        'created' : round(time.time() * 1000)
+    },
+    'body': {
+        'openc2': {
+            'request': {
+                'action': 'investigate',
+                'target': {
+                    'th': {
+                    'hunt': './hunts/jinja/oc2-hunt-4.jhf'
+                    }
+                },
+                'args': {
+                    'th': {
+                    'huntargs': {
+                        "string_args": ["filename_1:siblings.json", "filename_2:hosts.json"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
 
 COMMAND_01 = json.dumps({
     'headers': {
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'
+        'created' : round(time.time() * 1000)
     },
     'body': {
         'openc2': {
@@ -110,8 +227,7 @@ COMMAND_02 = json.dumps({
         'request_id': str(uuid.uuid4()),
         'from': client_id,
         'to': to,
-        'created' : round(time.time() * 1000),
-        'actuator_id' : '8144acd3-f5d6-4bda-b1bd-a964f4a19677'        
+        'created' : round(time.time() * 1000)       
     },
     'body': {
         'openc2': {
@@ -189,37 +305,39 @@ COMMAND_07 = json.dumps(
 def signal_handler(signum, frame):
     graceful_shutdown()
     
-
-def graceful_shutdown():
+def graceful_shutdown(client: mqtt.Client):
     print()
-    # the will_set is not sent on graceful shutdown by design
-    # we need to wait until the message has been sent, else it will not appear in the broker
-    global client
-    publish_result = client.publish(TOPIC_RESPONSE, payload = "offline", qos = 0, retain = True)
+    publish_result = client.publish(default_rsp_topics[0], payload = "offline", qos = 0, retain = True)
     publish_result.wait_for_publish() 
     
     client.disconnect()
     client.loop_stop()
     sys.exit()
+    
+def shutdown(client: mqtt.Client):
+    print("Shutting down MQTT Instance: ", client_id)
+    client.disconnect()
+    client.loop_stop()    
+ 
 
+def on_connect5(client: mqtt.Client, userdata, flags, rc, properties):
+    print("Connected with result code "+str(rc))
+    client.connected_flag=True   
+    client.is_connected
+    client.subscribe(default_rsp_topics)
+    
 
-def on_connect5(client, userdata, flags, rc, properties):
-    print("mqtt: New mqtt instance connected")
-    # client.subscribe("$SYS/#")
-    client.connected_flag=True    
-
-
-def on_connect(client, userdata, flags, rc):
-    print("mqtt: New mqtt instance connected")
-    # client.subscribe("$SYS/#")
-    client.connected_flag=True    
+def on_connect(client: mqtt.Client, userdata, flags, rc):
+    print("Connected with result code "+str(rc))
+    client.connected_flag=True   
+    client.is_connected    
+    client.subscribe(default_rsp_topics)
     
 
 def on_log(client, userdata, level, buf):
     print("mqtt: ", buf)     
 
 
-# The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, message):
     try:
         msg_str = str(message.payload.decode("utf-8"))
@@ -235,7 +353,7 @@ def on_message(client, userdata, message):
         work_result = "Error processing mqtt message response: " + traceback.format_exc()        
 
 
-def publish(topic = None, msg = "test"):
+def publish(client: mqtt.Client, topic = None, msg = "test"):
 
     if topic is None:
         topic = default_rsp_topics[0]
@@ -256,11 +374,10 @@ def publish(topic = None, msg = "test"):
     qos = 0
     retain = False
 
-    global client
     return client.publish(topic, b_msg, qos, retain, openc2_properties)  
 
 
-def set_user_pw(user: str = None, pw: str = None):
+def set_user_pw(client: mqtt.Client, user: str = None, pw: str = None):
 
     if user is None:
         user = default_username
@@ -268,14 +385,14 @@ def set_user_pw(user: str = None, pw: str = None):
     if pw is None:
         pw = default_password
 
-    global client
-    client.username_pw_set(user, pw)
-    client.tls_set(certfile=None,
-                    keyfile=None,
-                    cert_reqs=ssl.CERT_REQUIRED)  
+    if user and pw:
+        client.username_pw_set(user, pw)
+        client.tls_set(certfile=None,
+                        keyfile=None,
+                        cert_reqs=ssl.CERT_REQUIRED) 
 
 
-def connect_to_broker(broker: str = None, port: str = None):
+def connect_to_broker(client: mqtt.Client, broker: str = None, port: str = None):
 
     if broker is None:
         broker = default_broker
@@ -284,25 +401,16 @@ def connect_to_broker(broker: str = None, port: str = None):
         port = default_port      
 
     try:
-        global client
         client.connect(broker, port) 
     except Exception:
         print("mqtt: Unable to connect to MQTT Broker")
         print(traceback.format_exc())  
 
 
-def subscribe_to_topics(topics: list = [TOPIC_RESPONSE]):
+def subscribe_to_topics(client: mqtt.Client, topics: list = default_rsp_topics):
     for topic in topics:
         print("mqtt: Subscribing to Topic: ", topic)
-        global client
         client.subscribe(topic)       
-
-
-def shutdown():
-    print("Shutting down MQTT Instance: ", client_id)
-    global client
-    client.disconnect()
-    client.loop_stop()
 
 
 def main():
@@ -313,12 +421,12 @@ if __name__ == '__main__':
     
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     print("MQTT Instance Started")
-    print("\t Client ID \t\t= ", client_id)
-    print("\t Default Broker \t= ", default_broker)
-    print("\t Default Port \t\t= ", default_port)
-    print("\t Default Protocol \t= ", default_protocol)
-    print("\t Default CMD Topics \t= ", default_cmd_topics)
-    print("\t Default RSP Topics \t= ", default_rsp_topics)
+    print("\t Client ID \t= ", client_id)
+    print("\t Broker \t= ", default_broker)
+    print("\t Port \t\t= ", default_port)
+    print("\t Protocol \t= ", default_protocol)
+    print("\t CMD Topics \t= ", default_cmd_topics)
+    print("\t RSP Topics \t= ", default_rsp_topics)
     print() 
 
     if default_protocol == "MQTTv5":
@@ -335,11 +443,10 @@ if __name__ == '__main__':
     is_mqtt_enabled = config_data["MQTT"]["is_enabled"]
 
     if is_mqtt_enabled:
-        set_user_pw()  # Needed for AWS and MQHIV Brokers
-        connect_to_broker()
-        subscribe_to_topics()
-        signal.signal(signal.SIGINT, signal_handler)
-        publish(TOPIC_REQUEST, COMMAND_00)
+        set_user_pw(client)  # Needed for AWS and MQHIV Brokers
+        client.connect(default_broker, default_port)
+        client.subscribe(default_rsp_topics[0])
+        publish(client, default_cmd_topics[0], COMMAND_CASP_00)
         client.loop_forever()
     else:
         print("MQTT is not enabled")    

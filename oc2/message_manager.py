@@ -2,25 +2,24 @@ import json
 import logging
 import traceback
 from benedict import benedict
+from typing import Union
 
 import toml
 
+from hunts.py.find_data_via_huntflow_j2 import hunt_via_file_j2
 from hunts.py.find_data_via_huntflow import hunt_via_file
 from hunts.py.find_data_via_variables import hunt_via_variables
-from utils import utils
+from utils.utils import current_milli_time, find_file_names_by_extension
 from jsonschema import Validator, validate
 
 HEADERS_REQUEST_ID_PATH = "headers.request_id"
-HEADERS_ACTUATOR_ID_PATH = "headers.actuator_id"
-
 ACTION_PATH = "body.openc2.request.action"
 TARGET_PATH = "body.openc2.request.target"
+QUERY_FEATURES_PATH = "body.openc2.request.target.features"
 TH_HUNT_PATH = "body.openc2.request.target.th.hunt"
-TH_HUNTBOOKS_PATH = "body.openc2.request.target.th.huntbooks.path"
+TH_HUNTBOOKS_PATH = "body.openc2.request.target.th.huntflows.path"
 TH_DATASOURCES_PATH = "body.openc2.request.target.th.datasources"
-TH_HUNTARGS_STRING_ARG_PATH = "body.openc2.request.args.th.huntargs.string_arg"
-
-
+TH_HUNTARGS_STRING_ARGS_PATH = "body.openc2.request.args.th.huntargs.string_args"
 
 
 def build_response_msg(status_int: int, status_text: str = None, results: any = None):
@@ -37,13 +36,12 @@ def build_response_msg(status_int: int, status_text: str = None, results: any = 
     return response_msg
 
 
-def build_response_msg_bytes(request_id: str, from_str: str, status_int: int, actuator: str = None, results: any = None):
+def build_response_msg_bytes(request_id: str, from_str: str, status_int: int, results: any = None):
     response_msg = {
         "headers": {
             "request_id": request_id,
-            "created": utils.current_milli_time(),
-            "from": from_str,
-            "actuator_id" : actuator
+            "created": current_milli_time(),
+            "from": from_str
         },
         "body": {
             "openc2": {
@@ -65,7 +63,7 @@ def validate_schema(schema: dict):
         return "Invalid schema"
     return None 
 
-def validate_msg_required_properties(msg: dict|benedict):
+def validate_msg_required_properties(msg: Union[dict, benedict]):
 
     if isinstance(msg, dict):
         msg_benedict = benedict(msg)
@@ -130,9 +128,16 @@ def process_oc2_msg(msg_benedict: benedict):
     if msg_benedict[ACTION_PATH]  == "query":                      
 
         if is_kestrel_enabled:
-            if TH_HUNTBOOKS_PATH in msg_benedict: 
+            if QUERY_FEATURES_PATH in msg_benedict:
+                work_result = {"version": 1,
+                        "pairs": "[investigate:hunt]",
+                        "rate_limit": 1,
+                        "profiles": "th"
+                        }
+
+            elif TH_HUNTBOOKS_PATH in msg_benedict: 
                 huntbooks_path = msg_benedict[TH_HUNTBOOKS_PATH]
-                work_result = utils.find_file_names_by_extension(".hf", huntbooks_path)
+                work_result = find_file_names_by_extension(".jhf", huntbooks_path)
 
             elif TH_DATASOURCES_PATH in msg_benedict:
                 work_result = config_data["KESTREL"]["datasources"]
@@ -140,32 +145,17 @@ def process_oc2_msg(msg_benedict: benedict):
     elif msg_benedict[ACTION_PATH]  == "investigate":  
 
         if is_kestrel_enabled:
-            if TH_HUNT_PATH in msg_benedict and TH_HUNTARGS_STRING_ARG_PATH in msg_benedict:
-                where_cmd = msg_benedict[TH_HUNTARGS_STRING_ARG_PATH]
-                work_result = hunt_via_variables(None, None, where_cmd, None, None)
-
-            elif TH_HUNT_PATH in msg_benedict:
+            if TH_HUNT_PATH in msg_benedict:
                 hunt_path = msg_benedict[TH_HUNT_PATH] 
-                # work_result = hunt_via_file(hunt_path)
-                
-                if config_data["KESTREL"]["is_file_results"]:
-                    """_summary_
-                        Find files
-                        Read data from each
-                        Add data to dict
-                        Convet dict to json
-                        Add json to work_result
-                    """
-                    path = config_data["KESTREL"]["results_path"]
-                    result_filenames = utils.find_file_names_by_extension(".json", path)
-                    results_dict = {}
-                    for filename in result_filenames:
-                        name = filename['filename']
-                        results_dict[name] = utils.load_file(path, filename['filename'])
-                        
-                    # TODO: Convert to json??
-                    # result_str = json.dumps(results_dict)
-                    work_result = json.dumps(results_dict)
+                hunt_args = []
+                if ".jhf" in hunt_path:
+                    if TH_HUNTARGS_STRING_ARGS_PATH in msg_benedict:
+                        hunt_args = msg_benedict[TH_HUNTARGS_STRING_ARGS_PATH]
+                    work_result = hunt_via_file_j2(hunt_path, hunt_args)
+
+            #elif TH_HUNT_PATH in msg_benedict:
+            #    hunt_path = msg_benedict[TH_HUNT_PATH] 
+            #    work_result = hunt_via_file(hunt_path)
 
     # TODO: Add other interactions here ...
 
