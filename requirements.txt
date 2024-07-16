@@ -6,7 +6,7 @@ kestrel-datasource-stixshifter==1.8.0
 # kestrel-analytics-docke==1.8.0 (probably no need to install; need it if running any analytics in Docker)
 # kestrel-jupyter (installs everything with Jupyter)
 
-Jinja2==3.1.2
+Jinja2==3.1.4
 
 stix-shifter==6.2.2
 stix-shifter-utils==6.2.2
@@ -18,12 +18,13 @@ paho-mqtt==2.0.0
 toml==0.10.2
 jsonschema
 python-benedict==0.31.0
+pyyaml==6.0.1
 fastapi==0.110.0
 uvicorn==0.22.0
 
 pyopenssl
 
-setuptools==68.0.0
+setuptools==70.0.0
 
 # You may need to run these separately 
 # pip install --upgrade pip
