@@ -1,5 +1,12 @@
 # OpenC2 Device Release Notes
 
+## v2.2.0
+* Updated a number of vulnerable dependencies
+* Bumped jinja2 from 3.13 to 3.14
+* Bumped setuptols from 68.0.0 to 70.0.0
+* Bumped express from 4.18.2 to 4.19.2
+* Fixed stix2-validator version to 3.1.4 
+
 ## v2.1.0
 
 * Revamped MQTT connection logic
