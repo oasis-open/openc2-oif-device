@@ -12,7 +12,7 @@ stix-shifter==6.2.2
 stix-shifter-utils==6.2.2
 stix2-matcher
 stix2-patterns
-stix2-validator
+stix2-validator==3.1.4
 
 paho-mqtt==2.0.0
 toml==0.10.2
