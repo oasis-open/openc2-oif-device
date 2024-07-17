@@ -30,7 +30,7 @@ Basic support for two OpenC2 APs is provided; either can be enabled within the c
   - options are [th_ap_vbeta.json or slpf_ap_v2.0.json]
 - HTTP / is_enabled: HTTP transport functionality.  Enabled by default.
 - MQTT / is_enabled: MQTT transport functionality.  Enabled by default.
-- KESTREL / is_enabled: Kestrel exmample queiries.  Disabled by default.
+- KESTREL / is_enabled: Kestrel example queries.  Disabled by default.
 - SLPF: Feature Flag comming soon, explicidly on by default.
 
 Various other configurations are available from the config.toml file.  The application will need to be bounced if a change is applied.
