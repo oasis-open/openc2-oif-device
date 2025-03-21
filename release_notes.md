@@ -1,5 +1,18 @@
 # OpenC2 Device Release Notes
 
+## v2.2.1
+
+Updates made to the following:
+* setuptools==70.0.0 => 77.0.3
+* uvicorn==0.22.0 => 0.34.0
+* fastapi==0.110.0=> 0.115.11
+* pyyaml==6.0.1=> 6.0.2
+* python-benedict==0.31.0 => 0.34.1
+* paho-mqtt==2.0.0 => 2.1.0
+* stix2-validator==3.1.4 => 3.2.0
+* Jinja2==3.1.4=> 3.1.6
+* kestrel-core==1.8 => 1.8.2
+
 ## v2.2.0
 
 * Updated a number of vulnerable dependencies
