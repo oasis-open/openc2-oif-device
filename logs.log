@@ -3121,3 +3121,5 @@
 2024-04-17 14:41:43,588 - file - DEBUG - mqtt -- publishing msg ***
 2024-04-17 14:41:43,588 - file - DEBUG - mqtt -- topic: oc2/rsp
 2024-04-17 14:41:43,588 - file - DEBUG - mqtt -- rsp msg: {"headers": {"request_id": "ee5aac85d73c49e4b825f9ebbfc36fea", "created": 1713379303585, "from": "oif-device-priapus-1713378726168"}, "body": {"openc2": {"response": {"status": 200, "results": "query action completed by OIF Device"}}}}
+2025-03-21 12:24:17,849 - file - DEBUG - Debug FILE -- App Started
+2025-03-21 12:24:19,507 - asyncio - DEBUG - Using selector: EpollSelector
