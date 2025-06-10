@@ -3,6 +3,7 @@
 ## v2.2.1
 
 Updates made to the following:
+
 * setuptools==70.0.0 => 77.0.3
 * uvicorn==0.22.0 => 0.34.0
 * fastapi==0.110.0=> 0.115.11
