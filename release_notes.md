@@ -1,5 +1,10 @@
 # OpenC2 Device Release Notes
 
+## v2.2.2
+
+Updates made to the following:
+* setuptools==77.0.3 => 78.1.1
+
 ## v2.2.1
 
 Updates made to the following:
