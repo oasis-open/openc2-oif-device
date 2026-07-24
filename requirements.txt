@@ -26,7 +26,7 @@ uvicorn==0.34.0
 
 pyopenssl
 
-setuptools==78.1.1
+setuptools==83.0.0
 
 # You may need to run these separately 
 # pip install --upgrade pip
